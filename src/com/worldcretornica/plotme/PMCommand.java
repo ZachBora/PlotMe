@@ -26,85 +26,84 @@ public class PMCommand implements CommandExecutor {
 
 	public boolean onCommand(CommandSender s, Command c, String l, String[] args) {
 		if (l.equalsIgnoreCase("plotme") || l.equalsIgnoreCase("plot") || l.equalsIgnoreCase("p")) {
-			if (!(s instanceof Player) || PlotMe.checkPerms((Player) s, "PlotMe.use"))
-			{
 				if (args.length == 0) {
 					s.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + " v" + PlotMe.VERSION); //+ ChatColor.WHITE + " [] means optional, <> means obligated"
 					if (s instanceof Player)
 					{
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.claim", true))
-							s.sendMessage(ChatColor.RED + "/plotme claim " + ChatColor.WHITE + "Claim the plot");
+							s.sendMessage(ChatColor.RED + "/plotme claim " + ChatColor.RESET + "Claim the plot");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.claim.other", false))
-							s.sendMessage(ChatColor.RED + "/plotme claim <player> " + ChatColor.WHITE + "Claim the plot for a player");
+							s.sendMessage(ChatColor.RED + "/plotme claim <player> " + ChatColor.RESET + "Claim the plot for a player");
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.auto", true))
-							s.sendMessage(ChatColor.RED + "/plotme auto " + ChatColor.WHITE + "Claim the next free plot");
+							s.sendMessage(ChatColor.RED + "/plotme auto " + ChatColor.RESET + "Claim the next free plot");
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.home", true))
-							s.sendMessage(ChatColor.RED + "/plotme home[:#] " + ChatColor.WHITE + "Brings you to your plot. :# if multiple plots.");
+							s.sendMessage(ChatColor.RED + "/plotme home[:#] " + ChatColor.RESET + "Brings you to your plot. :# if multiple plots.");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.home.other", false))
-							s.sendMessage(ChatColor.RED + "/plotme home[:#] <player> " + ChatColor.WHITE + "Teleport to that player plot. :# if multiple plots.");
+							s.sendMessage(ChatColor.RED + "/plotme home[:#] <player> " + ChatColor.RESET + "Teleport to that player plot. :# if multiple plots.");
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.info", true))
-							s.sendMessage(ChatColor.RED + "/plotme info " + ChatColor.WHITE + "Displays info on the plot");
+							s.sendMessage(ChatColor.RED + "/plotme info " + ChatColor.RESET + "Displays info on the plot");
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.comment", true))
-							s.sendMessage(ChatColor.RED + "/plotme comment <text> " + ChatColor.WHITE + "Leave a comment");
+							s.sendMessage(ChatColor.RED + "/plotme comment <text> " + ChatColor.RESET + "Leave a comment");
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.comments", true))
-							s.sendMessage(ChatColor.RED + "/plotme comments " + ChatColor.WHITE + "Shows the plot comments");
+							s.sendMessage(ChatColor.RED + "/plotme comments " + ChatColor.RESET + "Shows the plot comments");
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.info", true))
-							s.sendMessage(ChatColor.RED + "/plotme biome " + ChatColor.WHITE + "Shows current biome");
+							s.sendMessage(ChatColor.RED + "/plotme biome " + ChatColor.RESET + "Shows current biome");
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.biome", true))
-							s.sendMessage(ChatColor.RED + "/plotme biome <biome> " + ChatColor.WHITE + "Sets the plot biome");
+							s.sendMessage(ChatColor.RED + "/plotme biome <biome> " + ChatColor.RESET + "Sets the plot biome");
 						if (PlotMe.cPerms((Player) s, "PlotMe.use.biome", true))
-							s.sendMessage(ChatColor.RED + "/plotme biomelist " + ChatColor.WHITE + "List possible biomes");
+							s.sendMessage(ChatColor.RED + "/plotme biomelist " + ChatColor.RESET + "List possible biomes");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.tp", false))
-							s.sendMessage(ChatColor.RED + "/plotme tp <id> " + ChatColor.WHITE + "Teleports to a plot");
+							s.sendMessage(ChatColor.RED + "/plotme tp <id> " + ChatColor.RESET + "Teleports to a plot");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.id", false))
-							s.sendMessage(ChatColor.RED + "/plotme id " + ChatColor.WHITE + "Gets plot id and coordinates");
+							s.sendMessage(ChatColor.RED + "/plotme id " + ChatColor.RESET + "Gets plot id and coordinates");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.clear", false))
-							s.sendMessage(ChatColor.RED + "/plotme clear " + ChatColor.WHITE + "Clears the plot");
+							s.sendMessage(ChatColor.RED + "/plotme clear " + ChatColor.RESET + "Clears the plot");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.reset", false))
-							s.sendMessage(ChatColor.RED + "/plotme reset " + ChatColor.WHITE + "Clears the plot and removes owner");
+							s.sendMessage(ChatColor.RED + "/plotme reset " + ChatColor.RESET + "Clears the plot and removes owner");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.add", false))
-							s.sendMessage(ChatColor.RED + "/plotme add <player> " + ChatColor.WHITE + "Allows a player on the plot");
+							s.sendMessage(ChatColor.RED + "/plotme add <player> " + ChatColor.RESET + "Allows a player on the plot");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.remove", false))
-							s.sendMessage(ChatColor.RED + "/plotme remove <player> " + ChatColor.WHITE + "Removes a player on the plot");
+							s.sendMessage(ChatColor.RED + "/plotme remove <player> " + ChatColor.RESET + "Removes a player on the plot");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.setowner", false))
-							s.sendMessage(ChatColor.RED + "/plotme setowner <player> " + ChatColor.WHITE + "Sets the plot owner");
+							s.sendMessage(ChatColor.RED + "/plotme setowner <player> " + ChatColor.RESET + "Sets the plot owner");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.move", false))
-							s.sendMessage(ChatColor.RED + "/plotme move <id-from> <id-to> " + ChatColor.WHITE + "Exchanges both plots");
+							s.sendMessage(ChatColor.RED + "/plotme move <id-from> <id-to> " + ChatColor.RESET + "Exchanges both plots");
 						if (PlotMe.cPerms((Player) s, "PlotMe.admin.reload", false))
-							s.sendMessage(ChatColor.RED + "/plotme reload " + ChatColor.WHITE + "Reloads the plugin.");
+							s.sendMessage(ChatColor.RED + "/plotme reload " + ChatColor.RESET + "Reloads the plugin.");
 						
 					}else{
-						s.sendMessage(ChatColor.RED + "/plotme reload " + ChatColor.WHITE + "Reloads the plugin.");
-						s.sendMessage(ChatColor.RED + "/plotme biomelist " + ChatColor.WHITE + "List possible biomes");
+						s.sendMessage(ChatColor.RED + "/plotme reload " + ChatColor.RESET + "Reloads the plugin.");
 					}
 					return true;
 				}else{
-					Player p = (Player)s;
 					
 					String a0 = args[0].toString();
 					
-					if (a0.equalsIgnoreCase("claim")) { claim(p, args); return true;}
-					if (a0.equalsIgnoreCase("auto")) { auto(p, args); return true;	}
-					if (a0.startsWith("home") || a0.startsWith("h")) { home(p, args); return true;}
-					if (a0.equalsIgnoreCase("info") || a0.equalsIgnoreCase("i")) { info(p, args); return true;}
-					if (a0.equalsIgnoreCase("comment")) { comment(p, args); return true;}
-					if (a0.equalsIgnoreCase("comments") || a0.equalsIgnoreCase("c")) { comments(p, args); return true;}
-					if (a0.equalsIgnoreCase("biome") || a0.equalsIgnoreCase("b")) { biome(p, args); return true;}
-					if (a0.equalsIgnoreCase("biomelist")) { biomelist(p, args); return true;}
-					if (a0.equalsIgnoreCase("id")) { id(p, args); return true;}
-					if (a0.equalsIgnoreCase("tp")) { tp(p, args); return true;}
-					if (a0.equalsIgnoreCase("clear")) { clear(p, args); return true;}
-					if (a0.equalsIgnoreCase("reset")) { reset(p, args); return true;}
-					if (a0.equalsIgnoreCase("add") || a0.equalsIgnoreCase("+")) { add(p, args); return true;}
-					if (a0.equalsIgnoreCase("remove") || a0.equalsIgnoreCase("-")) { remove(p, args); return true;}
-					if (a0.equalsIgnoreCase("setowner") || a0.equalsIgnoreCase("o")) { setowner(p, args); return true;}
-					if (a0.equalsIgnoreCase("move") || a0.equalsIgnoreCase("m")) { move(p, args); return true;}
-					if (a0.equalsIgnoreCase("reload")) { reload(p, args); return true;}
+					if(s instanceof Player)
+					{
+						Player p = (Player)s;
+						
+						if (a0.equalsIgnoreCase("claim")) { claim(p, args); return true;}
+						if (a0.equalsIgnoreCase("auto")) { auto(p, args); return true;	}
+						if (a0.startsWith("home") || a0.startsWith("h")) { home(p, args); return true;}
+						if (a0.equalsIgnoreCase("info") || a0.equalsIgnoreCase("i")) { info(p, args); return true;}
+						if (a0.equalsIgnoreCase("comment")) { comment(p, args); return true;}
+						if (a0.equalsIgnoreCase("comments") || a0.equalsIgnoreCase("c")) { comments(p, args); return true;}
+						if (a0.equalsIgnoreCase("biome") || a0.equalsIgnoreCase("b")) { biome(p, args); return true;}
+						if (a0.equalsIgnoreCase("biomelist")) { biomelist(p, args); return true;}
+						if (a0.equalsIgnoreCase("id")) { id(p, args); return true;}
+						if (a0.equalsIgnoreCase("tp")) { tp(p, args); return true;}
+						if (a0.equalsIgnoreCase("clear")) { clear(p, args); return true;}
+						if (a0.equalsIgnoreCase("reset")) { reset(p, args); return true;}
+						if (a0.equalsIgnoreCase("add") || a0.equalsIgnoreCase("+")) { add(p, args); return true;}
+						if (a0.equalsIgnoreCase("remove") || a0.equalsIgnoreCase("-")) { remove(p, args); return true;}
+						if (a0.equalsIgnoreCase("setowner") || a0.equalsIgnoreCase("o")) { setowner(p, args); return true;}
+						if (a0.equalsIgnoreCase("move") || a0.equalsIgnoreCase("m")) { move(p, args); return true;}
+					}
+					if (a0.equalsIgnoreCase("reload")) { reload(s, args); return true;}
 					
 				}
-			}
-		}
-		
+			}		
 		return false;
 	}
 	
@@ -487,28 +486,25 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.reset", false))
 		{
-			if(PlotMe.checkPerms(p, "PlotMe.admin"))
+			String id = PlotManager.getPlotId(p.getLocation());
+			if(id.equals(""))
 			{
-				String id = PlotManager.getPlotId(p.getLocation());
-				if(id.equals(""))
+				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " No plot found");
+			}else{
+				Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
+				Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
+				
+				PlotManager.clear(bottom, top);
+				
+				SqlManager.deletePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), p.getWorld().getName());
+				
+				if(!PlotManager.isPlotAvailable(id, p.getWorld().getName()))
 				{
-					p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " No plot found");
-				}else{
-					Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
-					Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
-					
-					PlotManager.clear(bottom, top);
-					
-					SqlManager.deletePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), p.getWorld().getName());
-					
-					if(!PlotManager.isPlotAvailable(id, p.getWorld().getName()))
-					{
-						PlotMe.plotmaps.get(p.getWorld().getName()).plots.remove(id);
-					}
-					
-					PlotManager.removeSign(p.getWorld(), id);
-					p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " Plot has been reset.");
+					PlotMe.plotmaps.get(p.getWorld().getName()).plots.remove(id);
 				}
+				
+				PlotManager.removeSign(p.getWorld(), id);
+				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " Plot has been reset.");
 			}
 		}
 	}
@@ -684,7 +680,11 @@ public class PMCommand implements CommandExecutor {
 	
 	private void reload(CommandSender s, String[] args)
 	{
-		if (!(s instanceof Player) || PlotMe.cPerms((Player) s, "PlotMe.admin.reload", false))
+		if (!(s instanceof Player))
+		{
+			plugin.initialize();
+			s.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " reloaded successfully");
+		}else if (PlotMe.cPerms((Player) s, "PlotMe.admin.reload", false))
 		{
 			plugin.initialize();
 			s.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " reloaded successfully");

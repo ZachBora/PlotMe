@@ -1,11 +1,16 @@
 package com.worldcretornica.plotme;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -31,16 +36,7 @@ public class PlotMe extends JavaPlugin
     public static String configpath;
 	
 	public void onDisable()
-	{
-		FileConfiguration config = getConfig();
-        
-        config.set("usemySQL", usemySQL);
-		config.set("mySQLconn", mySQLconn);
-		config.set("mySQLuname", mySQLuname);
-		config.set("mySQLpass", mySQLpass);
-		
-		saveConfig();
-		
+	{		
 		SqlManager.closeConnection();
 	}
 	
@@ -70,7 +66,7 @@ public class PlotMe extends JavaPlugin
 	
 	public static boolean cPerms(Player player, String node, Boolean basic)
 	{
-		return checkPerms(player, node) || (basic && checkPerms(player, "PlotMe.use") || checkPerms(player, "PlotMe.admin"));
+		return checkPerms(player, node) || (basic && checkPerms(player, "PlotMe.use")) || checkPerms(player, "PlotMe.admin");
 	}
 	
 	public void initialize()
@@ -84,8 +80,21 @@ public class PlotMe extends JavaPlugin
 		if(!this.getDataFolder().exists()) {
         	this.getDataFolder().mkdirs();
         }
-				
-		FileConfiguration config = getConfig();
+		
+		File configfile = new File(configpath, "config.yml");
+		FileConfiguration config = new YamlConfiguration();
+		
+		try {
+			config.load(configfile);
+		} catch (FileNotFoundException e) {
+			
+		} catch (IOException e) {
+			logger.severe(PREFIX + " can't read configuration file");
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			logger.severe(PREFIX + " invalid configuration format");
+			e.printStackTrace();
+		}
         
         usemySQL = config.getBoolean("usemySQL", false);
 		mySQLconn = config.getString("mySQLconn", "jdbc:mysql://localhost:3306/minecraft");
@@ -111,7 +120,6 @@ public class PlotMe extends JavaPlugin
 			
 			worlds.set("plotworld", plotworld);
 			config.set("worlds", worlds);
-			saveConfig();			
 		}
 		else
 		{
@@ -133,11 +141,23 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.PlotFloorBlockId = (byte) currworld.getInt("PlotFloorBlockId");
 			tempPlotInfo.PlotFillingBlockId = (byte) currworld.getInt("PlotFillingBlockId");
 			
+			logger.info("plot size: " + tempPlotInfo.PlotSize);
+			
 			tempPlotInfo.plots = SqlManager.getPlots(worldname);
 			
 			plotmaps.put(worldname, tempPlotInfo);
 		}
 		
-		saveConfig();
+		config.set("usemySQL", usemySQL);
+		config.set("mySQLconn", mySQLconn);
+		config.set("mySQLuname", mySQLuname);
+		config.set("mySQLpass", mySQLpass);
+		
+		try {
+			config.save(configfile);
+		} catch (IOException e) {
+			logger.severe(PREFIX + " error writting configurations");
+			e.printStackTrace();
+		}
     }
 }

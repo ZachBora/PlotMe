@@ -1,12 +1,12 @@
 name: PlotMe
 main: com.worldcretornica.plotme.PlotMe
-version: 0.2b
+version: 0.2c
 author: ZachBora
 load: startup
 website: http://dev.bukkit.org/server-mods/plotme/
 loadbefore: [bPermissions]
 description: >
-             Handles plot creation and management
+             Handles plot creation, management and protection
 commands:
   plotme:
     description: List plotme commands
