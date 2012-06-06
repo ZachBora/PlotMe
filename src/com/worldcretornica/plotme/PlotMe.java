@@ -16,6 +16,8 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.worldcretornica.plotme.Metrics.Graph;
+
 public class PlotMe extends JavaPlugin
 {
 	public static String NAME;
@@ -158,6 +160,37 @@ public class PlotMe extends JavaPlugin
 		} catch (IOException e) {
 			logger.severe(PREFIX + " error writting configurations");
 			e.printStackTrace();
+		}
+		
+		try {
+		    Metrics metrics = new Metrics(this);
+		    
+		    Graph graphNbWorlds = metrics.createGraph("Number of plot worlds");
+		    
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds") {
+				@Override
+				public int getValue() {
+					return plotmaps.size();
+				}
+			});
+		    
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots") {
+				@Override
+				public int getValue() {
+					int nbplot = 0;
+					
+					for(PlotMapInfo p : plotmaps.values())
+					{
+						nbplot += p.plots.size();
+					}
+					
+					return nbplot;
+				}
+			});
+		    		    
+		    metrics.start();
+		} catch (IOException e) {
+		    // Failed to submit the stats :-(
 		}
     }
 }
