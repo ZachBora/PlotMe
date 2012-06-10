@@ -165,12 +165,35 @@ public class PlotMe extends JavaPlugin
 		try {
 		    Metrics metrics = new Metrics(this);
 		    
-		    Graph graphNbWorlds = metrics.createGraph("Number of plot worlds");
+		    Graph graphNbWorlds = metrics.createGraph("Plot worlds");
 		    
 		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds") {
 				@Override
 				public int getValue() {
 					return plotmaps.size();
+				}
+			});
+		    	    
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size") {
+				@Override
+				public int getValue() {
+					
+					if(plotmaps.size() > 0)
+					{
+						int totalplotsize = 0;
+						
+						for(PlotMapInfo p : plotmaps.values())
+						{
+							totalplotsize += p.PlotSize;
+						}
+						
+						
+						return totalplotsize / plotmaps.size();
+					}
+					else
+					{
+						return 0;
+					}
 				}
 			});
 		    
