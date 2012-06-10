@@ -8,90 +8,71 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 
 public class PlotManager {
-	
-	//public static HashMap<String, Plot> plots;
-			
+				
 	public static String getPlotId(Location loc)
 	{
-		int valx = loc.getBlockX();
-		int valz = loc.getBlockZ();
-		int size = PlotMe.plotmaps.get(loc.getWorld().getName()).PlotSize + 7;
-		int pathsize = PlotMe.plotmaps.get(loc.getWorld().getName()).PathWidth;
-		
-		double n3;
-		int mod2 = 0;
-		int mod1 = 1;
-		
-		if(pathsize % 2 == 1)
+		if(PlotMe.plotmaps.containsKey(loc.getWorld().getName()))
 		{
-			n3 = Math.ceil(((double)pathsize)/2); //3 7
-		}else{
-			n3 = Math.floor(((double)pathsize)/2); //3 7
-		}
-		
-		if(pathsize % 2 == 1)
-		{
-			mod2 = -1;
-		}
-		
-		
-		boolean found = false;
-		for(double i = n3; i >= 0; i--)
-		{
-			if((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0)
-			{
-				found = true;
-				break;
-			}	                			
-		}
-
-		if(found)
-		{
-			return "";
-		}else{
+			int valx = loc.getBlockX();
+			int valz = loc.getBlockZ();
+			int size = PlotMe.plotmaps.get(loc.getWorld().getName()).PlotSize + 7;
+			int pathsize = PlotMe.plotmaps.get(loc.getWorld().getName()).PathWidth;
 			
-			boolean found2 = false;
+			double n3;
+			int mod2 = 0;
+			int mod1 = 1;
+			
+			if(pathsize % 2 == 1)
+			{
+				n3 = Math.ceil(((double)pathsize)/2); //3 7
+			}else{
+				n3 = Math.floor(((double)pathsize)/2); //3 7
+			}
+			
+			if(pathsize % 2 == 1)
+			{
+				mod2 = -1;
+			}
+			
+			
+			boolean found = false;
 			for(double i = n3; i >= 0; i--)
 			{
-				if((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0)
+				if((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0)
 				{
-					found2 = true;
+					found = true;
 					break;
 				}	                			
 			}
-
-			if(found2)
+	
+			if(found)
 			{
 				return "";
 			}else{
-				int x = (int) Math.ceil((double)valx / size);
-				int z = (int) Math.ceil((double)valz / size);
 				
-				return "" + x + ";" + z;
+				boolean found2 = false;
+				for(double i = n3; i >= 0; i--)
+				{
+					if((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0)
+					{
+						found2 = true;
+						break;
+					}	                			
+				}
+	
+				if(found2)
+				{
+					return "";
+				}else{
+					int x = (int) Math.ceil((double)valx / size);
+					int z = (int) Math.ceil((double)valz / size);
+					
+					return "" + x + ";" + z;
+				}
 			}
-		}
-		
-		
-		/*
-		if (valx % size == 0 
-			|| (valx - n3) % size == 0 || (valx + n3) % size == 0
-			|| (valx - n1) % size == 0 || (valx + n1) % size == 0
-			|| (valx - n2) % size == 0 || (valx + n2) % size == 0)
-		{
-			return "";
 		}else{
-			if((valz - n2) % size == 0 || (valz + n2) % size == 0
-			|| (valz - n1) % size == 0 || (valz + n1) % size == 0 || valz % size == 0
-			|| (valz - n3) % size == 0 || (valz + n3) % size == 0)
-				return "";
-			else
-			{
-				int x = (int) Math.ceil((double)valx / size);
-				int z = (int) Math.ceil((double)valz / size);
-				
-				return "" + x + ";" + z;
-			}
-		}*/
+			return "";
+		}
 	}
 	
 	public static boolean isPlotAvailable(String id, String world)
@@ -124,7 +105,7 @@ public class PlotManager {
 	{
 		Location pillar = new Location(world, plot.bottomX - 1, 65, plot.bottomZ - 1);
 		
-		pillar.getBlock().setType(Material.DOUBLE_STEP);
+		//pillar.getBlock().setType(Material.DOUBLE_STEP);
 		
 		Block bsign = pillar.add(0, 0, -1).getBlock();
 		bsign.setTypeIdAndData(Material.WALL_SIGN.getId(), (byte) 2, false);
@@ -168,7 +149,7 @@ public class PlotManager {
 		
 		Location pillar = new Location(world, bottom.getX() - 1, 65, bottom.getZ() - 1);
 		
-		pillar.getBlock().setType(Material.STEP);
+		//pillar.getBlock().setType(Material.STEP);
 		
 		Block bsign = pillar.add(0, 0, -1).getBlock();
 		bsign.setType(Material.AIR);

@@ -39,108 +39,46 @@ public class PMCommand implements CommandExecutor {
 					}
 				}
 			}else{
-				if(args.length == 0 || args[0].equalsIgnoreCase("1")){
-					s.sendMessage(ChatColor.RED + " ---==" + ChatColor.BLUE + "PlotMe Help Page #1" + ChatColor.RED + "==--- "); //+ ChatColor.WHITE + " [] means optional, <> means obligated"
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.claim", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme claim");
-						s.sendMessage(ChatColor.AQUA + " - Claim the current plot you are standing on");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.claim.other", false))
-						s.sendMessage(ChatColor.GREEN + " - /plotme claim <player>");
-						s.sendMessage(ChatColor.AQUA + " - Claim the current plot you are standing on for another player");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.auto", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme auto");
-						s.sendMessage(ChatColor.AQUA + " - Claim the next available free plot");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.home", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme home[:#]");
-						s.sendMessage(ChatColor.AQUA + " - Teleports you to your own plot, :# if you own multiple plots");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.home.other", false))
-						s.sendMessage(ChatColor.GREEN + " - /plotme home[:#] <player>");
-						s.sendMessage(ChatColor.AQUA + " - Teleports you to other plots, :# if other people own multiple plots");
-				}else{
+				
+				Player p = (Player)s;
+				
+				if(args.length == 0)
+				{
+					showhelp(p, 1);
+					return true;
+				}
+				else
+				{
 					String a0 = args[0].toString();
-					if(s instanceof Player){
-						Player p = (Player)s;
+					int ipage = -1;
+					
+					try  
+					{  
+						if(args.length > 0)
+							ipage = Integer.parseInt( a0 );  
+					}  
+					catch( Exception e)  
+					{  
+						return false;  
+					}
+									
+					if(ipage != -1)
+					{
+						showhelp(p, ipage);
+						return true;
+					}else{
 						if (a0.equalsIgnoreCase("claim")) { claim(p, args); return true;}
 						if (a0.equalsIgnoreCase("auto")) { auto(p, args); return true;	}
 						if (a0.startsWith("home") || a0.startsWith("h")) { home(p, args); return true;}
-					}
-				}
-				if(args.length == 1 && args[0].equalsIgnoreCase("2")){
-					s.sendMessage(ChatColor.RED + " ---==" + ChatColor.BLUE + "PlotMe Help Page #2" + ChatColor.RED + "==--- ");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.info", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme info");
-						s.sendMessage(ChatColor.AQUA + " - Displays information about the plot your currently standing on");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.comment", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme comment <comment>");
-						s.sendMessage(ChatColor.AQUA + " - Leave comment on the current plot");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.comments", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme comments");
-						s.sendMessage(ChatColor.AQUA + " - Lists all comments users have said about your plot");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.info", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme biomeauto");
-						s.sendMessage(ChatColor.AQUA + " - Shows the current biome in the plot");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.biome", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme biome <biome>");
-						s.sendMessage(ChatColor.AQUA + " - Changes the plots biome to the one specified");
-				}else{
-					String a0 = args[0].toString();
-					if(s instanceof Player){
-						Player p = (Player)s;
 						if (a0.equalsIgnoreCase("info") || a0.equalsIgnoreCase("i")) { info(p, args); return true;}
 						if (a0.equalsIgnoreCase("comment")) { comment(p, args); return true;}
 						if (a0.equalsIgnoreCase("comments") || a0.equalsIgnoreCase("c")) { comments(p, args); return true;}
 						if (a0.equalsIgnoreCase("biome") || a0.equalsIgnoreCase("b")) { biome(p, args); return true;}
-					}
-				}
-				if(args.length == 1 && args[0].equalsIgnoreCase("3")){
-					s.sendMessage(ChatColor.RED + " ---==" + ChatColor.BLUE + "PlotMe Help Page #3" + ChatColor.RED + "==--- ");
-					if(PlotMe.cPerms((Player) s, "PlotMe.use.biome", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme biomelist");
-						s.sendMessage(ChatColor.AQUA + " - List all possible biomes");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.tp", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme tp <id>");
-						s.sendMessage(ChatColor.AQUA + " - Teleports to a plot in the current world");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.id", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme id");
-						s.sendMessage(ChatColor.AQUA + " - Gets plot id and coordinates of the current plot your standing on");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.clear", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme clear");
-						s.sendMessage(ChatColor.AQUA + " - Clear the plot to its original flat state");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.reset", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme reset");
-						s.sendMessage(ChatColor.AQUA + " - Reset the plot to its original flat state AND remove its owner");
-				}else{
-					String a0 = args[0].toString();
-					if(s instanceof Player){
-						Player p = (Player)s;
 						if (a0.equalsIgnoreCase("biomelist")) { biomelist(p, args); return true;}
 						if (a0.equalsIgnoreCase("id")) { id(p, args); return true;}
 						if (a0.equalsIgnoreCase("tp")) { tp(p, args); return true;}
 						if (a0.equalsIgnoreCase("clear")) { clear(p, args); return true;}
 						if (a0.equalsIgnoreCase("reset")) { reset(p, args); return true;}
-					}
-				}
-				if(args.length == 1 && args[0].equalsIgnoreCase("4")){
-					s.sendMessage(ChatColor.RED + " ---==" + ChatColor.BLUE + "PlotMe Help Page #4" + ChatColor.RED + "==--- ");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.add", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme add <player>");
-						s.sendMessage(ChatColor.AQUA + " - Allows a player to have full access to the plot(This is your responsibility!)");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.remove", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme remove <player>");
-						s.sendMessage(ChatColor.AQUA + " - Revoke a players access to the plot");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.setowner", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme setowner <player>");
-						s.sendMessage(ChatColor.AQUA + " - Sets the player provided as the owner of the plot your currently on");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.move", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme move <id-from> <id-to>");
-						s.sendMessage(ChatColor.AQUA + " - Swaps the plots blocks(highly experimental for now, use at your own risk)");
-					if(PlotMe.cPerms((Player) s, "PlotMe.admin.reload", true))
-						s.sendMessage(ChatColor.GREEN + " - /plotme reload");
-						s.sendMessage(ChatColor.AQUA + " - Reloads the plugin and its configuration files");
-				}else{
-					String a0 = args[0].toString();
-					if(s instanceof Player){
-						Player p = (Player)s;
 						if (a0.equalsIgnoreCase("add") || a0.equalsIgnoreCase("+")) { add(p, args); return true;}
 						if (a0.equalsIgnoreCase("remove") || a0.equalsIgnoreCase("-")) { remove(p, args); return true;}
 						if (a0.equalsIgnoreCase("setowner") || a0.equalsIgnoreCase("o")) { setowner(p, args); return true;}
@@ -152,6 +90,116 @@ public class PMCommand implements CommandExecutor {
 		}
 		return false;
 	}
+	
+	
+	
+	private void showhelp(Player p, int page)
+	{
+		int max = 4;
+		int maxpage = 0;
+		
+		List<String> allowed_commands = new ArrayList<String>();
+		
+		if(PlotMe.cPerms(p, "PlotMe.use.claim", true)) allowed_commands.add("claim");
+		if(PlotMe.cPerms(p, "PlotMe.use.claim.other", false)) allowed_commands.add("claim.other");
+		if(PlotMe.cPerms(p, "PlotMe.use.auto", true)) allowed_commands.add("auto");
+		if(PlotMe.cPerms(p, "PlotMe.use.home", true)) allowed_commands.add("home");
+		if(PlotMe.cPerms(p, "PlotMe.use.home.other", false)) allowed_commands.add("home.other");
+		if(PlotMe.cPerms(p, "PlotMe.use.info", true))
+		{
+			allowed_commands.add("info");
+			allowed_commands.add("biomeinfo");
+		}
+		if(PlotMe.cPerms(p, "PlotMe.use.comment", true)) allowed_commands.add("comment");
+		if(PlotMe.cPerms(p, "PlotMe.use.comments", true)) allowed_commands.add("comments");
+		if(PlotMe.cPerms(p, "PlotMe.use.biome", true))
+		{
+			allowed_commands.add("biome");
+			allowed_commands.add("biomelist");
+		}
+		if(PlotMe.cPerms(p, "PlotMe.admin.tp", true)) allowed_commands.add("tp");
+		if(PlotMe.cPerms(p, "PlotMe.admin.id", true)) allowed_commands.add("id");
+		if(PlotMe.cPerms(p, "PlotMe.admin.clear", true)) allowed_commands.add("clear");
+		if(PlotMe.cPerms(p, "PlotMe.admin.reset", true)) allowed_commands.add("reset");
+		if(PlotMe.cPerms(p, "PlotMe.admin.add", true)) allowed_commands.add("add");
+		if(PlotMe.cPerms(p, "PlotMe.admin.remove", true)) allowed_commands.add("remove");
+		if(PlotMe.cPerms(p, "PlotMe.admin.setowner", true)) allowed_commands.add("setowner");
+		if(PlotMe.cPerms(p, "PlotMe.admin.move", true)) allowed_commands.add("move");
+		if(PlotMe.cPerms(p, "PlotMe.admin.reload", true)) allowed_commands.add("reload");
+		
+		maxpage = (int) Math.ceil((double) allowed_commands.size() / max);
+		
+		if (page > maxpage)
+			page = 1;
+		
+		p.sendMessage(ChatColor.RED + " ---==" + ChatColor.BLUE + "PlotMe Help Page " + page + "/" + maxpage + ChatColor.RED + "==--- ");
+		
+		for(int ctr = (page - 1) * max; ctr < (page * max) && ctr < allowed_commands.size(); ctr++)
+		{		
+			if(allowed_commands.get(ctr).equalsIgnoreCase("claim")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme claim");
+				p.sendMessage(ChatColor.AQUA + " - Claim the current plot you are standing on");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("claim.other")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme claim <player>");
+				p.sendMessage(ChatColor.AQUA + " - Claim the current plot you are standing on for another player");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("auto")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme auto");
+				p.sendMessage(ChatColor.AQUA + " - Claim the next available free plot");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("home")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme home[:#]");
+				p.sendMessage(ChatColor.AQUA + " - Teleports you to your own plot, :# if you own multiple plots");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("home.other")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme home[:#] <player>");
+				p.sendMessage(ChatColor.AQUA + " - Teleports you to other plots, :# if other people own multiple plots");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("info")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme info");
+				p.sendMessage(ChatColor.AQUA + " - Displays information about the plot you're standing on");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("comment")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme comment <comment>");
+				p.sendMessage(ChatColor.AQUA + " - Leave comment on the current plot");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("comments")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme comments");
+				p.sendMessage(ChatColor.AQUA + " - Lists all comments users have said about your plot");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("biomeinfo")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme biome");
+				p.sendMessage(ChatColor.AQUA + " - Shows the current biome in the plot");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("biome")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme biome <biome>");
+				p.sendMessage(ChatColor.AQUA + " - Changes the plots biome to the one specified");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("biomelist")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme biomelist");
+				p.sendMessage(ChatColor.AQUA + " - List all possible biomes");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("tp")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme tp <id>");
+				p.sendMessage(ChatColor.AQUA + " - Teleports to a plot in the current world");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("id")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme id");
+				p.sendMessage(ChatColor.AQUA + " - Gets plot id and coordinates of the current plot your standing on");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("clear")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme clear");
+				p.sendMessage(ChatColor.AQUA + " - Clear the plot to its original flat state");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("reset")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme reset");
+				p.sendMessage(ChatColor.AQUA + " - Reset the plot to its original flat state AND remove its owner");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("add")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme add <player>");
+				p.sendMessage(ChatColor.AQUA + " - Allows a player to have full access to the plot(This is your responsibility!)");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("remove")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme remove <player>");
+				p.sendMessage(ChatColor.AQUA + " - Revoke a players access to the plot");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("setowner")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme setowner <player>");
+				p.sendMessage(ChatColor.AQUA + " - Sets the player provided as the owner of the plot your currently on");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("move")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme move <id-from> <id-to>");
+				p.sendMessage(ChatColor.AQUA + " - Swaps the plots blocks(highly experimental for now, use at your own risk)");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("reload")){
+				p.sendMessage(ChatColor.GREEN + " - /plotme reload");
+				p.sendMessage(ChatColor.AQUA + " - Reloads the plugin and its configuration files");
+			}
+		}
+	}
+	
 	
 	private void tp(Player p, String[] args)
 	{
