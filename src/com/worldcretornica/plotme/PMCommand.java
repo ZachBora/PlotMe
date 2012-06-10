@@ -56,6 +56,7 @@ public class PMCommand implements CommandExecutor {
 					if(PlotMe.cPerms((Player) s, "PlotMe.use.home.other", false))
 						s.sendMessage(ChatColor.GREEN + " - /plotme home[:#] <player>");
 						s.sendMessage(ChatColor.AQUA + " - Teleports you to other plots, :# if other people own multiple plots");
+				return true;
 				}else{
 					String a0 = args[0].toString();
 					if(s instanceof Player){
