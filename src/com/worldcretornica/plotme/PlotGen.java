@@ -12,19 +12,41 @@ import org.bukkit.generator.ChunkGenerator;
 
 public class PlotGen extends ChunkGenerator {
 	
+	private double plotsize;
+	private double pathsize;
+	private byte bottom;
+	private byte wall;
+	private byte plotfloor;
+	private byte filling;
+	
+	public PlotGen()
+	{
+		plotsize = 32;
+		pathsize = 7;
+		bottom = 7;
+		wall = 44;
+		plotfloor = 2;
+		filling = 3;
+	}
+	
+	public PlotGen(PlotMapInfo pmi)
+	{
+		plotsize = pmi.PlotSize;
+		pathsize = pmi.PathWidth;
+		bottom = pmi.BottomBlockId;
+		wall = pmi.WallBlockId;
+		plotfloor = pmi.PlotFloorBlockId;
+		filling = pmi.PlotFillingBlockId;
+	}
+	
 	public byte[] generate(World world, Random random, int cx, int cz) {
 		byte[] result = new byte[32768];
 		
-		double plotsize = PlotMe.plotmaps.get(world.getName()).PlotSize;
-		double pathsize = PlotMe.plotmaps.get(world.getName()).PathWidth;
+		
 		double size = plotsize + pathsize;
 		int valx;
 		int valz;
 		
-		byte bottom = PlotMe.plotmaps.get(world.getName()).BottomBlockId; //bedrock
-		byte wall = PlotMe.plotmaps.get(world.getName()).WallBlockId; //step
-		byte plotfloor = PlotMe.plotmaps.get(world.getName()).PlotFloorBlockId; //grass
-		byte filling = PlotMe.plotmaps.get(world.getName()).PlotFillingBlockId; //dirt
 		byte floor1 = (byte)Material.WOOL.getId(); //wool
 		byte floor2 = (byte)Material.WOOD.getId(); //wood
 		byte air = (byte)Material.AIR.getId(); //air

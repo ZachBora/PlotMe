@@ -51,13 +51,16 @@ public class PlotMe extends JavaPlugin
 		getCommand("plotme").setExecutor(new PMCommand(this));
 	}
 	
-	public ChunkGenerator getDefaultWorldGenerator(String worldName, String id)
+	public ChunkGenerator getDefaultWorldGenerator(String worldname, String id)
 	{
-		if(plotmaps.containsKey(worldName))
+		initialize();
+		
+		if(PlotManager.isPlotWorld(worldname))
 		{
-			return new PlotGen();
+			return new PlotGen(PlotManager.getMap(worldname));
 		}else{
-			return super.getDefaultWorldGenerator(worldName, id);
+			logger.warning(PREFIX + " Configuration not found for PlotMe world '" + worldname + "' Using defaults");
+			return new PlotGen();
 		}
 	}
 	
