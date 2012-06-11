@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,7 +36,7 @@ public class PlotListener implements Listener {
 		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
 		{
 			Block b = event.getBlock();
-			if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+			if(PlotManager.isPlotWorld(b))
 			{
 				String id = PlotManager.getPlotId(b.getLocation());
 				Player p = event.getPlayer();
@@ -45,7 +46,7 @@ public class PlotListener implements Listener {
 					p.sendMessage("You cannot build here.");
 					event.setCancelled(true);
 				}else{
-					Plot plot = PlotMe.plotmaps.get(p.getWorld().getName()).plots.get(id);
+					Plot plot = PlotManager.getMap(p).plots.get(id);
 					
 					if (plot == null)
 					{
@@ -70,7 +71,7 @@ public class PlotListener implements Listener {
 		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
 		{
 			Block b = event.getBlock();
-			if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+			if(PlotManager.isPlotWorld(b))
 			{
 				String id = PlotManager.getPlotId(b.getLocation());
 				Player p = event.getPlayer();
@@ -80,7 +81,7 @@ public class PlotListener implements Listener {
 					p.sendMessage("You cannot build here.");
 					event.setCancelled(true);
 				}else{
-					Plot plot = PlotMe.plotmaps.get(p.getWorld().getName()).plots.get(id);
+					Plot plot = PlotManager.getPlotById(p,id);
 					
 					if (plot == null)
 					{
@@ -103,8 +104,9 @@ public class PlotListener implements Listener {
 	{
 		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
 		{
-			Block b = event.getBlockClicked();
-			if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+			BlockFace bf = event.getBlockFace();
+			Block b = event.getBlockClicked().getLocation().add(bf.getModX(), bf.getModY(), bf.getModZ()).getBlock();
+			if(PlotManager.isPlotWorld(b))
 			{
 				String id = PlotManager.getPlotId(b.getLocation());
 				Player p = event.getPlayer();
@@ -114,7 +116,7 @@ public class PlotListener implements Listener {
 					p.sendMessage("You cannot build here.");
 					event.setCancelled(true);
 				}else{
-					Plot plot = PlotMe.plotmaps.get(p.getWorld().getName()).plots.get(id);
+					Plot plot = PlotManager.getPlotById(p,id);
 					
 					if (plot == null)
 					{
@@ -138,7 +140,7 @@ public class PlotListener implements Listener {
 		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
 		{
 			Block b = event.getBlockClicked();
-			if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+			if(PlotManager.isPlotWorld(b))
 			{
 				String id = PlotManager.getPlotId(b.getLocation());
 				Player p = event.getPlayer();
@@ -148,7 +150,7 @@ public class PlotListener implements Listener {
 					p.sendMessage("You cannot build here.");
 					event.setCancelled(true);
 				}else{
-					Plot plot = PlotMe.plotmaps.get(p.getWorld().getName()).plots.get(id);
+					Plot plot = PlotManager.getPlotById(p,id);
 					
 					if (plot == null)
 					{
@@ -172,7 +174,7 @@ public class PlotListener implements Listener {
 		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
 		{
 			Block b = event.getClickedBlock();
-			if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+			if(PlotManager.isPlotWorld(b))
 			{
 				String id = PlotManager.getPlotId(b.getLocation());
 				Player p = event.getPlayer();
@@ -182,7 +184,7 @@ public class PlotListener implements Listener {
 					p.sendMessage("You cannot build here.");
 					event.setCancelled(true);
 				}else{
-					Plot plot = PlotMe.plotmaps.get(p.getWorld().getName()).plots.get(id);
+					Plot plot = PlotManager.getPlotById(p,id);
 					
 					if (plot == null)
 					{
@@ -204,7 +206,7 @@ public class PlotListener implements Listener {
 	public void onBlockSpread(final BlockSpreadEvent event)
 	{
 		Block b = event.getBlock();
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -219,7 +221,7 @@ public class PlotListener implements Listener {
 	public void onBlockForm(final BlockFormEvent event)
 	{
 		Block b = event.getBlock();
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -235,7 +237,7 @@ public class PlotListener implements Listener {
 	public void onBlockDamage(final BlockDamageEvent event)
 	{
 		Block b = event.getBlock();
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -250,7 +252,7 @@ public class PlotListener implements Listener {
 	public void onBlockFade(final BlockFadeEvent event)
 	{
 		Block b = event.getBlock();
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -265,7 +267,7 @@ public class PlotListener implements Listener {
 	public void onBlockFromTo(final BlockFromToEvent event)
 	{
 		Block b = event.getToBlock();
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -280,7 +282,7 @@ public class PlotListener implements Listener {
 	public void onBlockGrow(final BlockGrowEvent event)
 	{
 		Block b = event.getBlock();
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -295,7 +297,7 @@ public class PlotListener implements Listener {
 	public void onBlockIgnite(final BlockIgniteEvent event)
 	{
 		Block b = event.getBlock();
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -310,7 +312,7 @@ public class PlotListener implements Listener {
 	public void onBlockPhysics(final BlockPhysicsEvent event)
 	{
 		Block b = event.getBlock();
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -328,7 +330,7 @@ public class PlotListener implements Listener {
 		
 		for(Block b : event.getBlocks())
 		{
-			if(found || PlotMe.plotmaps.containsKey(b.getWorld().getName()))
+			if(found || PlotManager.isPlotWorld(b))
 			{
 				found = true;
 				String id = PlotManager.getPlotId(b.getLocation().add(event.getDirection().getModX(), event.getDirection().getModY(), event.getDirection().getModZ()));
@@ -347,7 +349,7 @@ public class PlotListener implements Listener {
 	{
 		Block b = event.getRetractLocation().getBlock();
 		
-		if(PlotMe.plotmaps.containsKey(b.getWorld().getName()) && event.getBlock().getType() == Material.PISTON_STICKY_BASE)
+		if(PlotManager.isPlotWorld(b) && event.getBlock().getType() == Material.PISTON_STICKY_BASE)
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -366,7 +368,7 @@ public class PlotListener implements Listener {
 
 		for(int i = 0 ; i < blocks.size(); i++)
 		{
-			if(found || PlotMe.plotmaps.containsKey(blocks.get(i).getWorld().getName()))
+			if(found || PlotManager.isPlotWorld(blocks.get(i)))
 			{
 				found = true;
 				String id = PlotManager.getPlotId(blocks.get(i).getLocation());

@@ -176,7 +176,7 @@ public class SqlManager {
 	        			int idX = setPlots.getInt("idX");
 	        			int idZ = setPlots.getInt("idZ");
 	        			String owner = setPlots.getString("owner");
-	        			String world = setPlots.getString("world");
+	        			String world = setPlots.getString("world").toLowerCase();
 	        			int topX = setPlots.getInt("topX");
 	        			int bottomX = setPlots.getInt("bottomX");
 	        			int topZ = setPlots.getInt("topZ");
@@ -258,7 +258,7 @@ public class SqlManager {
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3, plot.owner);
-            ps.setString(4, plot.world);
+            ps.setString(4, plot.world.toLowerCase());
             ps.setInt(5, plot.topX);
             ps.setInt(6, plot.bottomX);
             ps.setInt(7, plot.topZ);
@@ -299,7 +299,7 @@ public class SqlManager {
             ps.setObject(1, value);
             ps.setInt(2, idX);
             ps.setInt(3, idZ);
-            ps.setString(4, world);
+            ps.setString(4, world.toLowerCase());
             
             ps.executeUpdate();
             conn.commit();
@@ -334,7 +334,7 @@ public class SqlManager {
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3, player);
-            ps.setString(4, world);
+            ps.setString(4, world.toLowerCase());
             
             ps.executeUpdate();
             conn.commit();
@@ -371,7 +371,7 @@ public class SqlManager {
             ps.setInt(3, commentid);
             ps.setString(4, comment[0]);
             ps.setString(5, comment[1]);
-            ps.setString(6, world);
+            ps.setString(6, world.toLowerCase());
             
             ps.executeUpdate();
             conn.commit();
@@ -398,21 +398,21 @@ public class SqlManager {
         try {
             Connection conn = getConnection();
 
-            ps = conn.prepareStatement("DELETE FROM plotmeComments WHERE idX = ? and idZ = ? and world = ?");
+            ps = conn.prepareStatement("DELETE FROM plotmeComments WHERE idX = ? and idZ = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3,	world);
             ps.executeUpdate();
             conn.commit();
             
-            ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and world = ?");
+            ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3, world);
             ps.executeUpdate();
             conn.commit();
             
-            ps = conn.prepareStatement("DELETE FROM plotmePlots WHERE idX = ? and idZ = ? and world = ?");
+            ps = conn.prepareStatement("DELETE FROM plotmePlots WHERE idX = ? and idZ = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3, world);
@@ -444,7 +444,7 @@ public class SqlManager {
         try {
             Connection conn = getConnection();
 
-            ps = conn.prepareStatement("DELETE FROM plotmeComments WHERE idX = ? and idZ = ? and commentid = ? and world = ?");
+            ps = conn.prepareStatement("DELETE FROM plotmeComments WHERE idX = ? and idZ = ? and commentid = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setInt(3, commentid);
@@ -478,7 +478,7 @@ public class SqlManager {
         try {
             Connection conn = getConnection();
 
-            ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and player = ? and world = ?");
+            ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and player = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3, player);
@@ -517,7 +517,7 @@ public class SqlManager {
             Connection conn = getConnection();
 
             statementPlot = conn.createStatement();
-            setPlots = statementPlot.executeQuery("SELECT * FROM plotmePlots WHERE world = '" + world + "'");
+            setPlots = statementPlot.executeQuery("SELECT * FROM plotmePlots WHERE LOWER(world) = '" + world + "'");
             int size = 0;
             while (setPlots.next()) {
             	size++;
@@ -535,7 +535,7 @@ public class SqlManager {
     			List<String[]> comments = new ArrayList<String[]>();
     			
     			statementAllowed = conn.createStatement();
-    			setAllowed = statementAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
+    			setAllowed = statementAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
     			
     			while (setAllowed.next()) {
     				allowed.add(setAllowed.getString("player"));
@@ -546,7 +546,7 @@ public class SqlManager {
     			}
     			
     			statementComment = conn.createStatement();
-    			setComments = statementComment.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
+    			setComments = statementComment.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
     			
     			while (setComments.next()) {
     				String[] comment = new String[2];

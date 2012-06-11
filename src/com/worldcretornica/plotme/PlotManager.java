@@ -1,22 +1,26 @@
 package com.worldcretornica.plotme;
 
+import java.util.HashMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 
 public class PlotManager {
 				
 	public static String getPlotId(Location loc)
 	{
-		if(PlotMe.plotmaps.containsKey(loc.getWorld().getName()))
+		if(isPlotWorld(loc))
 		{
 			int valx = loc.getBlockX();
 			int valz = loc.getBlockZ();
-			int size = PlotMe.plotmaps.get(loc.getWorld().getName()).PlotSize + 7;
-			int pathsize = PlotMe.plotmaps.get(loc.getWorld().getName()).PathWidth;
+			PlotMapInfo pmi = getMap(loc);
+			int size = pmi.PlotSize + 7;
+			int pathsize = pmi.PathWidth;
 			
 			double n3;
 			int mod2 = 0;
@@ -75,11 +79,21 @@ public class PlotManager {
 		}
 	}
 	
+	public static boolean isPlotAvailable(String id, World world)
+	{
+		return isPlotAvailable(id, world.getName().toLowerCase());
+	}
+	
+	public static boolean isPlotAvailable(String id, Player p)
+	{
+		return isPlotAvailable(id, p.getWorld().getName().toLowerCase());
+	}
+	
 	public static boolean isPlotAvailable(String id, String world)
 	{
-		if(PlotMe.plotmaps.containsKey(world))
+		if(isPlotWorld(world))
 		{
-			return !PlotMe.plotmaps.get(world).plots.containsKey(id);
+			return !getPlots(world).containsKey(id);
 		}else{
 			return false;
 		}
@@ -87,13 +101,13 @@ public class PlotManager {
 	
 	public static Plot createPlot(World world, String id, String owner)
 	{
-		if(isPlotAvailable(id, world.getName()))
+		if(isPlotAvailable(id, world))
 		{
 			Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id));
 			
 			setSign(world, plot);
 			
-			PlotMe.plotmaps.get(world.getName()).plots.put(id, plot);
+			getPlots(world).put(id, plot);
 			SqlManager.addPlot(plot, getIdX(id), getIdZ(id));
 			return plot;
 		}else{
@@ -104,9 +118,7 @@ public class PlotManager {
 	public static void setSign(World world, Plot plot)
 	{
 		Location pillar = new Location(world, plot.bottomX - 1, 65, plot.bottomZ - 1);
-		
-		//pillar.getBlock().setType(Material.DOUBLE_STEP);
-		
+				
 		Block bsign = pillar.add(0, 0, -1).getBlock();
 		bsign.setTypeIdAndData(Material.WALL_SIGN.getId(), (byte) 2, false);
 		
@@ -149,8 +161,6 @@ public class PlotManager {
 		
 		Location pillar = new Location(world, bottom.getX() - 1, 65, bottom.getZ() - 1);
 		
-		//pillar.getBlock().setType(Material.STEP);
-		
 		Block bsign = pillar.add(0, 0, -1).getBlock();
 		bsign.setType(Material.AIR);
 	}
@@ -170,7 +180,7 @@ public class PlotManager {
 		int px = getIdX(id);
 		int pz = getIdZ(id);
 		
-		int plotsize = PlotMe.plotmaps.get(world.getName()).PlotSize;
+		int plotsize = getMap(world).PlotSize;
 		
 		int x = px * (plotsize + 7) - (plotsize - 1) - 4;
 		int z = pz * (plotsize + 7) - (plotsize - 1) - 4;
@@ -183,7 +193,7 @@ public class PlotManager {
 		int px = getIdX(id);
 		int pz = getIdZ(id);
 		
-		int plotsize = PlotMe.plotmaps.get(world.getName()).PlotSize;
+		int plotsize = getMap(world).PlotSize;
 		
 		int x = px * (plotsize + 7) - 4;
 		int z = pz * (plotsize + 7) - 4;
@@ -281,8 +291,6 @@ public class PlotManager {
 					int plot1Type = plot1Block.getTypeId();
 					byte plot1Data = plot1Block.getData();
 					
-					
-					
 					plot2Block = w.getBlockAt(new Location(w, x - distanceX, y, z - distanceZ));
 					int plot2Type = plot2Block.getTypeId();
 					byte plot2Data = plot2Block.getData();
@@ -304,12 +312,14 @@ public class PlotManager {
 			}
 		}
 		
-		if(PlotMe.plotmaps.get(w.getName()).plots.containsKey(idFrom))
+		HashMap<String, Plot> plots = getPlots(w);
+		
+		if(plots.containsKey(idFrom))
 		{
-			if(PlotMe.plotmaps.get(w.getName()).plots.containsKey(idTo))
+			if(plots.containsKey(idTo))
 			{
-				Plot plot1 = PlotMe.plotmaps.get(w.getName()).plots.get(idFrom);
-				Plot plot2 = PlotMe.plotmaps.get(w.getName()).plots.get(idTo);
+				Plot plot1 = plots.get(idFrom);
+				Plot plot2 = plots.get(idTo);
 				
 				Plot plottemp = new Plot();
 				plottemp.bottomX = plot1.bottomX;
@@ -330,14 +340,14 @@ public class PlotManager {
 				int idX = getIdX(idTo);
 				int idZ = getIdZ(idTo);
 				SqlManager.deletePlot(idX, idZ, plot2.world);
-				PlotMe.plotmaps.get(w.getName()).plots.remove(idFrom);
-				PlotMe.plotmaps.get(w.getName()).plots.remove(idTo);
+				plots.remove(idFrom);
+				plots.remove(idTo);
 				idX = getIdX(idFrom);
 				idZ = getIdZ(idFrom);
 				SqlManager.deletePlot(idX, idZ, plot1.world);
 								
 				SqlManager.addPlot(plot2, idX, idZ);
-				PlotMe.plotmaps.get(w.getName()).plots.put(idFrom, plot2);
+				plots.put(idFrom, plot2);
 				
 				for(int i = 0 ; i < plot2.comments.size() ; i++)
 				{
@@ -352,7 +362,7 @@ public class PlotManager {
 				idX = getIdX(idTo);
 				idZ = getIdZ(idTo);
 				SqlManager.addPlot(plot1, idX, idZ);
-				PlotMe.plotmaps.get(w.getName()).plots.put(idTo, plot1);
+				plots.put(idTo, plot1);
 				
 				for(int i = 0 ; i < plot1.comments.size() ; i++)
 				{
@@ -368,7 +378,7 @@ public class PlotManager {
 				setSign(w, plot2);
 				
 			}else{
-				Plot plot = PlotMe.plotmaps.get(w.getName()).plots.get(idFrom);
+				Plot plot = plots.get(idFrom);
 				Location bottom = getPlotBottomLoc(w, idTo);
 				Location top = getPlotTopLoc(w, idTo);
 								
@@ -380,11 +390,11 @@ public class PlotManager {
 				int idX = getIdX(idFrom);
 				int idZ = getIdZ(idFrom);
 				SqlManager.deletePlot(idX, idZ, plot.world);
-				PlotMe.plotmaps.get(w.getName()).plots.remove(idFrom);
+				plots.remove(idFrom);
 				idX = getIdX(idTo);
 				idZ = getIdZ(idTo);
 				SqlManager.addPlot(plot, idX, idZ);
-				PlotMe.plotmaps.get(w.getName()).plots.put(idTo, plot);
+				plots.put(idTo, plot);
 				
 				for(int i = 0 ; i < plot.comments.size() ; i++)
 				{
@@ -401,9 +411,9 @@ public class PlotManager {
 				
 			}
 		}else{
-			if(PlotMe.plotmaps.get(w.getName()).plots.containsKey(idTo))
+			if(plots.containsKey(idTo))
 			{
-				Plot plot = PlotMe.plotmaps.get(w.getName()).plots.get(idTo);
+				Plot plot = plots.get(idTo);
 				Location bottom = getPlotBottomLoc(w, idFrom);
 				Location top = getPlotTopLoc(w, idFrom);
 								
@@ -415,12 +425,12 @@ public class PlotManager {
 				int idX = getIdX(idTo);
 				int idZ = getIdZ(idTo);
 				SqlManager.deletePlot(idX, idZ, plot.world);
-				PlotMe.plotmaps.get(w.getName()).plots.remove(idTo);
+				plots.remove(idTo);
 				
 				idX = getIdX(idFrom);
 				idZ = getIdZ(idFrom);
 				SqlManager.addPlot(plot, idX, idZ);
-				PlotMe.plotmaps.get(w.getName()).plots.put(idFrom, plot);
+				plots.put(idFrom, plot);
 				
 				for(int i = 0 ; i < plot.comments.size() ; i++)
 				{
@@ -438,5 +448,99 @@ public class PlotManager {
 		}
 		
 		return true;
+	}
+	
+	public static boolean isPlotWorld(World w)
+	{
+		return PlotMe.plotmaps.containsKey(w.getName().toLowerCase());
+	}
+	
+	public static boolean isPlotWorld(String name)
+	{
+		return PlotMe.plotmaps.containsKey(name.toLowerCase());
+	}
+	
+	public static boolean isPlotWorld(Location l)
+	{
+		return PlotMe.plotmaps.containsKey(l.getWorld().getName().toLowerCase());
+	}
+	
+	public static boolean isPlotWorld(Player p)
+	{
+		return PlotMe.plotmaps.containsKey(p.getWorld().getName().toLowerCase());
+	}
+	
+	public static boolean isPlotWorld(Block b)
+	{
+		return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
+	}
+	
+	public static boolean isPlotWorld(BlockState b) {
+		return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
+	}
+	
+	public static PlotMapInfo getMap(World w)
+	{
+		return PlotMe.plotmaps.get(w.getName().toLowerCase());
+	}
+	
+	public static PlotMapInfo getMap(String name)
+	{
+		return PlotMe.plotmaps.get(name.toLowerCase());
+	}
+	
+	public static PlotMapInfo getMap(Location l)
+	{
+		return PlotMe.plotmaps.get(l.getWorld().getName().toLowerCase());
+	}
+	
+	public static PlotMapInfo getMap(Player p)
+	{
+		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase());
+	}
+	
+	public static PlotMapInfo getMap(Block b)
+	{
+		return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase());
+	}
+	
+	public static HashMap<String, Plot> getPlots(World w)
+	{
+		return PlotMe.plotmaps.get(w.getName().toLowerCase()).plots;
+	}
+	
+	public static HashMap<String, Plot> getPlots(String name)
+	{
+		return PlotMe.plotmaps.get(name.toLowerCase()).plots;
+	}
+	
+	public static HashMap<String, Plot> getPlots(Player p)
+	{
+		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots;
+	}
+	
+	public static HashMap<String, Plot> getPlots(Block b)
+	{
+		return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots;
+	}
+	
+	public static Plot getPlotById(World w, String id)
+	{
+		return PlotMe.plotmaps.get(w.getName().toLowerCase()).plots.get(id);
+	}
+	
+	public static Plot getPlotById(String name, String id)
+	{
+		return PlotMe.plotmaps.get(name.toLowerCase()).plots.get(id);
+	}
+	
+	public static Plot getPlotById(Player p, String id)
+	{
+		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(id);
+	}
+	
+	public static Plot getPlotById(Block b, String id)
+	{
+		return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots.get(id);
 	}
 }

@@ -130,7 +130,7 @@ public class PlotMe extends JavaPlugin
 		
 		plotmaps = new HashMap<String, PlotMapInfo>();
 		
-		for(String worldname :  worlds.getKeys(false))
+		for(String worldname : worlds.getKeys(false))
 		{
 			PlotMapInfo tempPlotInfo = new PlotMapInfo();
 			ConfigurationSection currworld = worlds.getConfigurationSection(worldname);
@@ -145,9 +145,9 @@ public class PlotMe extends JavaPlugin
 			
 			logger.info("plot size: " + tempPlotInfo.PlotSize);
 			
-			tempPlotInfo.plots = SqlManager.getPlots(worldname);
+			tempPlotInfo.plots = SqlManager.getPlots(worldname.toLowerCase());
 			
-			plotmaps.put(worldname, tempPlotInfo);
+			plotmaps.put(worldname.toLowerCase(), tempPlotInfo);
 		}
 		
 		config.set("usemySQL", usemySQL);
