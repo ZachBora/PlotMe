@@ -296,6 +296,7 @@ public class SqlManager {
 
             ps = conn.prepareStatement("UPDATE plotmePlots SET " + field + " = ? " +
             						   "WHERE idX = ? AND idZ = ? AND world = ?");
+            
             ps.setObject(1, value);
             ps.setInt(2, idX);
             ps.setInt(3, idZ);

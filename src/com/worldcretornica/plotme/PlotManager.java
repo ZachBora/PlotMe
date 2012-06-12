@@ -212,7 +212,7 @@ public class PlotManager {
 		}
 		
 		plot.biome = b;
-		SqlManager.updatePlot(getIdX(id), getIdZ(id), "biome", b.name(), plot.world);
+		SqlManager.updatePlot(getIdX(id), getIdZ(id), plot.world, "biome", b.name());
 	}
 	
 	public static Location getTop(World w, Plot plot)

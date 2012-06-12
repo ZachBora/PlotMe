@@ -734,7 +734,7 @@ public class PMCommand implements CommandExecutor {
 						
 						PlotManager.setSign(p.getWorld(), plot);
 						
-						SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), "owner", args[1], plot.world);
+						SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world, "owner", args[1]);
 					}
 				}else{
 					PlotManager.createPlot(p.getWorld(), id, args[1]);
