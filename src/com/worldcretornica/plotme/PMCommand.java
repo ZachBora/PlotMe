@@ -81,6 +81,7 @@ public class PMCommand implements CommandExecutor {
 						if (a0.equalsIgnoreCase("setowner") || a0.equalsIgnoreCase("o")) { setowner(p, args); return true;}
 						if (a0.equalsIgnoreCase("move") || a0.equalsIgnoreCase("m")) { move(p, args); return true;}
 						if (a0.equalsIgnoreCase("reload")) { reload(s, args); return true;}
+						if (a0.equalsIgnoreCase("weanywhere")) { weanywhere(p, args); return true;}
 					}
 				}
 			}
@@ -88,6 +89,21 @@ public class PMCommand implements CommandExecutor {
 		return false;
 	}
 	
+	
+	private void weanywhere(Player p, String[] args)
+	{
+		if (PlotMe.cPerms(p, "PlotMe.admin.weanywhere", false))
+		{
+			if(PlotMe.isIgnoringWELimit(p))
+			{
+				PlotMe.removeIgnoreWELimit(p);
+				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " You can now only WorldEdit in your plots");
+			}else{
+				PlotMe.addIgnoreWELimit(p);
+				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " You can now WorldEdit anywhere");
+			}
+		}
+	}
 	
 	
 	private void showhelp(Player p, int page)
@@ -122,6 +138,7 @@ public class PMCommand implements CommandExecutor {
 		if(PlotMe.cPerms(p, "PlotMe.use.remove", false) || PlotMe.cPerms(p, "PlotMe.admin.remove", true)) allowed_commands.add("remove");
 		if(PlotMe.cPerms(p, "PlotMe.admin.setowner", true)) allowed_commands.add("setowner");
 		if(PlotMe.cPerms(p, "PlotMe.admin.move", true)) allowed_commands.add("move");
+		if(PlotMe.cPerms(p, "PlotMe.admin.weanywhere", true)) allowed_commands.add("weanywhere");
 		if(PlotMe.cPerms(p, "PlotMe.admin.reload", true)) allowed_commands.add("reload");
 		
 		maxpage = (int) Math.ceil((double) allowed_commands.size() / max);
@@ -190,6 +207,9 @@ public class PMCommand implements CommandExecutor {
 			}else if(allowed_commands.get(ctr).equalsIgnoreCase("move")){
 				p.sendMessage(ChatColor.GREEN + " /plotme move <id-from> <id-to>");
 				p.sendMessage(ChatColor.AQUA + " Swaps the plots blocks(highly experimental for now, use at your own risk)");
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("weanywhere")){
+				p.sendMessage(ChatColor.GREEN + " /plotme weanywhere");
+				p.sendMessage(ChatColor.AQUA + " Toggles using worldedit anywhere");
 			}else if(allowed_commands.get(ctr).equalsIgnoreCase("reload")){
 				p.sendMessage(ChatColor.GREEN + " /plotme reload");
 				p.sendMessage(ChatColor.AQUA + " Reloads the plugin and its configuration files");
@@ -286,7 +306,7 @@ public class PMCommand implements CommandExecutor {
 				
 				if(!PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
 				{
-					for(Plot plot : PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.values())
+					for(Plot plot : PlotManager.getPlots(p).values())
 					{
 						if(plot.owner.equalsIgnoreCase(p.getName()))
 						{
@@ -337,7 +357,7 @@ public class PMCommand implements CommandExecutor {
 			
 			int i = nb - 1;
 					
-			for(Plot plot : PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.values())
+			for(Plot plot : PlotManager.getPlots(p).values())
 			{
 				if(plot.owner.equalsIgnoreCase(playername))
 				{

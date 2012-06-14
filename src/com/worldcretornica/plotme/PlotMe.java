@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -16,6 +17,7 @@ import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.worldcretornica.plotme.Metrics.Graph;
 
 public class PlotMe extends JavaPlugin
@@ -36,6 +38,12 @@ public class PlotMe extends JavaPlugin
     public static Map<String, PlotMapInfo> plotmaps;
     
     public static String configpath;
+    
+    public static WorldEditPlugin we;
+    
+    private static HashSet<String> playersignoringwelimit = null;
+    
+    
 	
 	public void onDisable()
 	{		
@@ -48,6 +56,12 @@ public class PlotMe extends JavaPlugin
 				
 		getServer().getPluginManager().registerEvents(new PlotListener(), this);
 		
+		if(getServer().getPluginManager().getPlugin("WorldEdit") != null)
+		{
+			we = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
+			getServer().getPluginManager().registerEvents(new PlotWorldEditListener(), this);			
+		}
+				
 		getCommand("plotme").setExecutor(new PMCommand(this));
 	}
 	
@@ -81,11 +95,12 @@ public class PlotMe extends JavaPlugin
 		PREFIX = "[" + NAME + "]";
 		VERSION = pdfFile.getVersion();
 		configpath = getDataFolder().getAbsolutePath();
+		playersignoringwelimit = new HashSet<String>();
 
 		if(!this.getDataFolder().exists()) {
         	this.getDataFolder().mkdirs();
         }
-		
+				
 		File configfile = new File(configpath, "config.yml");
 		FileConfiguration config = new YamlConfiguration();
 		
@@ -219,4 +234,29 @@ public class PlotMe extends JavaPlugin
 		    // Failed to submit the stats :-(
 		}
     }
+	
+	public static void addIgnoreWELimit(Player p)
+	{
+		if(!isIgnoringWELimit(p))
+		{
+			playersignoringwelimit.add(p.getName());
+			if(we != null)
+				PlotWorldEdit.removeMask(p);
+		}
+	}
+	
+	public static void removeIgnoreWELimit(Player p)
+	{
+		if(isIgnoringWELimit(p))
+		{
+			playersignoringwelimit.remove(p.getName());
+			if(we != null)
+				PlotWorldEdit.setMask(p);
+		}
+	}
+	
+	public static boolean isIgnoringWELimit(Player p)
+	{
+		return playersignoringwelimit.contains(p.getName());
+	}
 }

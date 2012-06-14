@@ -198,7 +198,7 @@ public class PlotManager {
 		int x = px * (plotsize + 7) - 4;
 		int z = pz * (plotsize + 7) - 4;
 		
-		return new Location(world, x, 1, z);
+		return new Location(world, x, 255, z);
 	}
 	
 	public static void setBiome(World w, String id, Plot plot, Biome b)
@@ -226,10 +226,12 @@ public class PlotManager {
 	}
 	
 	public static void clear(Location bottom, Location top)
-	{		
-		for(int x = bottom.getBlockX(); x <= top.getBlockX(); x++)
+	{
+		PlotMapInfo pmi = PlotManager.getMap(bottom);
+		
+		for(int x = bottom.getBlockX() - 1; x <= top.getBlockX() + 1; x++)
 		{
-			for(int z = bottom.getBlockZ(); z <= top.getBlockZ(); z++)
+			for(int z = bottom.getBlockZ() - 1; z <= top.getBlockZ() + 1; z++)
 			{
 				Block block = new Location(bottom.getWorld(), x, 0, z).getBlock();
 				
@@ -240,13 +242,21 @@ public class PlotManager {
 					block = new Location(bottom.getWorld(), x, y, z).getBlock();
 					
 					if(y == 0)
-						block.setType(Material.BEDROCK);
+						block.setTypeId(pmi.BottomBlockId);
 					else if(y < 64)
-						block.setType(Material.DIRT);
+						block.setTypeId(pmi.PlotFillingBlockId);
 					else if(y == 64)
-						block.setType(Material.GRASS);
+						block.setTypeId(pmi.PlotFloorBlockId);
 					else
-						block.setType(Material.AIR);
+					{
+						if(y == 65 && (x == bottom.getBlockX() - 1 || x == top.getBlockX() + 1 ||
+								z == bottom.getBlockZ() - 1 || z == top.getBlockZ() + 1))
+						{
+							block.setTypeId(pmi.WallBlockId);
+						}else{
+							block.setType(Material.AIR);
+						}
+					}
 				}
 			}
 		}
@@ -472,7 +482,10 @@ public class PlotManager {
 	
 	public static boolean isPlotWorld(Block b)
 	{
-		return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
+		if(b == null)
+			return false;
+		else
+			return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
 	}
 	
 	public static boolean isPlotWorld(BlockState b) {
@@ -501,7 +514,10 @@ public class PlotManager {
 	
 	public static PlotMapInfo getMap(Block b)
 	{
-		return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase());
+		if(b == null)
+			return null;
+		else
+			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase());
 	}
 	
 	public static HashMap<String, Plot> getPlots(World w)
@@ -521,7 +537,10 @@ public class PlotManager {
 	
 	public static HashMap<String, Plot> getPlots(Block b)
 	{
-		return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots;
+		if(b == null)
+			return null;
+		else
+			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots;
 	}
 	
 	public static Plot getPlotById(World w, String id)
@@ -541,6 +560,9 @@ public class PlotManager {
 	
 	public static Plot getPlotById(Block b, String id)
 	{
-		return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots.get(id);
+		if(b == null)
+			return null;
+		else
+			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots.get(id);
 	}
 }
