@@ -138,7 +138,15 @@ public class Plot implements Serializable {
 	
 	public boolean isAllowed(String name)
 	{
-		return owner == name || allowed.contains(name);
+		if(owner.equalsIgnoreCase(name)) return true;
+		
+		for(String str : allowed)
+		{
+			if(str.equalsIgnoreCase(name))
+				return true;
+		}
+		
+		return false;
 	}
 	
 }

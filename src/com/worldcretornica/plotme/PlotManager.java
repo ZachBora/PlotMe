@@ -558,11 +558,26 @@ public class PlotManager {
 		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(id);
 	}
 	
+	public static Plot getPlotById(Player p)
+	{
+		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(getPlotId(p.getLocation()));
+	}
+	
 	public static Plot getPlotById(Block b, String id)
 	{
 		if(b == null)
 			return null;
 		else
 			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots.get(id);
+	}
+	
+	public static Plot getPlotById(Block b)
+	{
+		if(b == null)
+			return null;
+		else
+		{
+			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots.get(getPlotId(b.getLocation()));
+		}
 	}
 }
