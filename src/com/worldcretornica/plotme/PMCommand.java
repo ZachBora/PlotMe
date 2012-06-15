@@ -114,6 +114,7 @@ public class PMCommand implements CommandExecutor {
 		
 		List<String> allowed_commands = new ArrayList<String>();
 		
+		allowed_commands.add("limit");
 		if(PlotMe.cPerms(p, "PlotMe.use.claim", true)) allowed_commands.add("claim");
 		if(PlotMe.cPerms(p, "PlotMe.use.claim.other", false)) allowed_commands.add("claim.other");
 		if(PlotMe.cPerms(p, "PlotMe.use.auto", true)) allowed_commands.add("auto");
@@ -150,8 +151,16 @@ public class PMCommand implements CommandExecutor {
 		p.sendMessage(ChatColor.RED + " ---==" + ChatColor.BLUE + "PlotMe Help Page " + page + "/" + maxpage + ChatColor.RED + "==--- ");
 		
 		for(int ctr = (page - 1) * max; ctr < (page * max) && ctr < allowed_commands.size(); ctr++)
-		{		
-			if(allowed_commands.get(ctr).equalsIgnoreCase("claim")){
+		{
+			if(allowed_commands.get(ctr).equalsIgnoreCase("limit")){
+				int maxplots = PlotMe.getPlotLimit(p);
+				int ownedplots = PlotManager.getNbOwnedPlot(p);
+				
+				if(maxplots == -1)
+					p.sendMessage(ChatColor.GREEN + "Your plot limit in this world : " + ChatColor.AQUA + ownedplots + ChatColor.GREEN + " used of " + ChatColor.AQUA + "Infinite");
+				else
+					p.sendMessage(ChatColor.GREEN + "Your plot limit in this world : " + ChatColor.AQUA + ownedplots + ChatColor.GREEN + " used of " + ChatColor.AQUA + maxplots);
+			}else if(allowed_commands.get(ctr).equalsIgnoreCase("claim")){
 				p.sendMessage(ChatColor.GREEN + " /plotme claim");
 				p.sendMessage(ChatColor.AQUA + " Claim the current plot you are standing on");
 			}else if(allowed_commands.get(ctr).equalsIgnoreCase("claim.other")){
@@ -240,26 +249,12 @@ public class PMCommand implements CommandExecutor {
 	private void auto(Player p, String[] args)
 	{
 		if (PlotMe.cPerms(p, "PlotMe.use.auto", true))
-		{
-			Boolean found = false;
-			
+		{			
 			if(!PlotManager.isPlotWorld(p))
 			{
 				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " This is not a plot world.");
-			}else{
-				if(!PlotMe.checkPerms(p, "PlotMe.admin"))
-				{
-					for(Plot plot : PlotManager.getPlots(p).values())
-					{
-						if(plot.owner.equalsIgnoreCase(p.getName()))
-						{
-							found = true;
-							break;
-						}
-					}
-				}
-				
-				if(found && !PlotMe.checkPerms(p, "PlotMe.admin"))
+			}else{				
+				if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.checkPerms(p, "PlotMe.admin"))
 					p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " You already own a plot. Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get to it");
 				else
 				{
@@ -302,23 +297,8 @@ public class PMCommand implements CommandExecutor {
 			if(!PlotManager.isPlotAvailable(id, p))
 			{
 				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " This plot is already owned");
-			}else{
-				
-				Boolean found = false;
-				
-				if(!PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
-				{
-					for(Plot plot : PlotManager.getPlots(p).values())
-					{
-						if(plot.owner.equalsIgnoreCase(p.getName()))
-						{
-							found = true;
-							break;
-						}
-					}
-				}
-				
-				if(found && !PlotMe.checkPerms(p, "PlotMe.admin"))
+			}else{								
+				if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
 					p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " You already own a plot. Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get to it");
 				else
 				{

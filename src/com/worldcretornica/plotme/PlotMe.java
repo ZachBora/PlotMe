@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.bukkit.configuration.ConfigurationSection;
@@ -14,6 +15,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -258,5 +260,51 @@ public class PlotMe extends JavaPlugin
 	public static boolean isIgnoringWELimit(Player p)
 	{
 		return playersignoringwelimit.contains(p.getName());
+	}
+	
+	public static int getPlotLimit(Player p)
+	{
+		int max = 0;
+		
+		Set<PermissionAttachmentInfo> perms = p.getEffectivePermissions();
+		String limit = "";
+		
+		for(PermissionAttachmentInfo pai : perms)
+		{
+			String perm = pai.getPermission();
+			if(perm.startsWith("plotme.limit."))
+			{
+				limit = perm.substring(perm.lastIndexOf("."));
+				
+				int tempmax = 0;
+				
+				if(limit.equals("*"))
+				{
+					return -1;
+				}else{
+					try
+					{
+						tempmax = Integer.parseInt(limit);
+					}catch(NumberFormatException ex)
+					{
+						tempmax = 1;
+					}
+					
+					if(tempmax > max)
+						max = tempmax;
+				}
+			}
+		}
+		
+		if(max == 0)
+		{
+			if(cPerms(p, "PlotMe.admin", false))
+				max = -1;
+			else
+				max = 1;
+		}
+		
+		
+		return max;
 	}
 }

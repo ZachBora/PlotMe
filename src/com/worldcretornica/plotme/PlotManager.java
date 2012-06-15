@@ -435,6 +435,20 @@ public class PlotManager {
 		
 		return true;
 	}
+	
+	public static int getNbOwnedPlot(Player p)
+	{
+		int nbfound = 0;
+		for(Plot plot : PlotManager.getPlots(p).values())
+		{
+			if(plot.owner.equalsIgnoreCase(p.getName()))
+			{
+				nbfound++;
+			}
+		}
+		
+		return nbfound;
+	}
 		
 	public static int bottomX(String id, World w)
 	{
