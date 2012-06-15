@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bukkit.World;
+
 public class SqlManager {
 
 	private static Connection conn = null;
@@ -206,8 +208,8 @@ public class SqlManager {
 	        				comments.add(comment);
 	        			}
 	        			
-	        			Plot plot = new Plot(owner, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments);
-	        			addPlot(plot, idX, idZ);
+	        			Plot plot = new Plot(owner, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ);
+	        			addPlot(plot, idX, idZ, topX, bottomX, topZ, bottomZ);
 	        		}
 	        		PlotMe.logger.info(PlotMe.PREFIX + " Imported " + size + " plots from " + sqlitedb);
 	        		PlotMe.logger.info(PlotMe.PREFIX + " Renaming " + sqlitedb + " to " + sqlitedb + ".old");
@@ -244,7 +246,12 @@ public class SqlManager {
     	}
     }
     
-    public static void addPlot(Plot plot, int idX, int idZ)
+    public static void addPlot(Plot plot, int idX, int idZ, World w)
+    {
+    	addPlot(plot, idX, idZ, PlotManager.topX(plot.id, w), PlotManager.bottomX(plot.id, w), PlotManager.topZ(plot.id, w), PlotManager.bottomZ(plot.id, w));
+    }
+    
+    public static void addPlot(Plot plot, int idX, int idZ, int topX, int bottomX, int topZ, int bottomZ)
     {
         PreparedStatement ps = null;
         Connection conn;
@@ -259,10 +266,10 @@ public class SqlManager {
             ps.setInt(2, idZ);
             ps.setString(3, plot.owner);
             ps.setString(4, plot.world.toLowerCase());
-            ps.setInt(5, plot.topX);
-            ps.setInt(6, plot.bottomX);
-            ps.setInt(7, plot.topZ);
-            ps.setInt(8, plot.bottomZ);
+            ps.setInt(5, topX);
+            ps.setInt(6, bottomX);
+            ps.setInt(7, topZ);
+            ps.setInt(8, bottomZ);
             ps.setString(9, plot.biome.name());
             ps.setDate(10, plot.expireddate);
             ps.setBoolean(11, plot.finished);
@@ -556,7 +563,7 @@ public class SqlManager {
     				comments.add(comment);
     			}
     			
-    			Plot plot = new Plot(owner, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments);
+    			Plot plot = new Plot(owner, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ);
                 ret.put("" + idX + ";" + idZ, plot);
             }
             PlotMe.logger.info(PlotMe.PREFIX + " " + size + " plots loaded");

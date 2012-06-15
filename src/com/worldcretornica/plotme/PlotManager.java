@@ -19,7 +19,7 @@ public class PlotManager {
 			int valx = loc.getBlockX();
 			int valz = loc.getBlockZ();
 			PlotMapInfo pmi = getMap(loc);
-			int size = pmi.PlotSize + 7;
+			int size = pmi.PlotSize + pmi.PathWidth;
 			int pathsize = pmi.PathWidth;
 			
 			double n3;
@@ -103,12 +103,12 @@ public class PlotManager {
 	{
 		if(isPlotAvailable(id, world))
 		{
-			Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id));
+			Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id);
 			
 			setSign(world, plot);
 			
 			getPlots(world).put(id, plot);
-			SqlManager.addPlot(plot, getIdX(id), getIdZ(id));
+			SqlManager.addPlot(plot, getIdX(id), getIdZ(id), world);
 			return plot;
 		}else{
 			return null;
@@ -116,14 +116,14 @@ public class PlotManager {
 	}
 	
 	public static void setSign(World world, Plot plot)
-	{
-		Location pillar = new Location(world, plot.bottomX - 1, 65, plot.bottomZ - 1);
-				
+	{	
+		Location pillar = new Location(world, bottomX(plot.id, world) - 1, 65, bottomZ(plot.id, world) - 1);
+						
 		Block bsign = pillar.add(0, 0, -1).getBlock();
+		bsign.setType(Material.AIR);
 		bsign.setTypeIdAndData(Material.WALL_SIGN.getId(), (byte) 2, false);
 		
-		String id = getPlotId(new Location(world, plot.bottomX, 0, plot.bottomZ));
-		
+		String id = getPlotId(new Location(world, bottomX(plot.id, world), 0, bottomZ(plot.id, world)));
 		
 		Sign sign = (Sign) bsign.getState();
 		if(("ID:" + id).length() > 15)
@@ -151,6 +151,7 @@ public class PlotManager {
 			}
 		}else{
 			sign.setLine(2, "Owner:" + plot.owner);
+			sign.setLine(3, "");
 		}
 		sign.update(true);
 	}
@@ -180,10 +181,10 @@ public class PlotManager {
 		int px = getIdX(id);
 		int pz = getIdZ(id);
 		
-		int plotsize = getMap(world).PlotSize;
+		PlotMapInfo pmi = getMap(world);
 		
-		int x = px * (plotsize + 7) - (plotsize - 1) - 4;
-		int z = pz * (plotsize + 7) - (plotsize - 1) - 4;
+		int x = px * (pmi.PlotSize + pmi.PathWidth) - (pmi.PlotSize) - ((int)Math.floor(pmi.PathWidth/2));
+		int z = pz * (pmi.PlotSize + pmi.PathWidth) - (pmi.PlotSize) - ((int)Math.floor(pmi.PathWidth/2));
 		
 		return new Location(world, x, 1, z);
 	}
@@ -193,19 +194,19 @@ public class PlotManager {
 		int px = getIdX(id);
 		int pz = getIdZ(id);
 		
-		int plotsize = getMap(world).PlotSize;
+		PlotMapInfo pmi = getMap(world);
 		
-		int x = px * (plotsize + 7) - 4;
-		int z = pz * (plotsize + 7) - 4;
+		int x = px * (pmi.PlotSize + pmi.PathWidth) - ((int)Math.floor(pmi.PathWidth/2)) - 1;
+		int z = pz * (pmi.PlotSize + pmi.PathWidth) - ((int)Math.floor(pmi.PathWidth/2)) - 1;
 		
 		return new Location(world, x, 255, z);
 	}
 	
 	public static void setBiome(World w, String id, Plot plot, Biome b)
 	{
-		for(int x = plot.bottomX; x <= plot.topX; x++)
+		for(int x = PlotManager.bottomX(plot.id, w); x <= PlotManager.topX(plot.id, w); x++)
 		{
-			for(int z = plot.bottomZ; z <= plot.topZ; z++)
+			for(int z = PlotManager.bottomZ(plot.id, w); z <= PlotManager.bottomZ(plot.id, w); z++)
 			{
 				w.getBlockAt(x, 0, z).setBiome(b);
 			}
@@ -217,12 +218,12 @@ public class PlotManager {
 	
 	public static Location getTop(World w, Plot plot)
 	{
-		return new Location(w, plot.topX, 256, plot.topZ);
+		return new Location(w, PlotManager.topX(plot.id, w), 256, PlotManager.topZ(plot.id, w));
 	}
 	
 	public static void clear(World w, Plot plot)
 	{
-		clear(new Location(w, plot.bottomX, 0, plot.bottomZ), new Location(w, plot.topX, 256, plot.topZ));
+		clear(new Location(w, PlotManager.bottomX(plot.id, w), 0, PlotManager.bottomZ(plot.id, w)), new Location(w, PlotManager.topX(plot.id, w), 256, PlotManager.topZ(plot.id, w)));
 	}
 	
 	public static void clear(Location bottom, Location top)
@@ -264,10 +265,11 @@ public class PlotManager {
 	
 	public static boolean isBlockInPlot(Plot plot, Location blocklocation)
 	{
-		int lowestX = plot.bottomX < plot.topX ? plot.bottomX : plot.topX;
-		int highestX = plot.bottomX > plot.topX ? plot.bottomX : plot.topX;
-		int lowestZ = plot.bottomZ < plot.topZ ? plot.bottomZ : plot.topZ;
-		int highestZ = plot.bottomZ > plot.topZ ? plot.bottomZ : plot.topZ;
+		World w = blocklocation.getWorld();
+		int lowestX = Math.min(PlotManager.bottomX(plot.id, w), PlotManager.topX(plot.id, w));
+		int highestX = Math.max(PlotManager.bottomX(plot.id, w), PlotManager.topX(plot.id, w));
+		int lowestZ = Math.min(PlotManager.bottomZ(plot.id, w), PlotManager.topZ(plot.id, w));
+		int highestZ = Math.max(PlotManager.bottomZ(plot.id, w), PlotManager.topZ(plot.id, w));
 		
 		return blocklocation.getBlockX() >= lowestX && blocklocation.getBlockX() <= highestX
 				&& blocklocation.getBlockZ() >= lowestZ && blocklocation.getBlockZ() <= highestZ;
@@ -330,23 +332,7 @@ public class PlotManager {
 			{
 				Plot plot1 = plots.get(idFrom);
 				Plot plot2 = plots.get(idTo);
-				
-				Plot plottemp = new Plot();
-				plottemp.bottomX = plot1.bottomX;
-				plottemp.bottomZ = plot1.bottomZ;
-				plottemp.topX = plot1.topX;
-				plottemp.topZ = plot1.topZ;
-				
-				plot1.bottomX = plot2.bottomX;
-				plot1.bottomZ = plot2.bottomZ;
-				plot1.topX = plot2.topX;
-				plot1.topZ = plot2.topZ;
-				
-				plot2.bottomX = plottemp.bottomX;
-				plot2.bottomZ = plottemp.bottomZ;
-				plot2.topX = plottemp.topX;
-				plot2.topZ = plottemp.topZ;
-				
+								
 				int idX = getIdX(idTo);
 				int idZ = getIdZ(idTo);
 				SqlManager.deletePlot(idX, idZ, plot2.world);
@@ -355,8 +341,9 @@ public class PlotManager {
 				idX = getIdX(idFrom);
 				idZ = getIdZ(idFrom);
 				SqlManager.deletePlot(idX, idZ, plot1.world);
-								
-				SqlManager.addPlot(plot2, idX, idZ);
+				
+				plot2.id = "" + idX + ";" + idZ;
+				SqlManager.addPlot(plot2, idX, idZ, w);
 				plots.put(idFrom, plot2);
 				
 				for(int i = 0 ; i < plot2.comments.size() ; i++)
@@ -371,7 +358,8 @@ public class PlotManager {
 				
 				idX = getIdX(idTo);
 				idZ = getIdZ(idTo);
-				SqlManager.addPlot(plot1, idX, idZ);
+				plot1.id = "" + idX + ";" + idZ;
+				SqlManager.addPlot(plot1, idX, idZ, w);
 				plots.put(idTo, plot1);
 				
 				for(int i = 0 ; i < plot1.comments.size() ; i++)
@@ -389,13 +377,6 @@ public class PlotManager {
 				
 			}else{
 				Plot plot = plots.get(idFrom);
-				Location bottom = getPlotBottomLoc(w, idTo);
-				Location top = getPlotTopLoc(w, idTo);
-								
-				plot.bottomX = bottom.getBlockX();
-				plot.bottomZ = bottom.getBlockZ();
-				plot.topX = top.getBlockX();
-				plot.topZ = top.getBlockZ();
 				
 				int idX = getIdX(idFrom);
 				int idZ = getIdZ(idFrom);
@@ -403,7 +384,8 @@ public class PlotManager {
 				plots.remove(idFrom);
 				idX = getIdX(idTo);
 				idZ = getIdZ(idTo);
-				SqlManager.addPlot(plot, idX, idZ);
+				plot.id = "" + idX + ";" + idZ;
+				SqlManager.addPlot(plot, idX, idZ, w);
 				plots.put(idTo, plot);
 				
 				for(int i = 0 ; i < plot.comments.size() ; i++)
@@ -424,13 +406,6 @@ public class PlotManager {
 			if(plots.containsKey(idTo))
 			{
 				Plot plot = plots.get(idTo);
-				Location bottom = getPlotBottomLoc(w, idFrom);
-				Location top = getPlotTopLoc(w, idFrom);
-								
-				plot.bottomX = bottom.getBlockX();
-				plot.bottomZ = bottom.getBlockZ();
-				plot.topX = top.getBlockX();
-				plot.topZ = top.getBlockZ();
 				
 				int idX = getIdX(idTo);
 				int idZ = getIdZ(idTo);
@@ -439,7 +414,8 @@ public class PlotManager {
 				
 				idX = getIdX(idFrom);
 				idZ = getIdZ(idFrom);
-				SqlManager.addPlot(plot, idX, idZ);
+				plot.id = "" + idX + ";" + idZ;
+				SqlManager.addPlot(plot, idX, idZ, w);
 				plots.put(idFrom, plot);
 				
 				for(int i = 0 ; i < plot.comments.size() ; i++)
@@ -458,6 +434,26 @@ public class PlotManager {
 		}
 		
 		return true;
+	}
+		
+	public static int bottomX(String id, World w)
+	{
+		return getPlotBottomLoc(w, id).getBlockX();
+	}
+	
+	public static int bottomZ(String id, World w)
+	{
+		return getPlotBottomLoc(w, id).getBlockZ();
+	}
+
+	public static int topX(String id, World w)
+	{
+		return getPlotTopLoc(w, id).getBlockX();
+	}
+	
+	public static int topZ(String id, World w)
+	{
+		return getPlotTopLoc(w, id).getBlockZ();
 	}
 	
 	public static boolean isPlotWorld(World w)
@@ -555,12 +551,22 @@ public class PlotManager {
 	
 	public static Plot getPlotById(Player p, String id)
 	{
-		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(id);
+		if(p == null)
+			return null;
+		else
+		{
+			return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(id);
+		}
 	}
 	
 	public static Plot getPlotById(Player p)
 	{
 		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(getPlotId(p.getLocation()));
+	}
+	
+	public static Plot getPlotById(Location l)
+	{
+		return PlotMe.plotmaps.get(l.getWorld().getName().toLowerCase()).plots.get(getPlotId(l));
 	}
 	
 	public static Plot getPlotById(Block b, String id)

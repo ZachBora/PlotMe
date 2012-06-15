@@ -16,24 +16,26 @@ public class Plot implements Serializable {
 	private static final long serialVersionUID = 1129643448136021025L;
 	public String owner;
 	public String world;
-	public int topX;
-	public int topZ;
-	public int bottomX;
-	public int bottomZ;
+	//public int topX;
+	//public int topZ;
+	//public int bottomX;
+	//public int bottomZ;
 	public HashSet<String> allowed;
 	public Biome biome;
 	public Date expireddate;
 	public boolean finished;
 	public List<String[]> comments;
+	public String id;
 
 	public Plot()
 	{
 		owner = "";
 		world = "";
-		topX = 0;
-		bottomX = 0;
-		topZ = 0;
-		bottomZ = 0;
+		//topX = 0;
+		//bottomX = 0;
+		//topZ = 0;
+		//bottomZ = 0;
+		id = "";
 		allowed = new HashSet<String>();
 		biome = Biome.PLAINS;
 		
@@ -45,16 +47,17 @@ public class Plot implements Serializable {
 		comments = new ArrayList<String[]>();
 	}
 	
-	public Plot(String o, Location t, Location b)
+	public Plot(String o, Location t, Location b, String tid)
 	{
 		owner = o;
 		world = t.getWorld().getName();
-		topX = t.getBlockX();
-		bottomX = b.getBlockX();
-		topZ = t.getBlockZ();
-		bottomZ = b.getBlockZ();
+		//topX = t.getBlockX();
+		//bottomX = b.getBlockX();
+		//topZ = t.getBlockZ();
+		//bottomZ = b.getBlockZ();
 		allowed = new HashSet<String>();
 		biome = Biome.PLAINS;
+		id = tid;
 		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DAY_OF_YEAR, 7);
@@ -64,21 +67,22 @@ public class Plot implements Serializable {
 		comments = new ArrayList<String[]>();
 	}
 	
-	public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al, List<String[]> comm)
+	public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al, List<String[]> comm, String tid)
 	{
 		owner = o;
 		world = w;
-		topX = tX;
-		bottomX = bX;
-		topZ = tZ;
-		bottomZ = bZ;
+		//topX = tX;
+		//bottomX = bX;
+		//topZ = tZ;
+		//bottomZ = bZ;
 		biome = Biome.valueOf(bio);
 		expireddate = exp;
 		finished = fini;
 		allowed = al;
 		comments = comm;
+		id = tid;
 	}
-		
+			
 	public void setExpire(Date date)
 	{
 		expireddate = date;

@@ -9,6 +9,7 @@ import org.angelsl.minecraft.randomshit.fontwidth.MinecraftFontWidthCalculator;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -274,9 +275,10 @@ public class PMCommand implements CommandExecutor {
 								
 								if(PlotManager.isPlotAvailable(id, p))
 								{
-									Plot plot = PlotManager.createPlot(p.getWorld(), id, p.getName());
+									World w = p.getWorld();
+									Plot plot = PlotManager.createPlot(w, id, p.getName());
 									
-									p.teleport(new Location(p.getWorld(), plot.bottomX + (plot.topX - plot.bottomX)/2, 65, plot.bottomZ - 2));
+									p.teleport(new Location(p.getWorld(), PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - PlotManager.bottomX(plot.id, w))/2, 65, PlotManager.bottomZ(plot.id, w) - 2));
 		
 									p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " This plot is now yours. Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get back to it");
 									return;
@@ -363,7 +365,8 @@ public class PMCommand implements CommandExecutor {
 				{
 					if(i == 0)
 					{
-						p.teleport(new Location(p.getWorld(), plot.bottomX + (plot.topX - plot.bottomX)/2, 65, plot.bottomZ - 2));
+						World w = p.getWorld();
+						p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - PlotManager.bottomX(plot.id, w))/2, 65, PlotManager.bottomZ(plot.id, w) - 2));
 						found = true;
 						return;
 					}else{

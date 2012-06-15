@@ -2,10 +2,12 @@ package com.worldcretornica.plotme;
 
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -22,6 +24,7 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -54,7 +57,7 @@ public class PlotListener implements Listener {
 						event.setCancelled(true);
 					}else{
 						
-						if(!plot.owner.equalsIgnoreCase(p.getName()) && !plot.allowed.contains(p.getName()))
+						if(!plot.isAllowed(p.getName()))
 						{
 							p.sendMessage("You cannot build here.");
 							event.setCancelled(true);
@@ -88,7 +91,7 @@ public class PlotListener implements Listener {
 						p.sendMessage("You cannot build here.");
 						event.setCancelled(true);
 					}else{
-						if(!plot.owner.equalsIgnoreCase(p.getName()) && !plot.allowed.contains(p.getName()))
+						if(!plot.isAllowed(p.getName()))
 						{
 							p.sendMessage("You cannot build here.");
 							event.setCancelled(true);
@@ -123,7 +126,7 @@ public class PlotListener implements Listener {
 						p.sendMessage("You cannot build here.");
 						event.setCancelled(true);
 					}else{
-						if(!plot.owner.equalsIgnoreCase(p.getName()) && !plot.allowed.contains(p.getName()))
+						if(!plot.isAllowed(p.getName()))
 						{
 							p.sendMessage("You cannot build here.");
 							event.setCancelled(true);
@@ -157,7 +160,7 @@ public class PlotListener implements Listener {
 						p.sendMessage("You cannot build here.");
 						event.setCancelled(true);
 					}else{
-						if(!plot.owner.equalsIgnoreCase(p.getName()) && !plot.allowed.contains(p.getName()))
+						if(!plot.isAllowed(p.getName()))
 						{
 							p.sendMessage("You cannot build here.");
 							event.setCancelled(true);
@@ -191,7 +194,7 @@ public class PlotListener implements Listener {
 						p.sendMessage("You cannot build here.");
 						event.setCancelled(true);
 					}else{
-						if(!plot.owner.equalsIgnoreCase(p.getName()) && !plot.allowed.contains(p.getName()))
+						if(!plot.isAllowed(p.getName()))
 						{
 							p.sendMessage("You cannot build here.");
 							event.setCancelled(true);
@@ -381,4 +384,71 @@ public class PlotListener implements Listener {
 			}
 		}
 	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onEntityExplodeEvent(final EntityExplodeEvent event)
+	{
+		Entity e = event.getEntity();
+		
+		if(PlotManager.isPlotWorld(e.getWorld()))
+		{
+			List<Block> blocks = event.blockList();
+			
+			Location el = e.getLocation();
+			
+			Plot plot = PlotManager.getPlotById(el);
+			
+			if(plot == null)
+			{
+				event.setCancelled(true);
+			}else{
+			
+				for(int i = 0 ; i < blocks.size();)
+				{
+					Block b = blocks.get(i);
+					
+					Location l = b.getLocation();
+					
+					Plot plotblock = PlotManager.getPlotById(l);
+					
+					if(plotblock == null || !plot.equals(plotblock))
+					{
+						blocks.remove(b);
+					}else{
+						i++;
+					}
+				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onBlockIgniteEvent(final BlockIgniteEvent event)
+	{
+		Block b = event.getBlock();
+		
+		if(PlotManager.isPlotWorld(b))
+		{
+			String id = PlotManager.getPlotId(b.getLocation());
+			Player p = event.getPlayer();
+			
+			if(id.equalsIgnoreCase("") || p == null)
+			{
+				event.setCancelled(true);
+			}else{
+				Plot plot = PlotManager.getPlotById(b,id);
+				
+				if (plot == null)
+				{
+					event.setCancelled(true);
+				}else{
+					if(!plot.isAllowed(p.getName()))
+					{
+						event.setCancelled(true);
+					}
+				}
+			}
+		}
+	}
+	
 }

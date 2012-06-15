@@ -12,12 +12,17 @@ import com.sk89q.worldedit.masks.RegionMask;
 import com.sk89q.worldedit.regions.CuboidRegion;
 
 public class PlotWorldEdit {
-		
+	
 	public static void setMask(Player p)
+	{
+		setMask(p, p.getLocation());
+	}
+	
+	public static void setMask(Player p, Location l)
 	{
 		World w = p.getWorld();
 		
-		String id = PlotManager.getPlotId(p.getLocation());
+		String id = PlotManager.getPlotId(l);
 				
 		Location bottom = null;
 		Location top = null;

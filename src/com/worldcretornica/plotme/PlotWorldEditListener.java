@@ -1,11 +1,15 @@
 package com.worldcretornica.plotme;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -57,6 +61,26 @@ public class PlotWorldEditListener implements Listener {
 				{
 					event.setCancelled(true);
 				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+	public void onPlayerInteract(final PlayerInteractEvent event)
+	{
+		Player p = event.getPlayer();
+
+		if(!PlotMe.checkPerms(p, "PlotMe.admin") && PlotManager.isPlotWorld(p) && !PlotMe.isIgnoringWELimit(p))
+		{
+			if(event.getAction() == Action.LEFT_CLICK_BLOCK && p.getItemInHand() != null && p.getItemInHand().getType() != Material.AIR)
+			{
+				Block b = event.getClickedBlock();
+				Plot plot = PlotManager.getPlotById(b);
+				
+				if(plot != null && plot.isAllowed(p.getName()))
+					PlotWorldEdit.setMask(p, b.getLocation());
+				else
+					event.setCancelled(true);
 			}
 		}
 	}
