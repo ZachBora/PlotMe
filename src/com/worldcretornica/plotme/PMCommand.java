@@ -239,7 +239,7 @@ public class PMCommand implements CommandExecutor {
 				Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
 				Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
 				
-				p.teleport(new Location(p.getWorld(), bottom.getX() + (top.getBlockX() - bottom.getBlockX())/2, 65, bottom.getZ() - 2));
+				p.teleport(new Location(p.getWorld(), bottom.getX() + (top.getBlockX() - bottom.getBlockX())/2, PlotManager.getMap(p).WorldHeight + 1, bottom.getZ() - 2));
 			}else{
 				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " Usage: " + ChatColor.RED + "/plotme tp <id> " + ChatColor.WHITE + "Example: " + ChatColor.RED + "/plotme tp 5;-1 ");
 			}
@@ -273,7 +273,7 @@ public class PMCommand implements CommandExecutor {
 									World w = p.getWorld();
 									Plot plot = PlotManager.createPlot(w, id, p.getName());
 									
-									p.teleport(new Location(p.getWorld(), PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - PlotManager.bottomX(plot.id, w))/2, 65, PlotManager.bottomZ(plot.id, w) - 2));
+									p.teleport(new Location(p.getWorld(), PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - PlotManager.bottomX(plot.id, w))/2, PlotManager.getMap(w).WorldHeight + 1, PlotManager.bottomZ(plot.id, w) - 2));
 		
 									p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " This plot is now yours. Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get back to them.");
 									return;
@@ -346,7 +346,7 @@ public class PMCommand implements CommandExecutor {
 					if(i == 0)
 					{
 						World w = p.getWorld();
-						p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - PlotManager.bottomX(plot.id, w))/2, 65, PlotManager.bottomZ(plot.id, w) - 2));
+						p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - PlotManager.bottomX(plot.id, w))/2, PlotManager.getMap(p).WorldHeight + 1, PlotManager.bottomZ(plot.id, w) - 2));
 						found = true;
 						return;
 					}else{

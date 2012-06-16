@@ -117,7 +117,7 @@ public class PlotManager {
 	
 	public static void setSign(World world, Plot plot)
 	{	
-		Location pillar = new Location(world, bottomX(plot.id, world) - 1, 65, bottomZ(plot.id, world) - 1);
+		Location pillar = new Location(world, bottomX(plot.id, world) - 1, getMap(world).WorldHeight + 1, bottomZ(plot.id, world) - 1);
 						
 		Block bsign = pillar.add(0, 0, -1).getBlock();
 		bsign.setType(Material.AIR);
@@ -160,7 +160,7 @@ public class PlotManager {
 	{
 		Location bottom = getPlotBottomLoc(world, id);
 		
-		Location pillar = new Location(world, bottom.getX() - 1, 65, bottom.getZ() - 1);
+		Location pillar = new Location(world, bottom.getX() - 1, getMap(world).WorldHeight + 1, bottom.getZ() - 1);
 		
 		Block bsign = pillar.add(0, 0, -1).getBlock();
 		bsign.setType(Material.AIR);
@@ -228,7 +228,7 @@ public class PlotManager {
 	
 	public static void clear(Location bottom, Location top)
 	{
-		PlotMapInfo pmi = PlotManager.getMap(bottom);
+		PlotMapInfo pmi = getMap(bottom);
 		
 		for(int x = bottom.getBlockX() - 1; x <= top.getBlockX() + 1; x++)
 		{
@@ -244,13 +244,13 @@ public class PlotManager {
 					
 					if(y == 0)
 						block.setTypeId(pmi.BottomBlockId);
-					else if(y < 64)
+					else if(y < pmi.WorldHeight)
 						block.setTypeId(pmi.PlotFillingBlockId);
-					else if(y == 64)
+					else if(y == pmi.WorldHeight)
 						block.setTypeId(pmi.PlotFloorBlockId);
 					else
 					{
-						if(y == 65 && (x == bottom.getBlockX() - 1 || x == top.getBlockX() + 1 ||
+						if(y == (pmi.WorldHeight + 1) && (x == bottom.getBlockX() - 1 || x == top.getBlockX() + 1 ||
 								z == bottom.getBlockZ() - 1 || z == top.getBlockZ() + 1))
 						{
 							block.setTypeId(pmi.WallBlockId);

@@ -18,6 +18,7 @@ public class PlotGen extends ChunkGenerator {
 	private byte wall;
 	private byte plotfloor;
 	private byte filling;
+	private int worldheight;
 	
 	public PlotGen()
 	{
@@ -27,6 +28,7 @@ public class PlotGen extends ChunkGenerator {
 		wall = 44;
 		plotfloor = 2;
 		filling = 3;
+		worldheight = 64;
 	}
 	
 	public PlotGen(PlotMapInfo pmi)
@@ -37,6 +39,7 @@ public class PlotGen extends ChunkGenerator {
 		wall = pmi.WallBlockId;
 		plotfloor = pmi.PlotFloorBlockId;
 		filling = pmi.PlotFillingBlockId;
+		worldheight = pmi.WorldHeight;
 	}
 	
 	public byte[] generate(World world, Random random, int cx, int cz) {
@@ -47,9 +50,9 @@ public class PlotGen extends ChunkGenerator {
 		int valx;
 		int valz;
 		
-		byte floor1 = (byte)Material.WOOL.getId(); //wool
-		byte floor2 = (byte)Material.WOOD.getId(); //wood
-		byte air = (byte)Material.AIR.getId(); //air
+		byte floor1 = (byte)Material.WOOL.getId();
+		byte floor2 = (byte)Material.WOOD.getId();
+		byte air = (byte)Material.AIR.getId();
 		
 		double n1;
 		double n2;
@@ -59,62 +62,34 @@ public class PlotGen extends ChunkGenerator {
 		
 		if(pathsize % 2 == 1)
 		{
-			n1 = Math.ceil(((double)pathsize)/2) - 2; //1 7
-			n2 = Math.ceil(((double)pathsize)/2) - 1; //2 7
-			n3 = Math.ceil(((double)pathsize)/2); //3 7
+			n1 = Math.ceil(((double)pathsize)/2) - 2;
+			n2 = Math.ceil(((double)pathsize)/2) - 1;
+			n3 = Math.ceil(((double)pathsize)/2);
 		}else{
-			n1 = Math.floor(((double)pathsize)/2) - 2; //1 7
-			n2 = Math.floor(((double)pathsize)/2) - 1; //2 7
-			n3 = Math.floor(((double)pathsize)/2); //3 7
+			n1 = Math.floor(((double)pathsize)/2) - 2;
+			n2 = Math.floor(((double)pathsize)/2) - 1;
+			n3 = Math.floor(((double)pathsize)/2);
 		}
 		
 		if(pathsize % 2 == 1)
 		{
 			mod2 = -1;
 		}
-		
-		/*
-		if(plotsize % 2 == 1 && pathsize % 2 == 1)
-		{
-			mod1 = 1;
-			mod2 = -1;
-		}
-		
-		if(plotsize % 2 == 0 && pathsize % 2 == 1)
-		{
-			mod1 = 1;
-			mod2 = -1;
-		}*/
-		
-		
-		
-		
-		//mod2 = -1;
-					
-		//with ^
-		//path 7 plot11 -> path 9 plot 9 mod2=-1
-		//path 7 plot10 -> path 8 plot 9 mod2=-1
-		//path 6 plot10 -> path 7 plot 9
-		//path 6 plot11 -> path 6 plot 11  mod2=-1
-					
-		//path 7 plot11 -> path  plot 
-		//path 7 plot10 -> path  plot 
-		//path 6 plot10 -> path  plot 
-		//path 6 plot11 -> path 5 plot 12 
-		
+				
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int height = 66;
+                int height = worldheight + 2;
                 for (int y = 0; y < height; y++) {
                 	valx = (cx * 16 + x);
             		valz = (cz * 16 + z);
                 	
-            		switch(y)
+            		if(y == 0)
                 	{
-                	case 0:
                 		result[(x * 16 + z) * 128 + y] = bottom;
-                		break;
-                	case 64:
+                		
+                	}
+            		else if(y == worldheight)
+                	{
                 		if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) //middle+3
                 		{
                 			boolean found = false;
@@ -197,8 +172,9 @@ public class PlotGen extends ChunkGenerator {
 	                			}
 	                		}
                 		}
-                		break;
-                	case 65:
+                	}
+            		else if(y == (worldheight + 1))
+                	{
                 		
                 		if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) //middle+3
                 		{
@@ -240,10 +216,8 @@ public class PlotGen extends ChunkGenerator {
 	                				result[(x * 16 + z) * 128 + y] = air;
                 			}
                 		}
-                		break;
-                	default:
+                	}else{
                 		result[(x * 16 + z) * 128 + y] = filling;
-                		break;
                 	}
             		
                 	/*switch(y)
@@ -326,6 +300,6 @@ public class PlotGen extends ChunkGenerator {
     }
 
 	public Location getFixedSpawnLocation(World world, Random random) {
-		return new Location(world, 0, 66, 0);
+		return new Location(world, 0, worldheight + 2, 0);
 	}
 }

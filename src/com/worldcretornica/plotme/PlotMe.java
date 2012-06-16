@@ -44,8 +44,6 @@ public class PlotMe extends JavaPlugin
     public static WorldEditPlugin we;
     
     private static HashSet<String> playersignoringwelimit = null;
-    
-    
 	
 	public void onDisable()
 	{		
@@ -55,6 +53,60 @@ public class PlotMe extends JavaPlugin
 	public void onEnable()
 	{
 		initialize();
+		
+		try {
+		    Metrics metrics = new Metrics(this);
+		    
+		    Graph graphNbWorlds = metrics.createGraph("Plot worlds");
+		    
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds") {
+				@Override
+				public int getValue() {
+					return plotmaps.size();
+				}
+			});
+		    	    
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size") {
+				@Override
+				public int getValue() {
+					
+					if(plotmaps.size() > 0)
+					{
+						int totalplotsize = 0;
+						
+						for(PlotMapInfo p : plotmaps.values())
+						{
+							totalplotsize += p.PlotSize;
+						}
+						
+						
+						return totalplotsize / plotmaps.size();
+					}
+					else
+					{
+						return 0;
+					}
+				}
+			});
+		    
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots") {
+				@Override
+				public int getValue() {
+					int nbplot = 0;
+					
+					for(PlotMapInfo p : plotmaps.values())
+					{
+						nbplot += p.plots.size();
+					}
+					
+					return nbplot;
+				}
+			});
+		    		    
+		    metrics.start();
+		} catch (IOException e) {
+		    // Failed to submit the stats :-(
+		}
 				
 		getServer().getPluginManager().registerEvents(new PlotListener(), this);
 		
@@ -139,6 +191,7 @@ public class PlotMe extends JavaPlugin
 			plotworld.set("WallBlockId", 44);
 			plotworld.set("PlotFloorBlockId", 2);
 			plotworld.set("PlotFillingBlockId", 3);
+			plotworld.set("WorldHeight", 64);
 			
 			worlds.set("plotworld", plotworld);
 			config.set("worlds", worlds);
@@ -162,6 +215,8 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.WallBlockId = (byte) currworld.getInt("WallBlockId");
 			tempPlotInfo.PlotFloorBlockId = (byte) currworld.getInt("PlotFloorBlockId");
 			tempPlotInfo.PlotFillingBlockId = (byte) currworld.getInt("PlotFillingBlockId");
+			tempPlotInfo.WorldHeight = currworld.getInt("WorldHeight");
+			
 			
 			logger.info("plot size: " + tempPlotInfo.PlotSize);
 			
@@ -180,60 +235,6 @@ public class PlotMe extends JavaPlugin
 		} catch (IOException e) {
 			logger.severe(PREFIX + " error writting configurations");
 			e.printStackTrace();
-		}
-		
-		try {
-		    Metrics metrics = new Metrics(this);
-		    
-		    Graph graphNbWorlds = metrics.createGraph("Plot worlds");
-		    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds") {
-				@Override
-				public int getValue() {
-					return plotmaps.size();
-				}
-			});
-		    	    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size") {
-				@Override
-				public int getValue() {
-					
-					if(plotmaps.size() > 0)
-					{
-						int totalplotsize = 0;
-						
-						for(PlotMapInfo p : plotmaps.values())
-						{
-							totalplotsize += p.PlotSize;
-						}
-						
-						
-						return totalplotsize / plotmaps.size();
-					}
-					else
-					{
-						return 0;
-					}
-				}
-			});
-		    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots") {
-				@Override
-				public int getValue() {
-					int nbplot = 0;
-					
-					for(PlotMapInfo p : plotmaps.values())
-					{
-						nbplot += p.plots.size();
-					}
-					
-					return nbplot;
-				}
-			});
-		    		    
-		    metrics.start();
-		} catch (IOException e) {
-		    // Failed to submit the stats :-(
 		}
     }
 	

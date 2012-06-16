@@ -12,5 +12,6 @@ public class PlotMapInfo {
 	public byte PlotFloorBlockId;
 	public byte PlotFillingBlockId;
 	public HashMap<String, Plot> plots;
+	public int WorldHeight;
 	
 }

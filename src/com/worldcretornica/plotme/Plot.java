@@ -16,10 +16,6 @@ public class Plot implements Serializable {
 	private static final long serialVersionUID = 1129643448136021025L;
 	public String owner;
 	public String world;
-	//public int topX;
-	//public int topZ;
-	//public int bottomX;
-	//public int bottomZ;
 	public HashSet<String> allowed;
 	public Biome biome;
 	public Date expireddate;
@@ -31,10 +27,6 @@ public class Plot implements Serializable {
 	{
 		owner = "";
 		world = "";
-		//topX = 0;
-		//bottomX = 0;
-		//topZ = 0;
-		//bottomZ = 0;
 		id = "";
 		allowed = new HashSet<String>();
 		biome = Biome.PLAINS;
@@ -51,10 +43,6 @@ public class Plot implements Serializable {
 	{
 		owner = o;
 		world = t.getWorld().getName();
-		//topX = t.getBlockX();
-		//bottomX = b.getBlockX();
-		//topZ = t.getBlockZ();
-		//bottomZ = b.getBlockZ();
 		allowed = new HashSet<String>();
 		biome = Biome.PLAINS;
 		id = tid;
@@ -71,10 +59,6 @@ public class Plot implements Serializable {
 	{
 		owner = o;
 		world = w;
-		//topX = tX;
-		//bottomX = bX;
-		//topZ = tZ;
-		//bottomZ = bZ;
 		biome = Biome.valueOf(bio);
 		expireddate = exp;
 		finished = fini;

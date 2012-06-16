@@ -13,7 +13,7 @@ public class PlotPopulator extends BlockPopulator {
 
 	public void populate(World world, Random rand, Chunk chunk) {
 		
-		int y = 64;
+		int y = PlotManager.getMap(world).WorldHeight;
 		
 		for(int x = 0; x < 16; x++)
 		{
