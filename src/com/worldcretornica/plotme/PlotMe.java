@@ -272,10 +272,11 @@ public class PlotMe extends JavaPlugin
 		for(PermissionAttachmentInfo pai : perms)
 		{
 			String perm = pai.getPermission();
+						
 			if(perm.startsWith("plotme.limit."))
-			{
-				limit = perm.substring(perm.lastIndexOf("."));
-				
+			{			
+				limit = perm.substring(perm.lastIndexOf(".") + 1);
+								
 				int tempmax = 0;
 				
 				if(limit.equals("*"))

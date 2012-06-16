@@ -255,7 +255,7 @@ public class PMCommand implements CommandExecutor {
 				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " This is not a plot world.");
 			}else{				
 				if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.checkPerms(p, "PlotMe.admin"))
-					p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " You already own a plot. Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get to it");
+					p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " You have already reached your maximum amount of plots (" + PlotManager.getNbOwnedPlot(p) + "/" + PlotMe.getPlotLimit(p) + "). Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get to them.");
 				else
 				{
 					int limit = PlotManager.getMap(p).PlotAutoLimit;
@@ -275,7 +275,7 @@ public class PMCommand implements CommandExecutor {
 									
 									p.teleport(new Location(p.getWorld(), PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - PlotManager.bottomX(plot.id, w))/2, 65, PlotManager.bottomZ(plot.id, w) - 2));
 		
-									p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " This plot is now yours. Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get back to it");
+									p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " This plot is now yours. Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get back to them.");
 									return;
 								}
 							}
@@ -299,7 +299,7 @@ public class PMCommand implements CommandExecutor {
 				p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.RED + " This plot is already owned");
 			}else{								
 				if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
-					p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " You already own a plot. Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get to it");
+					p.sendMessage(ChatColor.BLUE + PlotMe.PREFIX + ChatColor.WHITE + " You have already reached your maximum amount of plots (" + PlotManager.getNbOwnedPlot(p) + "/" + PlotMe.getPlotLimit(p) + "). Use " + ChatColor.RED + "/plotme home" + ChatColor.WHITE + " to get to it");
 				else
 				{
 					PlotManager.createPlot(p.getWorld(), id, p.getName());
