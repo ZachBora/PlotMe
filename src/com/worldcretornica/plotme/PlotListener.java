@@ -35,33 +35,42 @@ public class PlotListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockBreak(final BlockBreakEvent event) 
 	{
+		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
 		
-		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
+		Block b = event.getBlock();
+		if(PlotManager.isPlotWorld(b))
 		{
-			Block b = event.getBlock();
-			if(PlotManager.isPlotWorld(b))
+			String id = PlotManager.getPlotId(b.getLocation());
+			Player p = event.getPlayer();
+			
+			if(id.equalsIgnoreCase(""))
 			{
-				String id = PlotManager.getPlotId(b.getLocation());
-				Player p = event.getPlayer();
-				
-				if(id.equalsIgnoreCase(""))
+				if(!canbuild)
 				{
 					p.sendMessage("You cannot build here.");
 					event.setCancelled(true);
-				}else{
-					Plot plot = PlotManager.getMap(p).plots.get(id);
-					
-					if (plot == null)
+				}
+			}else{
+				Plot plot = PlotManager.getMap(p).plots.get(id);
+				
+				if (plot == null)
+				{
+					if(!canbuild)
 					{
 						p.sendMessage("You cannot build here.");
 						event.setCancelled(true);
-					}else{
-						
-						if(!plot.isAllowed(p.getName()))
+					}
+				}else{
+					
+					if(!plot.isAllowed(p.getName()))
+					{
+						if(!canbuild)
 						{
 							p.sendMessage("You cannot build here.");
 							event.setCancelled(true);
 						}
+					}else{
+						plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
 					}
 				}
 			}
@@ -71,31 +80,41 @@ public class PlotListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(final BlockPlaceEvent event)
 	{
-		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
+		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
+
+		Block b = event.getBlock();
+		if(PlotManager.isPlotWorld(b))
 		{
-			Block b = event.getBlock();
-			if(PlotManager.isPlotWorld(b))
+			String id = PlotManager.getPlotId(b.getLocation());
+			Player p = event.getPlayer();
+			
+			if(id.equalsIgnoreCase(""))
 			{
-				String id = PlotManager.getPlotId(b.getLocation());
-				Player p = event.getPlayer();
-				
-				if(id.equalsIgnoreCase(""))
+				if(!canbuild)
 				{
 					p.sendMessage("You cannot build here.");
 					event.setCancelled(true);
-				}else{
-					Plot plot = PlotManager.getPlotById(p,id);
-					
-					if (plot == null)
+				}
+			}else{
+				Plot plot = PlotManager.getPlotById(p,id);
+				
+				if (plot == null)
+				{
+					if(!canbuild)
 					{
 						p.sendMessage("You cannot build here.");
 						event.setCancelled(true);
-					}else{
-						if(!plot.isAllowed(p.getName()))
+					}
+				}else{
+					if(!plot.isAllowed(p.getName()))
+					{
+						if(!canbuild)
 						{
 							p.sendMessage("You cannot build here.");
 							event.setCancelled(true);
 						}
+					}else{
+						plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
 					}
 				}
 			}
@@ -174,31 +193,41 @@ public class PlotListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerInteract(final PlayerInteractEvent event)
 	{
-		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
+		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
+		
+		Block b = event.getClickedBlock();
+		if(PlotManager.isPlotWorld(b))
 		{
-			Block b = event.getClickedBlock();
-			if(PlotManager.isPlotWorld(b))
+			String id = PlotManager.getPlotId(b.getLocation());
+			Player p = event.getPlayer();
+			
+			if(id.equalsIgnoreCase(""))
 			{
-				String id = PlotManager.getPlotId(b.getLocation());
-				Player p = event.getPlayer();
-				
-				if(id.equalsIgnoreCase(""))
+				if(!canbuild)
 				{
 					p.sendMessage("You cannot build here.");
 					event.setCancelled(true);
-				}else{
-					Plot plot = PlotManager.getPlotById(p,id);
-					
-					if (plot == null)
+				}
+			}else{
+				Plot plot = PlotManager.getPlotById(p,id);
+				
+				if (plot == null)
+				{
+					if(!canbuild)
 					{
 						p.sendMessage("You cannot build here.");
 						event.setCancelled(true);
-					}else{
-						if(!plot.isAllowed(p.getName()))
+					}
+				}else{
+					if(!plot.isAllowed(p.getName()))
+					{
+						if(!canbuild)
 						{
 							p.sendMessage("You cannot build here.");
 							event.setCancelled(true);
 						}
+					}else{
+						plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
 					}
 				}
 			}

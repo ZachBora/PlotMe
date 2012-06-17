@@ -13,5 +13,6 @@ public class PlotMapInfo {
 	public byte PlotFillingBlockId;
 	public HashMap<String, Plot> plots;
 	public int WorldHeight;
+	public int DaysToExpiration;
 	
 }

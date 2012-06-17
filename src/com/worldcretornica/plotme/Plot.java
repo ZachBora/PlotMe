@@ -11,12 +11,12 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 
-public class Plot implements Serializable {
+public class Plot implements Comparable<Plot>, Serializable {
 
 	private static final long serialVersionUID = 1129643448136021025L;
 	public String owner;
 	public String world;
-	public HashSet<String> allowed;
+	private HashSet<String> allowed;
 	public Biome biome;
 	public Date expireddate;
 	public boolean finished;
@@ -39,7 +39,7 @@ public class Plot implements Serializable {
 		comments = new ArrayList<String[]>();
 	}
 	
-	public Plot(String o, Location t, Location b, String tid)
+	public Plot(String o, Location t, Location b, String tid, int days)
 	{
 		owner = o;
 		world = t.getWorld().getName();
@@ -47,10 +47,15 @@ public class Plot implements Serializable {
 		biome = Biome.PLAINS;
 		id = tid;
 		
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_YEAR, 7);
-		java.util.Date utlDate = cal.getTime();
-		expireddate = new java.sql.Date(utlDate.getTime());
+		if(days == 0)
+		{
+			expireddate = null;
+		}else{
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DAY_OF_YEAR, days);
+			java.util.Date utlDate = cal.getTime();
+			expireddate = new java.sql.Date(utlDate.getTime());
+		}
 		
 		comments = new ArrayList<String[]>();
 	}
@@ -70,6 +75,22 @@ public class Plot implements Serializable {
 	public void setExpire(Date date)
 	{
 		expireddate = date;
+		SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
+	}
+	
+	public void resetExpire(int days)
+	{
+		if(days == 0)
+		{
+			expireddate = null;
+		}else{
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DAY_OF_YEAR, days);
+			java.util.Date utlDate = cal.getTime();
+			expireddate = new java.sql.Date(utlDate.getTime());
+		}
+		
+		SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
 	}
 	
 	public String getExpire()
@@ -116,12 +137,16 @@ public class Plot implements Serializable {
 	{
 		if(!isAllowed(name))
 			allowed.add(name);
+		
+		SqlManager.addPlotAllowed(name, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
 	}
 	
 	public void removeAllowed(String name)
 	{
 		if(!isAllowed(name))
 			allowed.remove(name);
+		
+		SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, world);
 	}
 	
 	public boolean isAllowed(String name)
@@ -135,6 +160,25 @@ public class Plot implements Serializable {
 		}
 		
 		return false;
+	}
+	
+	public HashSet<String> allowed()
+	{
+		return allowed;
+	}
+	
+	public int allowedcount()
+	{
+		return allowed.size();
+	}
+
+	@Override
+	public int compareTo(Plot plot)
+	{
+		if(expireddate.compareTo(plot.expireddate) == 0)
+			return owner.compareTo(plot.owner);
+		else
+			return expireddate.compareTo(plot.expireddate);
 	}
 	
 }

@@ -103,7 +103,7 @@ public class PlotManager {
 	{
 		if(isPlotAvailable(id, world))
 		{
-			Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id);
+			Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration);
 			
 			setSign(world, plot);
 			
@@ -351,7 +351,7 @@ public class PlotManager {
 					SqlManager.addPlotComment(plot2.comments.get(i), i, idX, idZ, plot2.world);
 				}
 				
-				for(String player : plot2.allowed)
+				for(String player : plot2.allowed())
 				{
 					SqlManager.addPlotAllowed(player, idX, idZ, plot2.world);
 				}
@@ -367,7 +367,7 @@ public class PlotManager {
 					SqlManager.addPlotComment(plot1.comments.get(i), i, idX, idZ, plot1.world);
 				}
 				
-				for(String player : plot1.allowed)
+				for(String player : plot1.allowed())
 				{
 					SqlManager.addPlotAllowed(player, idX, idZ, plot1.world);
 				}
@@ -393,7 +393,7 @@ public class PlotManager {
 					SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world);
 				}
 				
-				for(String player : plot.allowed)
+				for(String player : plot.allowed())
 				{
 					SqlManager.addPlotAllowed(player, idX, idZ, plot.world);
 				}
@@ -423,7 +423,7 @@ public class PlotManager {
 					SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world);
 				}
 				
-				for(String player : plot.allowed)
+				for(String player : plot.allowed())
 				{
 					SqlManager.addPlotAllowed(player, idX, idZ, plot.world);
 				}
@@ -575,7 +575,14 @@ public class PlotManager {
 	
 	public static Plot getPlotById(Player p)
 	{
-		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(getPlotId(p.getLocation()));
+		if(PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()) == null)
+			return null;
+		else if(PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots == null)
+			return null;
+		else if(getPlotId(p.getLocation()) == "")
+			return null;
+		else
+			return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(getPlotId(p.getLocation()));
 	}
 	
 	public static Plot getPlotById(Location l)

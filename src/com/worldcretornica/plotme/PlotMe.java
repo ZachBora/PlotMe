@@ -3,12 +3,14 @@ package com.worldcretornica.plotme;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -146,7 +148,7 @@ public class PlotMe extends JavaPlugin
 	{
 		PluginDescriptionFile pdfFile = this.getDescription();
 		NAME = pdfFile.getName();
-		PREFIX = "[" + NAME + "]";
+		PREFIX = ChatColor.BLUE + "[" + NAME + "]";
 		VERSION = pdfFile.getVersion();
 		configpath = getDataFolder().getAbsolutePath();
 		playersignoringwelimit = new HashSet<String>();
@@ -192,6 +194,7 @@ public class PlotMe extends JavaPlugin
 			plotworld.set("PlotFloorBlockId", 2);
 			plotworld.set("PlotFillingBlockId", 3);
 			plotworld.set("WorldHeight", 64);
+			plotworld.set("DaysToExpiration", 7);
 			
 			worlds.set("plotworld", plotworld);
 			config.set("worlds", worlds);
@@ -208,17 +211,25 @@ public class PlotMe extends JavaPlugin
 			PlotMapInfo tempPlotInfo = new PlotMapInfo();
 			ConfigurationSection currworld = worlds.getConfigurationSection(worldname);
 			
-			tempPlotInfo.PlotAutoLimit = currworld.getInt("PlotAutoLimit");
-			tempPlotInfo.PathWidth = currworld.getInt("PathWidth");
-			tempPlotInfo.PlotSize = currworld.getInt("PlotSize");
-			tempPlotInfo.BottomBlockId = (byte) currworld.getInt("BottomBlockId");
-			tempPlotInfo.WallBlockId = (byte) currworld.getInt("WallBlockId");
-			tempPlotInfo.PlotFloorBlockId = (byte) currworld.getInt("PlotFloorBlockId");
-			tempPlotInfo.PlotFillingBlockId = (byte) currworld.getInt("PlotFillingBlockId");
-			tempPlotInfo.WorldHeight = currworld.getInt("WorldHeight");
+			tempPlotInfo.PlotAutoLimit = currworld.getInt("PlotAutoLimit", 100);
+			tempPlotInfo.PathWidth = currworld.getInt("PathWidth", 7);
+			tempPlotInfo.PlotSize = currworld.getInt("PlotSize", 32);
+			tempPlotInfo.BottomBlockId = (byte) currworld.getInt("BottomBlockId", 7);
+			tempPlotInfo.WallBlockId = (byte) currworld.getInt("WallBlockId", 44);
+			tempPlotInfo.PlotFloorBlockId = (byte) currworld.getInt("PlotFloorBlockId", 2);
+			tempPlotInfo.PlotFillingBlockId = (byte) currworld.getInt("PlotFillingBlockId", 3);
+			tempPlotInfo.WorldHeight = currworld.getInt("WorldHeight", 64);
+			tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
 			
-			
-			logger.info("plot size: " + tempPlotInfo.PlotSize);
+			currworld.set("PlotAutoLimit", tempPlotInfo.PlotAutoLimit);
+			currworld.set("PathWidth", tempPlotInfo.PathWidth);
+			currworld.set("PlotSize", tempPlotInfo.PlotSize);
+			currworld.set("BottomBlockId", tempPlotInfo.BottomBlockId);
+			currworld.set("WallBlockId", tempPlotInfo.WallBlockId);
+			currworld.set("PlotFloorBlockId", tempPlotInfo.PlotFloorBlockId);
+			currworld.set("PlotFillingBlockId", tempPlotInfo.PlotFillingBlockId);
+			currworld.set("WorldHeight", tempPlotInfo.WorldHeight);
+			currworld.set("DaysToExpiration", tempPlotInfo.DaysToExpiration);
 			
 			tempPlotInfo.plots = SqlManager.getPlots(worldname.toLowerCase());
 			
@@ -308,5 +319,35 @@ public class PlotMe extends JavaPlugin
 		
 		
 		return max;
+	}
+	
+	public static String getDate()
+	{
+		return getDate(Calendar.getInstance());
+	}
+	
+	public static String getDate(Calendar cal)
+	{
+		int imonth = cal.get(Calendar.MONTH) + 1;
+        int iday = cal.get(Calendar.DAY_OF_MONTH) + 1;
+        String month = "";
+        String day = "";
+        
+        if(imonth < 10)
+        	month = "0" + imonth;
+        else
+        	month = "" + imonth;
+        
+        if(iday < 10)
+        	day = "0" + iday;
+        else
+        	day = "" + iday;
+        		
+		return "" + cal.get(Calendar.YEAR) + "-" + month + "-" + day;
+	}
+
+	public static String getDate(java.sql.Date expireddate)
+	{		
+		return expireddate.toString();
 	}
 }

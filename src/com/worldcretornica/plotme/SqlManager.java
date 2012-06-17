@@ -56,7 +56,7 @@ public class SqlManager {
 		
     public static Connection initialize() {
         try {
-        	if(PlotMe.usemySQL == true) {
+        	if(PlotMe.usemySQL) {
         		Class.forName("com.mysql.jdbc.Driver");
         		conn = DriverManager.getConnection(PlotMe.mySQLconn, PlotMe.mySQLuname, PlotMe.mySQLpass);
         		conn.setAutoCommit(false);
@@ -527,7 +527,8 @@ public class SqlManager {
             statementPlot = conn.createStatement();
             setPlots = statementPlot.executeQuery("SELECT * FROM plotmePlots WHERE LOWER(world) = '" + world + "'");
             int size = 0;
-            while (setPlots.next()) {
+            while (setPlots.next())
+            {
             	size++;
     			int idX = setPlots.getInt("idX");
     			int idZ = setPlots.getInt("idZ");
@@ -545,18 +546,19 @@ public class SqlManager {
     			statementAllowed = conn.createStatement();
     			setAllowed = statementAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
     			
-    			while (setAllowed.next()) {
+    			while (setAllowed.next())
+    			{
     				allowed.add(setAllowed.getString("player"));
     			}
     			
-    			if (setAllowed != null) {
+    			if (setAllowed != null)
     				setAllowed.close();
-    			}
     			
     			statementComment = conn.createStatement();
     			setComments = statementComment.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
     			
-    			while (setComments.next()) {
+    			while (setComments.next())
+    			{
     				String[] comment = new String[2];
     				comment[0] = setComments.getString("player");
     				comment[1] = setComments.getString("comment");
@@ -591,5 +593,90 @@ public class SqlManager {
         }
         return ret;
     }
+    
+    /*public static List<String> getExpiredPlots(String world, int Page, int PageSize) {
+    	List<String> ret = new ArrayList<String>();
+        Statement statementPlot = null;
+        ResultSet setPlots = null;
+                
+		String dt = PlotMe.getDate();
+		PlotMe.logger.info("Curr date: " + dt);
+        try {
+            Connection conn = getConnection();
+
+            statementPlot = conn.createStatement();
+            
+            if(PlotMe.usemySQL)
+	            setPlots = statementPlot.executeQuery("SELECT idX, idZ, expireddate FROM plotmePlots WHERE LOWER(world) = '" + world + "' " +
+	            		"AND expireddate < '" + dt + "' ORDER BY expireddate ASC LIMIT " + ((Page-1) * PageSize) + ", " + PageSize);
+            else
+            	setPlots = statementPlot.executeQuery("SELECT idX, idZ, expireddate FROM plotmePlots WHERE LOWER(world) = '" + world + "' " +
+                		"AND date(expireddate) < date('now') ORDER BY expireddate ASC LIMIT " + ((Page-1) * PageSize) + ", " + PageSize);
+            
+            while (setPlots.next())
+            {
+    			int idX = setPlots.getInt("idX");
+    			int idZ = setPlots.getInt("idZ");
+    			PlotMe.logger.info("plot date: " + setPlots.getDate("expireddate").toString());
+    			    			
+                ret.add("" + idX + ";" + idZ);
+            }
+        } catch (SQLException ex) {
+        	PlotMe.logger.severe(PlotMe.PREFIX + " Load Exception :");
+        	PlotMe.logger.severe("  " + ex.getMessage());
+        } finally {
+            try {
+                if (statementPlot != null)
+                	statementPlot.close();
+                if (setPlots != null)
+                	setPlots.close();
+            } catch (SQLException ex) {
+            	PlotMe.logger.severe(PlotMe.PREFIX + " Load Exception (on close) :");
+            	PlotMe.logger.severe("  " + ex.getMessage());
+            }
+        }
+        return ret;
+    }
+
+	public static int getExpiredPlotsCount(String world)
+	{
+		int nbplots = 0;
+		Statement statementPlot = null;
+        ResultSet setPlots = null;
+        
+        String dt = PlotMe.getDate();
+		
+        try {
+            Connection conn = getConnection();
+
+            statementPlot = conn.createStatement();
+            
+            if(PlotMe.usemySQL)
+	            setPlots = statementPlot.executeQuery("SELECT Count(*) as nb FROM plotmePlots WHERE LOWER(world) = '" + world + "' " +
+	            		"AND expireddate < date('" + dt + "')");
+            else
+            	setPlots = statementPlot.executeQuery("SELECT Count(*) as nb FROM plotmePlots WHERE LOWER(world) = '" + world + "' " +
+	            		"AND date(expireddate) < date('now')");
+            
+            while (setPlots.next())
+            {
+    			nbplots = setPlots.getInt("nb");
+            }
+        } catch (SQLException ex) {
+        	PlotMe.logger.severe(PlotMe.PREFIX + " Load Exception :");
+        	PlotMe.logger.severe("  " + ex.getMessage());
+        } finally {
+            try {
+                if (statementPlot != null)
+                	statementPlot.close();
+                if (setPlots != null)
+                	setPlots.close();
+            } catch (SQLException ex) {
+            	PlotMe.logger.severe(PlotMe.PREFIX + " Load Exception (on close) :");
+            	PlotMe.logger.severe("  " + ex.getMessage());
+            }
+        }
+        return nbplots;
+	}*/
     
 }
