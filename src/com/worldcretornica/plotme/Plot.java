@@ -179,6 +179,5 @@ public class Plot implements Comparable<Plot>, Serializable {
 			return owner.compareTo(plot.owner);
 		else
 			return expireddate.compareTo(plot.expireddate);
-	}
-	
+	}	
 }

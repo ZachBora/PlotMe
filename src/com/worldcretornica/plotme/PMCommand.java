@@ -552,61 +552,66 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.use.home", true) || PlotMe.cPerms(p, "PlotMe.admin.home.other", false))
 		{
-			boolean found = false;
-			String playername = p.getName();
-			int nb = 1;
-			
-			if(args[0].contains(":"))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				try{
-					nb = Integer.parseInt(args[0].split(":")[1]);
-				}catch(NumberFormatException ex)
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}else{
+				boolean found = false;
+				String playername = p.getName();
+				int nb = 1;
+				
+				if(args[0].contains(":"))
 				{
-					p.sendMessage(PREFIX + RESET + " Format is: " + RED + "/plot home:# " + 
-							RESET + "As in : " + RED + "/plot home:1");
-					return true;
-				}
-			}
-			
-			if(args.length == 2)
-			{					
-				if(PlotMe.cPerms(p, "PlotMe.admin.home.other", false))
-				{
-					playername = args[1];
-				}
-			}
-			
-			int i = nb - 1;
-					
-			for(Plot plot : PlotManager.getPlots(p).values())
-			{
-				if(plot.owner.equalsIgnoreCase(playername))
-				{
-					if(i == 0)
+					try{
+						nb = Integer.parseInt(args[0].split(":")[1]);
+					}catch(NumberFormatException ex)
 					{
-						World w = p.getWorld();
-						p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - 
-								PlotManager.bottomX(plot.id, w))/2, PlotManager.getMap(p).WorldHeight + 1, PlotManager.bottomZ(plot.id, w) - 2));
+						p.sendMessage(PREFIX + RESET + " Format is: " + RED + "/plot home:# " + 
+								RESET + "As in : " + RED + "/plot home:1");
 						return true;
-					}else{
-						i--;
 					}
 				}
-			}
-			
-			if(!found)
-			{
-				if(nb > 0)
-				{
-					if(!playername.equalsIgnoreCase(p.getName())){
-						p.sendMessage(PREFIX + RED + " " + playername + " does not have a plot #" + nb);
-					}else{
-						p.sendMessage(PREFIX + RED + " Could not find plot #" + nb);
+				
+				if(args.length == 2)
+				{					
+					if(PlotMe.cPerms(p, "PlotMe.admin.home.other", false))
+					{
+						playername = args[1];
 					}
-				}else if(!playername.equalsIgnoreCase(p.getName())){
-					p.sendMessage(PREFIX + RED + " " + playername + " does not have a plot");
-				}else{
-					p.sendMessage(PREFIX + RED + " You don't have a plot");
+				}
+				
+				int i = nb - 1;
+						
+				for(Plot plot : PlotManager.getPlots(p).values())
+				{
+					if(plot.owner.equalsIgnoreCase(playername))
+					{
+						if(i == 0)
+						{
+							World w = p.getWorld();
+							p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - 
+									PlotManager.bottomX(plot.id, w))/2, PlotManager.getMap(p).WorldHeight + 1, PlotManager.bottomZ(plot.id, w) - 2));
+							return true;
+						}else{
+							i--;
+						}
+					}
+				}
+				
+				if(!found)
+				{
+					if(nb > 0)
+					{
+						if(!playername.equalsIgnoreCase(p.getName())){
+							p.sendMessage(PREFIX + RED + " " + playername + " does not have a plot #" + nb);
+						}else{
+							p.sendMessage(PREFIX + RED + " Could not find plot #" + nb);
+						}
+					}else if(!playername.equalsIgnoreCase(p.getName())){
+						p.sendMessage(PREFIX + RED + " " + playername + " does not have a plot");
+					}else{
+						p.sendMessage(PREFIX + RED + " You don't have a plot");
+					}
 				}
 			}
 		}else{

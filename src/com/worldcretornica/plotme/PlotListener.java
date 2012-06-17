@@ -479,5 +479,4 @@ public class PlotListener implements Listener {
 			}
 		}
 	}
-	
 }
