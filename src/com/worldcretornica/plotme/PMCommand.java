@@ -132,16 +132,16 @@ public class PMCommand implements CommandExecutor {
 			allowed_commands.add("biome");
 			allowed_commands.add("biomelist");
 		}
-		if(PlotMe.cPerms(p, "PlotMe.admin.tp", true)) allowed_commands.add("tp");
-		if(PlotMe.cPerms(p, "PlotMe.admin.id", true)) allowed_commands.add("id");
+		if(PlotMe.cPerms(p, "PlotMe.admin.tp", false)) allowed_commands.add("tp");
+		if(PlotMe.cPerms(p, "PlotMe.admin.id", false)) allowed_commands.add("id");
 		if(PlotMe.cPerms(p, "PlotMe.use.clear", true) || PlotMe.cPerms(p, "PlotMe.admin.clear", true)) allowed_commands.add("clear");
-		if(PlotMe.cPerms(p, "PlotMe.admin.reset", true)) allowed_commands.add("reset");
+		if(PlotMe.cPerms(p, "PlotMe.admin.reset", false)) allowed_commands.add("reset");
 		if(PlotMe.cPerms(p, "PlotMe.use.add", false) || PlotMe.cPerms(p, "PlotMe.admin.add", true)) allowed_commands.add("add");
 		if(PlotMe.cPerms(p, "PlotMe.use.remove", false) || PlotMe.cPerms(p, "PlotMe.admin.remove", true)) allowed_commands.add("remove");
-		if(PlotMe.cPerms(p, "PlotMe.admin.setowner", true)) allowed_commands.add("setowner");
-		if(PlotMe.cPerms(p, "PlotMe.admin.move", true)) allowed_commands.add("move");
-		if(PlotMe.cPerms(p, "PlotMe.admin.weanywhere", true)) allowed_commands.add("weanywhere");
-		if(PlotMe.cPerms(p, "PlotMe.admin.reload", true)) allowed_commands.add("reload");
+		if(PlotMe.cPerms(p, "PlotMe.admin.setowner", false)) allowed_commands.add("setowner");
+		if(PlotMe.cPerms(p, "PlotMe.admin.move", false)) allowed_commands.add("move");
+		if(PlotMe.cPerms(p, "PlotMe.admin.weanywhere", false)) allowed_commands.add("weanywhere");
+		if(PlotMe.cPerms(p, "PlotMe.admin.reload", false)) allowed_commands.add("reload");
 		
 		maxpage = (int) Math.ceil((double) allowed_commands.size() / max);
 		
