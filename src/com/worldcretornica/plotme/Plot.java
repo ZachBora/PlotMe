@@ -136,17 +136,19 @@ public class Plot implements Comparable<Plot>, Serializable {
 	public void addAllowed(String name)
 	{
 		if(!isAllowed(name))
+		{
 			allowed.add(name);
-		
-		SqlManager.addPlotAllowed(name, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
+			SqlManager.addPlotAllowed(name, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
+		}
 	}
 	
 	public void removeAllowed(String name)
 	{
-		if(!isAllowed(name))
+		if(isAllowed(name))
+		{
 			allowed.remove(name);
-		
-		SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, world);
+			SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, world);
+		}
 	}
 	
 	public boolean isAllowed(String name)
