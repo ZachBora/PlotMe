@@ -362,13 +362,19 @@ public class PMCommand implements CommandExecutor {
 		for(int ctr = (page - 1) * max; ctr < (page * max) && ctr < allowed_commands.size(); ctr++)
 		{
 			if(allowed_commands.get(ctr).equalsIgnoreCase("limit")){
-				int maxplots = PlotMe.getPlotLimit(p);
-				int ownedplots = PlotManager.getNbOwnedPlot(p);
+				if(PlotManager.isPlotWorld(p))
+				{
 				
-				if(maxplots == -1)
-					p.sendMessage(GREEN + "Your plot limit in this world : " + AQUA + ownedplots + GREEN + " used of " + AQUA + "Infinite");
-				else
-					p.sendMessage(GREEN + "Your plot limit in this world : " + AQUA + ownedplots + GREEN + " used of " + AQUA + maxplots);
+					int maxplots = PlotMe.getPlotLimit(p);
+					int ownedplots = PlotManager.getNbOwnedPlot(p);
+					
+					if(maxplots == -1)
+						p.sendMessage(GREEN + "Your plot limit in this world : " + AQUA + ownedplots + GREEN + " used of " + AQUA + "Infinite");
+					else
+						p.sendMessage(GREEN + "Your plot limit in this world : " + AQUA + ownedplots + GREEN + " used of " + AQUA + maxplots);
+				}else{
+					p.sendMessage(GREEN + "Your plot limit in this world : " + AQUA + "Not a plot world");
+				}
 			}else if(allowed_commands.get(ctr).equalsIgnoreCase("claim")){
 				p.sendMessage(GREEN + " /plotme claim");
 				p.sendMessage(AQUA + " Claim the current plot you are standing on");
@@ -458,16 +464,21 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.tp", false))
 		{
-			if(args.length == 2)
+			if(!PlotManager.isPlotWorld(p))
 			{
-				String id = args[1];
-				
-				Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
-				Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
-				
-				p.teleport(new Location(p.getWorld(), bottom.getX() + (top.getBlockX() - bottom.getBlockX())/2, PlotManager.getMap(p).WorldHeight + 1, bottom.getZ() - 2));
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
 			}else{
-				p.sendMessage(PREFIX + RESET + " Usage: " + RED + "/plotme tp <id> " + RESET + "Example: " + RED + "/plotme tp 5;-1 ");
+				if(args.length == 2)
+				{
+					String id = args[1];
+					
+					Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
+					Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
+					
+					p.teleport(new Location(p.getWorld(), bottom.getX() + (top.getBlockX() - bottom.getBlockX())/2, PlotManager.getMap(p).WorldHeight + 1, bottom.getZ() - 2));
+				}else{
+					p.sendMessage(PREFIX + RESET + " Usage: " + RED + "/plotme tp <id> " + RESET + "Example: " + RED + "/plotme tp 5;-1 ");
+				}
 			}
 		}else{
 			p.sendMessage(PREFIX + RED + " Permission denied");
@@ -526,20 +537,35 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.use.claim", true) || PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
 		{
-			String id = PlotManager.getPlotId(p.getLocation());
-			
-			if(!PlotManager.isPlotAvailable(id, p))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RED + " This plot is already owned");
-			}else{								
-				if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
-					p.sendMessage(PREFIX + RESET + " You have already reached your maximum amount of plots (" + 
-							PlotManager.getNbOwnedPlot(p) + "/" + PlotMe.getPlotLimit(p) + "). Use " + RED + "/plotme home" + RESET + " to get to it");
-				else
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{		
+				String id = PlotManager.getPlotId(p.getLocation());
+				
+				if(id == "")
 				{
-					PlotManager.createPlot(p.getWorld(), id, p.getName());
-	
-					p.sendMessage(PREFIX + RESET + " This plot is now yours. Use " + RED + "/plotme home" + RESET + " to get back to it.");
+					p.sendMessage(PREFIX + RED + " You cannot claim the road");
+				}
+				else if(!PlotManager.isPlotAvailable(id, p))
+				{
+					p.sendMessage(PREFIX + RED + " This plot is already owned");
+				}else
+				{								
+					if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
+						p.sendMessage(PREFIX + RESET + " You have already reached your maximum amount of plots (" + 
+								PlotManager.getNbOwnedPlot(p) + "/" + PlotMe.getPlotLimit(p) + "). Use " + RED + "/plotme home" + RESET + " to get to it");
+					else
+					{
+						Plot plot = PlotManager.createPlot(p.getWorld(), id, p.getName());
+		
+						if(plot == null)
+							p.sendMessage(PREFIX + RED + " An error occured while creating the plot at " + id);
+						else
+							p.sendMessage(PREFIX + RESET + " This plot is now yours. Use " + RED + "/plotme home" + RESET + " to get back to it.");
+					}
 				}
 			}
 		}else{
@@ -624,34 +650,41 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.use.info", true))
 		{
-			String id = PlotManager.getPlotId(p.getLocation());
-			
-			if(id.equals(""))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RED + " No plot found");
-			}else{
-				if(!PlotManager.isPlotAvailable(id, p))
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				String id = PlotManager.getPlotId(p.getLocation());
+				
+				if(id.equals(""))
 				{
-					Plot plot = PlotManager.getPlotById(p,id);
-					
-					p.sendMessage(BLUE +"ID: " + ITALIC + RESET + id);
-					p.sendMessage(BLUE +"Owner: " + RESET + plot.owner);
-					p.sendMessage(BLUE +"Biome: " + RESET + plot.biome);
-					if(plot.expireddate == null)
-						p.sendMessage(BLUE +"Expire date: " + RESET + "Never");
-					else
-						p.sendMessage(BLUE +"Expire date: " + RESET + plot.expireddate.toString());
-					if(plot.finished)
-						p.sendMessage(BLUE +"Finished: " + RESET + "Yes");
-					else
-						p.sendMessage(BLUE +"Finished: " + RESET + "No");
-					if(plot.allowedcount() > 0)
-					{
-						p.sendMessage(BLUE +"Helpers: " + RESET + plot.getAllowed());
-					}
-					
+					p.sendMessage(PREFIX + RED + " No plot found");
 				}else{
-					p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+					if(!PlotManager.isPlotAvailable(id, p))
+					{
+						Plot plot = PlotManager.getPlotById(p,id);
+						
+						p.sendMessage(BLUE +"ID: " + ITALIC + RESET + id);
+						p.sendMessage(BLUE +"Owner: " + RESET + plot.owner);
+						p.sendMessage(BLUE +"Biome: " + RESET + plot.biome);
+						if(plot.expireddate == null)
+							p.sendMessage(BLUE +"Expire date: " + RESET + "Never");
+						else
+							p.sendMessage(BLUE +"Expire date: " + RESET + plot.expireddate.toString());
+						if(plot.finished)
+							p.sendMessage(BLUE +"Finished: " + RESET + "Yes");
+						else
+							p.sendMessage(BLUE +"Finished: " + RESET + "No");
+						if(plot.allowedcount() > 0)
+						{
+							p.sendMessage(BLUE +"Helpers: " + RESET + plot.getAllowed());
+						}
+						
+					}else{
+						p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+					}
 				}
 			}
 		}else{
@@ -664,34 +697,42 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.use.comment", true))
 		{
-			if(args.length < 2)
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RESET + " Usage: " + RED + "/plotme comment <text>");
-			}else{
-			
-				String id = PlotManager.getPlotId(p.getLocation());
-				
-				if(id.equals(""))
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				if(args.length < 2)
 				{
-					p.sendMessage(PREFIX + RED + " No plot found");
-				}else{
-					if(!PlotManager.isPlotAvailable(id, p))
+					p.sendMessage(PREFIX + RESET + " Usage: " + RED + "/plotme comment <text>");
+				}
+				else
+				{
+					String id = PlotManager.getPlotId(p.getLocation());
+					
+					if(id.equals(""))
 					{
-						Plot plot = PlotManager.getPlotById(p, id);
-						
-						String text = StringUtils.join(args," ");
-						text = text.substring(text.indexOf(" "));
-						
-						String[] comment = new String[2];
-						comment[0] = p.getName();
-						comment[1] = text;
-						
-						plot.comments.add(comment);
-						SqlManager.addPlotComment(comment, plot.comments.size(), PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world);
-						
-						p.sendMessage(PREFIX + RESET + " Comment added");
+						p.sendMessage(PREFIX + RED + " No plot found");
 					}else{
-						p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+						if(!PlotManager.isPlotAvailable(id, p))
+						{
+							Plot plot = PlotManager.getPlotById(p, id);
+							
+							String text = StringUtils.join(args," ");
+							text = text.substring(text.indexOf(" "));
+							
+							String[] comment = new String[2];
+							comment[0] = p.getName();
+							comment[1] = text;
+							
+							plot.comments.add(comment);
+							SqlManager.addPlotComment(comment, plot.comments.size(), PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world);
+							
+							p.sendMessage(PREFIX + RESET + " Comment added");
+						}else{
+							p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+						}
 					}
 				}
 			}
@@ -705,38 +746,45 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.use.comments", true))
 		{
-			if(args.length < 2)
+			if(!PlotManager.isPlotWorld(p))
 			{
-				String id = PlotManager.getPlotId(p.getLocation());
-				
-				if(id.equals(""))
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				if(args.length < 2)
 				{
-					p.sendMessage(PREFIX + RED + " No plot found");
-				}else{
-					if(!PlotManager.isPlotAvailable(id, p))
+					String id = PlotManager.getPlotId(p.getLocation());
+					
+					if(id.equals(""))
 					{
-						Plot plot = PlotManager.getPlotById(p,id);
-						
-						if(plot.owner.equalsIgnoreCase(p.getName()) || plot.isAllowed(p.getName()) || PlotMe.checkPerms(p, "PlotMe.admin"))
+						p.sendMessage(PREFIX + RED + " No plot found");
+					}else{
+						if(!PlotManager.isPlotAvailable(id, p))
 						{
-							if(plot.comments.size() == 0)
+							Plot plot = PlotManager.getPlotById(p,id);
+							
+							if(plot.owner.equalsIgnoreCase(p.getName()) || plot.isAllowed(p.getName()) || PlotMe.checkPerms(p, "PlotMe.admin"))
 							{
-								p.sendMessage(PREFIX + RESET + " No comments");
-							}else{
-								p.sendMessage(PREFIX + RESET + " You have " + BLUE + plot.comments.size() + RESET + " comments.");
-								
-								for(String[] comment : plot.comments)
+								if(plot.comments.size() == 0)
 								{
-									p.sendMessage(ChatColor.BLUE + "From : " + RED + comment[0]);
-									p.sendMessage("" + RESET + ChatColor.ITALIC + comment[1]);
+									p.sendMessage(PREFIX + RESET + " No comments");
+								}else{
+									p.sendMessage(PREFIX + RESET + " You have " + BLUE + plot.comments.size() + RESET + " comments.");
+									
+									for(String[] comment : plot.comments)
+									{
+										p.sendMessage(ChatColor.BLUE + "From : " + RED + comment[0]);
+										p.sendMessage("" + RESET + ChatColor.ITALIC + comment[1]);
+									}
+									
 								}
-								
+							}else{
+								p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to view the comments.");
 							}
 						}else{
-							p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to view the comments.");
+							p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
 						}
-					}else{
-						p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
 					}
 				}
 			}
@@ -750,48 +798,55 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.use.biome", true))
 		{
-			String id = PlotManager.getPlotId(p.getLocation());
-			if(id.equals(""))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(BLUE + PREFIX + RED + " No plot found");
-			}else{
-				if(!PlotManager.isPlotAvailable(id, p))
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				String id = PlotManager.getPlotId(p.getLocation());
+				if(id.equals(""))
 				{
-					if(args.length == 2)
+					p.sendMessage(BLUE + PREFIX + RED + " No plot found");
+				}else{
+					if(!PlotManager.isPlotAvailable(id, p))
 					{
-						Biome biome = null;
-						
-						for(Biome bio : Biome.values())
+						if(args.length == 2)
 						{
-							if(bio.name().equalsIgnoreCase(args[1]))
+							Biome biome = null;
+							
+							for(Biome bio : Biome.values())
 							{
-								biome = bio;
+								if(bio.name().equalsIgnoreCase(args[1]))
+								{
+									biome = bio;
+								}
 							}
-						}
-						
-						if(biome == null)
-						{
-							p.sendMessage(PREFIX + RED + " " + args[1] + RESET + " is not a valid biome.");
-						}else{
-							Plot plot = PlotManager.getPlotById(p,id);
 							
-							if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.checkPerms(p, "PlotMe.admin"))
+							if(biome == null)
 							{
-								
-								PlotManager.setBiome(p.getWorld(), id, plot, biome);
-							
-								p.sendMessage(PREFIX + RESET + " Biome set to " + ChatColor.BLUE + biome.name());
+								p.sendMessage(PREFIX + RED + " " + args[1] + RESET + " is not a valid biome.");
 							}else{
-								p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to change it's biome.");
+								Plot plot = PlotManager.getPlotById(p,id);
+								
+								if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.checkPerms(p, "PlotMe.admin"))
+								{
+									
+									PlotManager.setBiome(p.getWorld(), id, plot, biome);
+								
+									p.sendMessage(PREFIX + RESET + " Biome set to " + ChatColor.BLUE + biome.name());
+								}else{
+									p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to change it's biome.");
+								}
 							}
+						}else{
+							Plot plot = PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(id);
+							
+							p.sendMessage(PREFIX + RESET + " This plot is using the biome " + ChatColor.BLUE + plot.biome.name());
 						}
 					}else{
-						Plot plot = PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(id);
-						
-						p.sendMessage(PREFIX + RESET + " This plot is using the biome " + ChatColor.BLUE + plot.biome.name());
+						p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
 					}
-				}else{
-					p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
 				}
 			}
 		}else{
@@ -842,7 +897,11 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.reset", false))
 		{
-			if(PlotMe.checkPerms(p, "PlotMe.admin"))
+			if(!PlotManager.isPlotWorld(p))
+			{
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
 			{
 				String id = PlotManager.getPlotId(p.getLocation());
 				if(id.equals(""))
@@ -875,25 +934,32 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.clear", false) || PlotMe.cPerms(p, "PlotMe.use.clear", true))
 		{
-			String id = PlotManager.getPlotId(p.getLocation());
-			if(id.equals(""))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RED + " No plot found");
-			}else{
-				if(!PlotManager.isPlotAvailable(id, p))
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				String id = PlotManager.getPlotId(p.getLocation());
+				if(id.equals(""))
 				{
-					Plot plot = PlotManager.getPlotById(p,id);
-					
-					if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.clear", false))
-					{
-						PlotManager.clear(p.getWorld(), plot);
-						
-						p.sendMessage(PREFIX + RESET + " Plot cleared");
-					}else{
-						p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to clear it.");
-					}
+					p.sendMessage(PREFIX + RED + " No plot found");
 				}else{
-					p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+					if(!PlotManager.isPlotAvailable(id, p))
+					{
+						Plot plot = PlotManager.getPlotById(p,id);
+						
+						if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.clear", false))
+						{
+							PlotManager.clear(p.getWorld(), plot);
+							
+							p.sendMessage(PREFIX + RESET + " Plot cleared");
+						}else{
+							p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to clear it.");
+						}
+					}else{
+						p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+					}
 				}
 			}
 		}else{
@@ -906,36 +972,43 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.add", false) || PlotMe.cPerms(p, "PlotMe.use.add", false))
 		{
-			String id = PlotManager.getPlotId(p.getLocation());
-			if(id.equals(""))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RED + " No plot found");
-			}else{
-				if(!PlotManager.isPlotAvailable(id, p))
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				String id = PlotManager.getPlotId(p.getLocation());
+				if(id.equals(""))
 				{
-					if(args.length < 2 || args[1].equalsIgnoreCase(""))
-					{
-						p.sendMessage(PREFIX + RESET + " Usage " + RED + "/plotme allow <player>");
-					}else{
-					
-						Plot plot = PlotManager.getPlotById(p,id);
-						
-						if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.add", false))
-						{
-							if(plot.isAllowed(args[1]))
-							{
-								p.sendMessage(PREFIX + RESET + " Player " + RED + args[1] + RESET + " was already allowed");
-							}else{
-								plot.addAllowed(args[1]);
-								
-								p.sendMessage(PREFIX + RESET + " Player " + RED + args[1] + RESET + " now allowed");
-							}
-						}else{
-							p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to add someone to it.");
-						}
-					}
+					p.sendMessage(PREFIX + RED + " No plot found");
 				}else{
-					p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+					if(!PlotManager.isPlotAvailable(id, p))
+					{
+						if(args.length < 2 || args[1].equalsIgnoreCase(""))
+						{
+							p.sendMessage(PREFIX + RESET + " Usage " + RED + "/plotme allow <player>");
+						}else{
+						
+							Plot plot = PlotManager.getPlotById(p,id);
+							
+							if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.add", false))
+							{
+								if(plot.isAllowed(args[1]))
+								{
+									p.sendMessage(PREFIX + RESET + " Player " + RED + args[1] + RESET + " was already allowed");
+								}else{
+									plot.addAllowed(args[1]);
+									
+									p.sendMessage(PREFIX + RESET + " Player " + RED + args[1] + RESET + " now allowed");
+								}
+							}else{
+								p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to add someone to it.");
+							}
+						}
+					}else{
+						p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+					}
 				}
 			}
 		}else{
@@ -948,36 +1021,43 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.remove", false) || PlotMe.cPerms(p, "PlotMe.use.remove", false))
 		{
-			String id = PlotManager.getPlotId(p.getLocation());
-			if(id.equals(""))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RED + " No plot found");
-			}else{
-				if(!PlotManager.isPlotAvailable(id, p))
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				String id = PlotManager.getPlotId(p.getLocation());
+				if(id.equals(""))
 				{
-					if(args.length < 2 || args[1].equalsIgnoreCase(""))
-					{
-						p.sendMessage(PREFIX + RESET + " Usage " + RED + "/plotme remove <player>");
-					}else{
-					
-						Plot plot = PlotManager.getPlotById(p,id);
-						
-						if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.remove", false))
-						{
-							if(plot.isAllowed(args[1]))
-							{
-								plot.removeAllowed(args[1]);
-																
-								p.sendMessage(PREFIX + RESET + "Player " + RED + args[1] + RESET + " removed");
-							}else{
-								p.sendMessage(PREFIX + RESET + "Player " + RED + args[1] + RESET + " wasn't allowed");
-							}
-						}else{
-							p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to remove someone from it.");
-						}
-					}
+					p.sendMessage(PREFIX + RED + " No plot found");
 				}else{
-					p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+					if(!PlotManager.isPlotAvailable(id, p))
+					{
+						if(args.length < 2 || args[1].equalsIgnoreCase(""))
+						{
+							p.sendMessage(PREFIX + RESET + " Usage " + RED + "/plotme remove <player>");
+						}else{
+						
+							Plot plot = PlotManager.getPlotById(p,id);
+							
+							if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.remove", false))
+							{
+								if(plot.isAllowed(args[1]))
+								{
+									plot.removeAllowed(args[1]);
+																	
+									p.sendMessage(PREFIX + RESET + "Player " + RED + args[1] + RESET + " removed");
+								}else{
+									p.sendMessage(PREFIX + RESET + "Player " + RED + args[1] + RESET + " wasn't allowed");
+								}
+							}else{
+								p.sendMessage(PREFIX + RED + " This plot(" + id + ") is not yours. You are not allowed to remove someone from it.");
+							}
+						}
+					}else{
+						p.sendMessage(PREFIX + RED + " This plot(" + id + ") has no owners.");
+					}
 				}
 			}
 		}else{
@@ -990,31 +1070,38 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.setowner", false))
 		{
-			String id = PlotManager.getPlotId(p.getLocation());
-			if(id.equals(""))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RED + " No plot found");
-			}else{
-				if(!PlotManager.isPlotAvailable(id, p))
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				String id = PlotManager.getPlotId(p.getLocation());
+				if(id.equals(""))
 				{
-					if(args.length < 2 || args[1].equalsIgnoreCase(""))
-					{
-						p.sendMessage(PREFIX + RESET + " Usage " + RED + "/plotme owner <player>");
-					}else{
-					
-						Plot plot = PlotManager.getPlotById(p,id);
-				
-						plot.owner = args[1];
-						
-						PlotManager.setSign(p.getWorld(), plot);
-						
-						SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world, "owner", args[1]);
-					}
+					p.sendMessage(PREFIX + RED + " No plot found");
 				}else{
-					PlotManager.createPlot(p.getWorld(), id, args[1]);
+					if(!PlotManager.isPlotAvailable(id, p))
+					{
+						if(args.length < 2 || args[1].equalsIgnoreCase(""))
+						{
+							p.sendMessage(PREFIX + RESET + " Usage " + RED + "/plotme owner <player>");
+						}else{
+						
+							Plot plot = PlotManager.getPlotById(p,id);
+					
+							plot.owner = args[1];
+							
+							PlotManager.setSign(p.getWorld(), plot);
+							
+							SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world, "owner", args[1]);
+						}
+					}else{
+						PlotManager.createPlot(p.getWorld(), id, args[1]);
+					}
+					
+					p.sendMessage(PREFIX + RESET + " Plot Owner has been set to " + RED + args[1]);
 				}
-				
-				p.sendMessage(PREFIX + RESET + " Plot Owner has been set to " + RED + args[1]);
 			}
 		}else{
 			p.sendMessage(PREFIX + RED + " Permission denied");
@@ -1026,19 +1113,26 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.id", false))
 		{
-			String plotid = PlotManager.getPlotId(p.getLocation());
-			
-			if(plotid.equals(""))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RED + " No plot found");
-			}else{
-				p.sendMessage(BLUE + "Plot Id: " + RESET + plotid);
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				String plotid = PlotManager.getPlotId(p.getLocation());
 				
-				Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), plotid);
-				Location top = PlotManager.getPlotTopLoc(p.getWorld(), plotid);
-				
-				p.sendMessage(BLUE + "Bottom: " + RESET + bottom.getBlockX() + ChatColor.BLUE + "," + RESET + bottom.getBlockZ());
-				p.sendMessage(BLUE + "Top: " + RESET + top.getBlockX() + ChatColor.BLUE + "," + RESET + top.getBlockZ());
+				if(plotid.equals(""))
+				{
+					p.sendMessage(PREFIX + RED + " No plot found");
+				}else{
+					p.sendMessage(BLUE + "Plot Id: " + RESET + plotid);
+					
+					Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), plotid);
+					Location top = PlotManager.getPlotTopLoc(p.getWorld(), plotid);
+					
+					p.sendMessage(BLUE + "Bottom: " + RESET + bottom.getBlockX() + ChatColor.BLUE + "," + RESET + bottom.getBlockZ());
+					p.sendMessage(BLUE + "Top: " + RESET + top.getBlockX() + ChatColor.BLUE + "," + RESET + top.getBlockZ());
+				}
 			}
 		}else{
 			p.sendMessage(PREFIX + RED + " Permission denied");
@@ -1050,14 +1144,21 @@ public class PMCommand implements CommandExecutor {
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.move", false))
 		{
-			if(args.length < 3 || args[1].equalsIgnoreCase("") || args[2].equalsIgnoreCase(""))
+			if(!PlotManager.isPlotWorld(p))
 			{
-				p.sendMessage(PREFIX + RESET + " Usage " + RED + "/plotme move <idFrom> <idTo>");
-			}else{
-				if(PlotManager.movePlot(p.getWorld(), args[1], args[2]))
-					p.sendMessage(PREFIX + RESET + " Plot moved successfully");
-				else
-					p.sendMessage(PREFIX + RED + " Error moving plot");
+				p.sendMessage(PREFIX + RED + " This is not a plot world.");
+			}
+			else
+			{
+				if(args.length < 3 || args[1].equalsIgnoreCase("") || args[2].equalsIgnoreCase(""))
+				{
+					p.sendMessage(PREFIX + RESET + " Usage " + RED + "/plotme move <idFrom> <idTo>");
+				}else{
+					if(PlotManager.movePlot(p.getWorld(), args[1], args[2]))
+						p.sendMessage(PREFIX + RESET + " Plot moved successfully");
+					else
+						p.sendMessage(PREFIX + RED + " Error moving plot");
+				}
 			}
 		}else{
 			p.sendMessage(PREFIX + RED + " Permission denied");

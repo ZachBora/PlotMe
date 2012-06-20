@@ -74,23 +74,33 @@ public class Plot implements Comparable<Plot>, Serializable {
 			
 	public void setExpire(Date date)
 	{
-		expireddate = date;
-		SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
+		if(!expireddate.equals(date))
+		{
+			expireddate = date;
+			SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
+		}
 	}
 	
 	public void resetExpire(int days)
 	{
 		if(days == 0)
 		{
-			expireddate = null;
+			if(expireddate != null)
+			{
+				expireddate = null;
+				SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
+			}
 		}else{
 			Calendar cal = Calendar.getInstance();
 			cal.add(Calendar.DAY_OF_YEAR, days);
 			java.util.Date utlDate = cal.getTime();
-			expireddate = new java.sql.Date(utlDate.getTime());
+			java.sql.Date temp = new java.sql.Date(utlDate.getTime());
+			if(!temp.equals(expireddate))
+			{
+				expireddate = temp;
+				SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
+			}
 		}
-		
-		SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
 	}
 	
 	public String getExpire()

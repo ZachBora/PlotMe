@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -45,6 +46,8 @@ public class PlotMe extends JavaPlugin
     
     public static WorldEditPlugin we;
     
+    
+
     private static HashSet<String> playersignoringwelimit = null;
 	
 	public void onDisable()
@@ -109,13 +112,15 @@ public class PlotMe extends JavaPlugin
 		} catch (IOException e) {
 		    // Failed to submit the stats :-(
 		}
-				
-		getServer().getPluginManager().registerEvents(new PlotListener(), this);
 		
-		if(getServer().getPluginManager().getPlugin("WorldEdit") != null)
+		PluginManager pm = getServer().getPluginManager();
+				
+		pm.registerEvents(new PlotListener(), this);
+		
+		if(pm.getPlugin("WorldEdit") != null)
 		{
-			we = (WorldEditPlugin) getServer().getPluginManager().getPlugin("WorldEdit");
-			getServer().getPluginManager().registerEvents(new PlotWorldEditListener(), this);			
+			we = (WorldEditPlugin) pm.getPlugin("WorldEdit");
+			pm.registerEvents(new PlotWorldEditListener(), this);			
 		}
 				
 		getCommand("plotme").setExecutor(new PMCommand(this));

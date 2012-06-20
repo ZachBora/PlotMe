@@ -1,6 +1,7 @@
 package com.worldcretornica.plotme;
 
 import java.util.HashMap;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -101,7 +102,7 @@ public class PlotManager {
 	
 	public static Plot createPlot(World world, String id, String owner)
 	{
-		if(isPlotAvailable(id, world))
+		if(isPlotAvailable(id, world) && id != "")
 		{
 			Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration);
 			
@@ -261,7 +262,7 @@ public class PlotManager {
 				}
 			}
 		}
-	} 
+	}
 	
 	public static boolean isBlockInPlot(Plot plot, Location blocklocation)
 	{
@@ -472,7 +473,10 @@ public class PlotManager {
 	
 	public static boolean isPlotWorld(World w)
 	{
-		return PlotMe.plotmaps.containsKey(w.getName().toLowerCase());
+		if(w == null)
+			return false;
+		else
+			return PlotMe.plotmaps.containsKey(w.getName().toLowerCase());
 	}
 	
 	public static boolean isPlotWorld(String name)
@@ -482,12 +486,18 @@ public class PlotManager {
 	
 	public static boolean isPlotWorld(Location l)
 	{
-		return PlotMe.plotmaps.containsKey(l.getWorld().getName().toLowerCase());
+		if(l == null)
+			return false;
+		else
+			return PlotMe.plotmaps.containsKey(l.getWorld().getName().toLowerCase());
 	}
 	
 	public static boolean isPlotWorld(Player p)
 	{
-		return PlotMe.plotmaps.containsKey(p.getWorld().getName().toLowerCase());
+		if(p == null)
+			return false;
+		else
+			return PlotMe.plotmaps.containsKey(p.getWorld().getName().toLowerCase());
 	}
 	
 	public static boolean isPlotWorld(Block b)
@@ -498,13 +508,20 @@ public class PlotManager {
 			return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
 	}
 	
-	public static boolean isPlotWorld(BlockState b) {
-		return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
+	public static boolean isPlotWorld(BlockState b)
+	{
+		if(b == null)
+			return false;
+		else
+			return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
 	}
 	
 	public static PlotMapInfo getMap(World w)
 	{
-		return PlotMe.plotmaps.get(w.getName().toLowerCase());
+		if(w == null)
+			return null;
+		else
+			return PlotMe.plotmaps.get(w.getName().toLowerCase());
 	}
 	
 	public static PlotMapInfo getMap(String name)
@@ -514,12 +531,18 @@ public class PlotManager {
 	
 	public static PlotMapInfo getMap(Location l)
 	{
-		return PlotMe.plotmaps.get(l.getWorld().getName().toLowerCase());
+		if(l == null)
+			return null;
+		else
+			return PlotMe.plotmaps.get(l.getWorld().getName().toLowerCase());
 	}
 	
 	public static PlotMapInfo getMap(Player p)
 	{
-		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase());
+		if(p == null)
+			return null;
+		else
+			return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase());
 	}
 	
 	public static PlotMapInfo getMap(Block b)
@@ -532,79 +555,124 @@ public class PlotManager {
 	
 	public static HashMap<String, Plot> getPlots(World w)
 	{
-		return PlotMe.plotmaps.get(w.getName().toLowerCase()).plots;
+		PlotMapInfo pmi = getMap(w);
+		
+		if(pmi == null)
+			return null;
+		else
+			return pmi.plots;
 	}
 	
 	public static HashMap<String, Plot> getPlots(String name)
-	{
-		return PlotMe.plotmaps.get(name.toLowerCase()).plots;
+	{		
+		PlotMapInfo pmi = getMap(name);
+		
+		if(pmi == null)
+			return null;
+		else
+			return pmi.plots;
 	}
 	
 	public static HashMap<String, Plot> getPlots(Player p)
-	{
-		return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots;
+	{		
+		PlotMapInfo pmi = getMap(p);
+		
+		if(pmi == null)
+			return null;
+		else
+			return pmi.plots;
 	}
 	
 	public static HashMap<String, Plot> getPlots(Block b)
-	{
-		if(b == null)
+	{	
+		PlotMapInfo pmi = getMap(b);
+		
+		if(pmi == null)
 			return null;
 		else
-			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots;
+			return pmi.plots;
+	}
+	
+	public static HashMap<String, Plot> getPlots(Location l)
+	{
+		PlotMapInfo pmi = getMap(l);
+		
+		if(pmi == null)
+			return null;
+		else
+			return pmi.plots;
 	}
 	
 	public static Plot getPlotById(World w, String id)
 	{
-		return PlotMe.plotmaps.get(w.getName().toLowerCase()).plots.get(id);
+		HashMap<String, Plot> plots = getPlots(w);
+		
+		if(plots == null)
+			return null;
+		else
+			return plots.get(id);
 	}
 	
 	public static Plot getPlotById(String name, String id)
 	{
-		return PlotMe.plotmaps.get(name.toLowerCase()).plots.get(id);
+		HashMap<String, Plot> plots = getPlots(name);
+		
+		if(plots == null)
+			return null;
+		else
+			return plots.get(id);
 	}
 	
 	public static Plot getPlotById(Player p, String id)
 	{
-		if(p == null)
+		HashMap<String, Plot> plots = getPlots(p);
+		
+		if(plots == null)
 			return null;
 		else
-		{
-			return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(id);
-		}
+			return plots.get(id);
 	}
 	
 	public static Plot getPlotById(Player p)
 	{
-		if(PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()) == null)
-			return null;
-		else if(PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots == null)
-			return null;
-		else if(getPlotId(p.getLocation()) == "")
+		HashMap<String, Plot> plots = getPlots(p);
+		String plotid = getPlotId(p.getLocation());
+		
+		if(plots == null || plotid == "")
 			return null;
 		else
-			return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase()).plots.get(getPlotId(p.getLocation()));
+			return plots.get(plotid);
 	}
 	
 	public static Plot getPlotById(Location l)
 	{
-		return PlotMe.plotmaps.get(l.getWorld().getName().toLowerCase()).plots.get(getPlotId(l));
+		HashMap<String, Plot> plots = getPlots(l);
+		String plotid = getPlotId(l);
+		
+		if(plots == null || plotid == "")
+			return null;
+		else
+			return plots.get(plotid);
 	}
 	
 	public static Plot getPlotById(Block b, String id)
 	{
-		if(b == null)
+		HashMap<String, Plot> plots = getPlots(b);
+		
+		if(plots == null)
 			return null;
 		else
-			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots.get(id);
+			return plots.get(id);
 	}
 	
 	public static Plot getPlotById(Block b)
 	{
-		if(b == null)
+		HashMap<String, Plot> plots = getPlots(b);
+		String plotid = getPlotId(b.getLocation());
+		
+		if(plots == null || plotid == "")
 			return null;
 		else
-		{
-			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase()).plots.get(getPlotId(b.getLocation()));
-		}
+			return plots.get(plotid);
 	}
 }

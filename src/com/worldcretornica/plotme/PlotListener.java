@@ -2,7 +2,6 @@ package com.worldcretornica.plotme;
 
 import java.util.List;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -421,6 +420,9 @@ public class PlotListener implements Listener {
 		
 		if(PlotManager.isPlotWorld(e.getWorld()))
 		{
+			event.setCancelled(true);
+			
+			/*
 			List<Block> blocks = event.blockList();
 			
 			Location el = e.getLocation();
@@ -447,7 +449,7 @@ public class PlotListener implements Listener {
 						i++;
 					}
 				}
-			}
+			}*/
 		}
 	}
 	
@@ -458,6 +460,8 @@ public class PlotListener implements Listener {
 		
 		if(PlotManager.isPlotWorld(b))
 		{
+			event.setCancelled(true);
+			/*
 			String id = PlotManager.getPlotId(b.getLocation());
 			Player p = event.getPlayer();
 			
@@ -476,7 +480,7 @@ public class PlotListener implements Listener {
 						event.setCancelled(true);
 					}
 				}
-			}
+			}*/
 		}
 	}
 }
