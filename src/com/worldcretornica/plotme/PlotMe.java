@@ -231,6 +231,12 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.WorldHeight = currworld.getInt("WorldHeight", 64);
 			tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
 			
+			if(tempPlotInfo.WorldHeight > 250)
+			{
+				logger.severe(PREFIX + " WorldHeight above 250 is unsafe. This is the height at which your road is located. Setting it to 64.");
+				tempPlotInfo.WorldHeight = 64;
+			}
+			
 			currworld.set("PlotAutoLimit", tempPlotInfo.PlotAutoLimit);
 			currworld.set("PathWidth", tempPlotInfo.PathWidth);
 			currworld.set("PlotSize", tempPlotInfo.PlotSize);
