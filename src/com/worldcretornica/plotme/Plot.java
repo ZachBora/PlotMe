@@ -1,6 +1,5 @@
 package com.worldcretornica.plotme;
 
-import java.io.Serializable;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -11,9 +10,8 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 
-public class Plot implements Comparable<Plot>, Serializable {
+public class Plot implements Comparable<Plot> {
 
-	private static final long serialVersionUID = 1129643448136021025L;
 	public String owner;
 	public String world;
 	private HashSet<String> allowed;

@@ -37,22 +37,27 @@ public class PlotMe extends JavaPlugin
     public static String mySQLuname;
     public static String mySQLpass;
     public static String mySQLconn;
-    
+    public static String configpath;
     public static int AutoPlotLimit;
     
     public static Map<String, PlotMapInfo> plotmaps;
     
-    public static String configpath;
-    
     public static WorldEditPlugin we;
     
-    
-
     private static HashSet<String> playersignoringwelimit = null;
 	
 	public void onDisable()
-	{		
+	{	
 		SqlManager.closeConnection();
+		NAME = null;
+		PREFIX = null;
+		VERSION = null;
+		mySQLuname = null;
+		mySQLpass = null;
+		mySQLconn = null;
+		plotmaps = null;
+		configpath = null;
+		we = null;
 	}
 	
 	public void onEnable()
@@ -288,28 +293,31 @@ public class PlotMe extends JavaPlugin
 		
 		for(PermissionAttachmentInfo pai : perms)
 		{
-			String perm = pai.getPermission();
-						
-			if(perm.startsWith("plotme.limit."))
-			{			
-				limit = perm.substring(perm.lastIndexOf(".") + 1);
-								
-				int tempmax = 0;
-				
-				if(limit.equals("*"))
-				{
-					return -1;
-				}else{
-					try
-					{
-						tempmax = Integer.parseInt(limit);
-					}catch(NumberFormatException ex)
-					{
-						tempmax = 1;
-					}
+			if(pai.getValue())
+			{
+				String perm = pai.getPermission();
+							
+				if(perm.startsWith("plotme.limit."))
+				{			
+					limit = perm.substring(perm.lastIndexOf(".") + 1);
+									
+					int tempmax = 0;
 					
-					if(tempmax > max)
-						max = tempmax;
+					if(limit.equals("*"))
+					{
+						return -1;
+					}else{
+						try
+						{
+							tempmax = Integer.parseInt(limit);
+						}catch(NumberFormatException ex)
+						{
+							tempmax = 1;
+						}
+						
+						if(tempmax > max)
+							max = tempmax;
+					}
 				}
 			}
 		}
