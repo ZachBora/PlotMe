@@ -415,10 +415,10 @@ public class PlotListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onEntityExplodeEvent(final EntityExplodeEvent event)
-	{
-		Entity e = event.getEntity();
+	{	
+		Location l = event.getLocation();
 		
-		if(e == null || PlotManager.isPlotWorld(e.getWorld()))
+		if(l != null && PlotManager.isPlotWorld(l.getWorld()))
 		{
 			event.setCancelled(true);
 			
