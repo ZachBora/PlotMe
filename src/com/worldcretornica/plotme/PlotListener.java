@@ -418,7 +418,7 @@ public class PlotListener implements Listener {
 	{
 		Entity e = event.getEntity();
 		
-		if(PlotManager.isPlotWorld(e.getWorld()))
+		if(e == null || PlotManager.isPlotWorld(e.getWorld()))
 		{
 			event.setCancelled(true);
 			
@@ -458,7 +458,7 @@ public class PlotListener implements Listener {
 	{
 		Block b = event.getBlock();
 		
-		if(PlotManager.isPlotWorld(b))
+		if(b == null || PlotManager.isPlotWorld(b))
 		{
 			event.setCancelled(true);
 			/*
