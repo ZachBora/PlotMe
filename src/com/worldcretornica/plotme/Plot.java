@@ -93,8 +93,10 @@ public class Plot implements Comparable<Plot> {
 			cal.add(Calendar.DAY_OF_YEAR, days);
 			java.util.Date utlDate = cal.getTime();
 			java.sql.Date temp = new java.sql.Date(utlDate.getTime());
-			if(!temp.equals(expireddate))
+			if(!temp.toString().equalsIgnoreCase(expireddate.toString()))
 			{
+				PlotMe.logger.info("Temp: " + temp.toString());
+				PlotMe.logger.info("Exp : " + expireddate.toString());
 				expireddate = temp;
 				SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
 			}

@@ -1,12 +1,12 @@
-package com.worldcretornica.plotme;
+package com.worldcretornica.plotme.listener;
 
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,6 +29,10 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
+import com.worldcretornica.plotme.Plot;
+import com.worldcretornica.plotme.PlotManager;
+import com.worldcretornica.plotme.PlotMe;
+
 public class PlotListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -37,6 +41,7 @@ public class PlotListener implements Listener {
 		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
 		
 		Block b = event.getBlock();
+		
 		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
@@ -82,6 +87,7 @@ public class PlotListener implements Listener {
 		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
 
 		Block b = event.getBlock();
+		
 		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
@@ -189,15 +195,18 @@ public class PlotListener implements Listener {
 		}
 	}
 	
+	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerInteract(final PlayerInteractEvent event)
 	{
 		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
 		
 		Block b = event.getClickedBlock();
+		
 		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
+			
 			Player p = event.getPlayer();
 			
 			if(id.equalsIgnoreCase(""))
@@ -458,7 +467,7 @@ public class PlotListener implements Listener {
 	{
 		Block b = event.getBlock();
 		
-		if(b == null || PlotManager.isPlotWorld(b))
+		if(b != null && PlotManager.isPlotWorld(b))
 		{
 			event.setCancelled(true);
 			/*

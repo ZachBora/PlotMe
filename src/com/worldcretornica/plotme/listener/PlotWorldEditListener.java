@@ -1,4 +1,4 @@
-package com.worldcretornica.plotme;
+package com.worldcretornica.plotme.listener;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,6 +12,11 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+
+import com.worldcretornica.plotme.Plot;
+import com.worldcretornica.plotme.PlotManager;
+import com.worldcretornica.plotme.PlotMe;
+import com.worldcretornica.plotme.PlotWorldEdit;
 
 public class PlotWorldEditListener implements Listener {
 

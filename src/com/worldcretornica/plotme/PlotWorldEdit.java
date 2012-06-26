@@ -26,6 +26,8 @@ public class PlotWorldEdit {
 				
 		Location bottom = null;
 		Location top = null;
+		
+		LocalSession session = PlotMe.we.getSession(p);
 				
 		if(!id.equalsIgnoreCase(""))
 		{		
@@ -35,8 +37,6 @@ public class PlotWorldEdit {
 			{			
 				bottom = PlotManager.getPlotBottomLoc(w, id);
 				top = PlotManager.getPlotTopLoc(w, id);
-				
-				LocalSession session = PlotMe.we.getSession(p);
 				
 				BukkitPlayer player = PlotMe.we.wrapPlayer(p);
 				LocalWorld world = player.getWorld();
@@ -53,25 +53,10 @@ public class PlotWorldEdit {
 			}
 		}
 		
-		
-		/*
-		Set<PermissionAttachmentInfo> perms = p.getEffectivePermissions();
-		String limit = "";
-		
-		for(PermissionAttachmentInfo pai : perms)
-		{
-			String perm = pai.getPermission();
-			if(perm.startsWith("plugin.limitstuff."))
-			{
-				limit = perm.substring(perm.lastIndexOf("."));
-			}
-		}*/
 		if(bottom == null || top == null){
 			bottom = new Location(w, 0, 0, 0);
 			top = new Location(w, 0, 0, 0);
 		}
-		
-		LocalSession session = PlotMe.we.getSession(p);
 		
 		if(session.getMask() == null)
 		{

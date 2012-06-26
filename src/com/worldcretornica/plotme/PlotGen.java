@@ -39,7 +39,7 @@ public class PlotGen extends ChunkGenerator {
 		wall = pmi.WallBlockId;
 		plotfloor = pmi.PlotFloorBlockId;
 		filling = pmi.PlotFillingBlockId;
-		worldheight = pmi.WorldHeight;
+		worldheight = pmi.RoadHeight;
 	}
 	
 	public byte[] generate(World world, Random random, int cx, int cz) {

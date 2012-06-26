@@ -475,7 +475,7 @@ public class PMCommand implements CommandExecutor {
 					Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
 					Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
 					
-					p.teleport(new Location(p.getWorld(), bottom.getX() + (top.getBlockX() - bottom.getBlockX())/2, PlotManager.getMap(p).WorldHeight + 1, bottom.getZ() - 2));
+					p.teleport(new Location(p.getWorld(), bottom.getX() + (top.getBlockX() - bottom.getBlockX())/2, PlotManager.getMap(p).RoadHeight + 1, bottom.getZ() - 2));
 				}else{
 					p.sendMessage(PREFIX + RESET + " Usage: " + RED + "/plotme tp <id> " + RESET + "Example: " + RED + "/plotme tp 5;-1 ");
 				}
@@ -515,7 +515,7 @@ public class PMCommand implements CommandExecutor {
 									Plot plot = PlotManager.createPlot(w, id, p.getName());
 									
 									p.teleport(new Location(p.getWorld(), PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - 
-											PlotManager.bottomX(plot.id, w))/2, PlotManager.getMap(w).WorldHeight + 1, PlotManager.bottomZ(plot.id, w) - 2));
+											PlotManager.bottomX(plot.id, w))/2, PlotManager.getMap(w).RoadHeight + 1, PlotManager.bottomZ(plot.id, w) - 2));
 		
 									p.sendMessage(PREFIX + RESET + " This plot is now yours. Use " + RED + "/plotme home" + RESET + " to get back to them.");
 									return true;
@@ -616,7 +616,7 @@ public class PMCommand implements CommandExecutor {
 						{
 							World w = p.getWorld();
 							p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - 
-									PlotManager.bottomX(plot.id, w))/2, PlotManager.getMap(p).WorldHeight + 1, PlotManager.bottomZ(plot.id, w) - 2));
+									PlotManager.bottomX(plot.id, w))/2, PlotManager.getMap(p).RoadHeight + 1, PlotManager.bottomZ(plot.id, w) - 2));
 							return true;
 						}else{
 							i--;

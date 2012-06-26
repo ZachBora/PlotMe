@@ -7,7 +7,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
@@ -17,13 +16,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.worldcretornica.plotme.Metrics.Graph;
+import com.worldcretornica.plotme.listener.PlotListener;
+import com.worldcretornica.plotme.listener.PlotWorldEditListener;
 
 public class PlotMe extends JavaPlugin
 {
@@ -43,6 +43,8 @@ public class PlotMe extends JavaPlugin
     public static Map<String, PlotMapInfo> plotmaps;
     
     public static WorldEditPlugin we;
+    
+    public static boolean usingPEX = false;
     
     private static HashSet<String> playersignoringwelimit = null;
 	
@@ -127,7 +129,9 @@ public class PlotMe extends JavaPlugin
 			we = (WorldEditPlugin) pm.getPlugin("WorldEdit");
 			pm.registerEvents(new PlotWorldEditListener(), this);			
 		}
-				
+		
+		usingPEX = (pm.getPlugin("PermissionsEx") != null);
+			
 		getCommand("plotme").setExecutor(new PMCommand(this));
 	}
 	
@@ -203,7 +207,7 @@ public class PlotMe extends JavaPlugin
 			plotworld.set("WallBlockId", 44);
 			plotworld.set("PlotFloorBlockId", 2);
 			plotworld.set("PlotFillingBlockId", 3);
-			plotworld.set("WorldHeight", 64);
+			plotworld.set("RoadHeight", 64);
 			plotworld.set("DaysToExpiration", 7);
 			
 			worlds.set("plotworld", plotworld);
@@ -228,13 +232,13 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.WallBlockId = (byte) currworld.getInt("WallBlockId", 44);
 			tempPlotInfo.PlotFloorBlockId = (byte) currworld.getInt("PlotFloorBlockId", 2);
 			tempPlotInfo.PlotFillingBlockId = (byte) currworld.getInt("PlotFillingBlockId", 3);
-			tempPlotInfo.WorldHeight = currworld.getInt("WorldHeight", 64);
+			tempPlotInfo.RoadHeight = currworld.getInt("RoadHeight", currworld.getInt("WorldHeight", 64));
 			tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
 			
-			if(tempPlotInfo.WorldHeight > 250)
+			if(tempPlotInfo.RoadHeight > 250)
 			{
-				logger.severe(PREFIX + " WorldHeight above 250 is unsafe. This is the height at which your road is located. Setting it to 64.");
-				tempPlotInfo.WorldHeight = 64;
+				logger.severe(PREFIX + " RoadHeight above 250 is unsafe. This is the height at which your road is located. Setting it to 64.");
+				tempPlotInfo.RoadHeight = 64;
 			}
 			
 			currworld.set("PlotAutoLimit", tempPlotInfo.PlotAutoLimit);
@@ -244,7 +248,8 @@ public class PlotMe extends JavaPlugin
 			currworld.set("WallBlockId", tempPlotInfo.WallBlockId);
 			currworld.set("PlotFloorBlockId", tempPlotInfo.PlotFloorBlockId);
 			currworld.set("PlotFillingBlockId", tempPlotInfo.PlotFillingBlockId);
-			currworld.set("WorldHeight", tempPlotInfo.WorldHeight);
+			currworld.set("RoadHeight", tempPlotInfo.RoadHeight);
+			currworld.set("WorldHeight", null);
 			currworld.set("DaysToExpiration", tempPlotInfo.DaysToExpiration);
 			
 			tempPlotInfo.plots = SqlManager.getPlots(worldname.toLowerCase());
@@ -294,15 +299,28 @@ public class PlotMe extends JavaPlugin
 	{
 		int max = 0;
 		
-		Set<PermissionAttachmentInfo> perms = p.getEffectivePermissions();
+		int maxlimit = 255;
+		
+		for(int ctr = 0; ctr < maxlimit; ctr++)
+		{
+			if(p.hasPermission("plotme.limit." + ctr))
+			{
+				max = ctr;
+			}
+		}
+		
+		//This is solution 1, but I don't like it, instead we'll use above solution
+		/*
 		String limit = "";
 		
-		for(PermissionAttachmentInfo pai : perms)
+		if(usingPEX)
 		{
-			if(pai.getValue())
+			PermissionUser user = PermissionsEx.getUser(p);
+			
+			for(String perm : user.getPermissions(p.getWorld().getName()))
 			{
-				String perm = pai.getPermission();
-							
+				//logger.info("PlotMe: " + perm);
+				
 				if(perm.startsWith("plotme.limit."))
 				{			
 					limit = perm.substring(perm.lastIndexOf(".") + 1);
@@ -326,8 +344,46 @@ public class PlotMe extends JavaPlugin
 					}
 				}
 			}
+			
 		}
-		
+		else
+		{
+			Set<PermissionAttachmentInfo> perms = p.getEffectivePermissions();
+			
+			for(PermissionAttachmentInfo pai : perms)
+			{
+				if(pai.getValue())
+				{
+					String perm = pai.getPermission();
+					
+					//logger.info("PLotMe: " + perm);
+								
+					if(perm.startsWith("plotme.limit."))
+					{			
+						limit = perm.substring(perm.lastIndexOf(".") + 1);
+										
+						int tempmax = 0;
+						
+						if(limit.equals("*"))
+						{
+							return -1;
+						}else{
+							try
+							{
+								tempmax = Integer.parseInt(limit);
+							}catch(NumberFormatException ex)
+							{
+								tempmax = 1;
+							}
+							
+							if(tempmax > max)
+								max = tempmax;
+						}
+					}
+				}
+			}
+		}
+		*/
 		if(max == 0)
 		{
 			if(cPerms(p, "PlotMe.admin", false))
@@ -335,7 +391,6 @@ public class PlotMe extends JavaPlugin
 			else
 				max = 1;
 		}
-		
 		
 		return max;
 	}
