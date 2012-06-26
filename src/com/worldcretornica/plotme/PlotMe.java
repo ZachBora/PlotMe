@@ -301,12 +301,18 @@ public class PlotMe extends JavaPlugin
 		
 		int maxlimit = 255;
 		
-		for(int ctr = 0; ctr < maxlimit; ctr++)
+		if(p.hasPermission("plotme.limit.*"))
 		{
-			if(p.hasPermission("plotme.limit." + ctr))
+			max = -1;
+		}else{
+			for(int ctr = 0; ctr < maxlimit; ctr++)
 			{
-				max = ctr;
+				if(p.hasPermission("plotme.limit." + ctr))
+				{
+					max = ctr;
+				}
 			}
+		
 		}
 		
 		//This is solution 1, but I don't like it, instead we'll use above solution

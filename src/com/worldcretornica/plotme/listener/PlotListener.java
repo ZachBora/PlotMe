@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockFadeEvent;
@@ -28,6 +29,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.worldcretornica.plotme.Plot;
 import com.worldcretornica.plotme.PlotManager;
@@ -203,7 +205,10 @@ public class PlotListener implements Listener {
 		
 		Block b = event.getClickedBlock();
 		
-		if(PlotManager.isPlotWorld(b))
+		ItemStack is = event.getItem();
+		
+		if(is != null && PlotManager.isPlotWorld(b) && event.getAction() == Action.RIGHT_CLICK_BLOCK && 
+				is.getType() == Material.INK_SACK && is.getData().getData() == 15)
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 			
