@@ -75,7 +75,7 @@ public class PlotWorldEditListener implements Listener {
 	{
 		Player p = event.getPlayer();
 
-		if(!PlotMe.checkPerms(p, "PlotMe.admin") && PlotManager.isPlotWorld(p) && !PlotMe.isIgnoringWELimit(p))
+		if(!PlotMe.cPerms(p, "PlotMe.admin") && PlotManager.isPlotWorld(p) && !PlotMe.isIgnoringWELimit(p))
 		{
 			if(event.getAction() == Action.LEFT_CLICK_BLOCK && p.getItemInHand() != null && p.getItemInHand().getType() != Material.AIR)
 			{

@@ -9,47 +9,86 @@ softdepend: [WorldEdit]
 description: >
              Handles plot creation, management and protection
 commands:
-  plotme:
-    description: List plotme commands
-    usage: /plotme
-    aliases: [p, plot]
-    
+   plotme:
+      description: List PlotMe commands
+      usage: /plotme
+      aliases: [p,plot]
 permissions:
-  plotme.use:
-    description: Gives default user commands
-    children:
-      plotme.use.claim: true
-      plotme.use.auto: true
-      plotme.use.home: true
-      plotme.use.info: true
-      plotme.use.comment: true
-      plotme.use.comments: true
-      plotme.use.biome: true
-      plotme.use.clear: true
-      plotme.use.list: true
-  plotme.use.claim:
-    description: Gives the claim command
-  plotme.use.auto:
-    description: Give the auto command
-  plotme.use.home:
-    description: Give the home command
-  plotme.use.info:
-    description: Give the info command
-  plotme.use.comment:
-    description: Give the comment command
-  plotme.use.comments:
-    description: Give the comments command
-  plotme.use.biome:
-    description: Give the biome and biomelist command
-  plotme.use.clear:
-    description: Give the clear command for plots owned
-  plotme.use.list:
-    description: Give the list command
-  plotme.use.add:
-    description: Give the add command for plots owned
-  plotme.use.remove:
-    description: Give the remove command for plots owned
-  plotme.limit.*:
-    description: Give unlimited plots
-  plotme.admin:
-    description: Give default admin commands 
+    plotme.use:
+      description: Gives default user commands
+      children:
+        plotme.use.claim: true
+        plotme.use.auto: true
+        plotme.use.home: true
+        plotme.use.info: true
+        plotme.use.comment: true
+        plotme.use.comments: true
+        plotme.use.biome: true
+        plotme.use.clear: true
+        plotme.use.list: true
+    plotme.admin:
+      description: Gives default administrator commands
+      children:
+        plotme.admin.claim.other: true
+        plotme.admin.home.other: true
+        plotme.admin.tp: true
+        plotme.admin.id: true
+        plotme.admin.clear: true
+        plotme.admin.reset: true
+        plotme.admin.add: true
+        plotme.admin.remove: true
+        plotme.admin.setowner: true
+        plotme.admin.move: true
+        plotme.admin.weanywhere: true
+        plotme.admin.list: true
+        plotme.admin.reload: true
+    plotme.use.claim:
+      description: Gives the claim command
+    plotme.use.auto:
+      description: Give the auto claim command
+    plotme.use.home:
+      description: Give the home command
+    plotme.use.info:
+      description: Give the info command
+    plotme.use.comment:
+      description: Give the comment command
+    plotme.use.comments:
+      description: Give the comments command
+    plotme.use.biome:
+      description: Give the biome and biomelist command
+    plotme.use.clear:
+      description: Give the clear command for plots owned
+    plotme.use.list:
+      description: Give the list command
+    plotme.use.add:
+      description: Give the add command for plots owned
+    plotme.use.remove:
+      description: Give the remove command for plots owned
+    plotme.use.*:
+      description: Give unlimited plots
+    plotme.admin.claim.other:
+      description: Admin permission
+    plotme.admin.home.other:
+      description: Admin permission
+    plotme.admin.tp:
+      description: Admin permission
+    plotme.admin.id:
+      description: Admin permission
+    plotme.admin.clear:
+      description: Admin permission
+    plotme.admin.reset:
+      description: Admin permission
+    plotme.admin.add:
+      description: Admin permission
+    plotme.admin.remove:
+      description: Admin permission
+    plotme.admin.setowner:
+      description: Admin permission
+    plotme.admin.move:
+      description: Admin permission
+    plotme.admin.weanywhere:
+      description: Admin permission
+    plotme.admin.list:
+      description: Admin permission
+    plotme.admin.reload:
+      description: Admin permission
