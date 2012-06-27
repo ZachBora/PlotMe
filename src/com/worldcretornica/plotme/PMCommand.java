@@ -102,7 +102,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean addtime(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.addtime", false))
+		if(PlotMe.cPerms(p, "PlotMe.admin.addtime"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -137,7 +137,7 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean expired(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.expired", false))
+		if(PlotMe.cPerms(p, "PlotMe.admin.expired"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -205,7 +205,7 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean plotlist(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.use.list", true))
+		if(PlotMe.cPerms(p, "PlotMe.use.list"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -215,7 +215,7 @@ public class PMCommand implements CommandExecutor {
 				
 				String name;
 				
-				if(PlotMe.cPerms(p, "PlotMe.admin.list", false) && args.length == 2)
+				if(PlotMe.cPerms(p, "PlotMe.admin.list") && args.length == 2)
 				{
 					name = args[1];
 					p.sendMessage(PREFIX + RESET + " List of plots where " + BLUE + name + RESET + " can build:");
@@ -295,7 +295,7 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean weanywhere(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.weanywhere", false))
+		if(PlotMe.cPerms(p, "PlotMe.admin.weanywhere"))
 		{
 			if(PlotMe.isIgnoringWELimit(p))
 			{
@@ -320,37 +320,37 @@ public class PMCommand implements CommandExecutor {
 		List<String> allowed_commands = new ArrayList<String>();
 		
 		allowed_commands.add("limit");
-		if(PlotMe.cPerms(p, "PlotMe.use.claim", true)) allowed_commands.add("claim");
-		if(PlotMe.cPerms(p, "PlotMe.use.claim.other", false)) allowed_commands.add("claim.other");
-		if(PlotMe.cPerms(p, "PlotMe.use.auto", true)) allowed_commands.add("auto");
-		if(PlotMe.cPerms(p, "PlotMe.use.home", true)) allowed_commands.add("home");
-		if(PlotMe.cPerms(p, "PlotMe.use.home.other", false)) allowed_commands.add("home.other");
-		if(PlotMe.cPerms(p, "PlotMe.use.info", true))
+		if(PlotMe.cPerms(p, "PlotMe.use.claim")) allowed_commands.add("claim");
+		if(PlotMe.cPerms(p, "PlotMe.use.claim.other")) allowed_commands.add("claim.other");
+		if(PlotMe.cPerms(p, "PlotMe.use.auto")) allowed_commands.add("auto");
+		if(PlotMe.cPerms(p, "PlotMe.use.home")) allowed_commands.add("home");
+		if(PlotMe.cPerms(p, "PlotMe.use.home.other")) allowed_commands.add("home.other");
+		if(PlotMe.cPerms(p, "PlotMe.use.info"))
 		{
 			allowed_commands.add("info");
 			allowed_commands.add("biomeinfo");
 		}
-		if(PlotMe.cPerms(p, "PlotMe.use.comment", true)) allowed_commands.add("comment");
-		if(PlotMe.cPerms(p, "PlotMe.use.comments", true)) allowed_commands.add("comments");
-		if(PlotMe.cPerms(p, "PlotMe.use.list", true)) allowed_commands.add("list");
-		if(PlotMe.cPerms(p, "PlotMe.use.biome", true))
+		if(PlotMe.cPerms(p, "PlotMe.use.comment")) allowed_commands.add("comment");
+		if(PlotMe.cPerms(p, "PlotMe.use.comments")) allowed_commands.add("comments");
+		if(PlotMe.cPerms(p, "PlotMe.use.list")) allowed_commands.add("list");
+		if(PlotMe.cPerms(p, "PlotMe.use.biome"))
 		{
 			allowed_commands.add("biome");
 			allowed_commands.add("biomelist");
 		}
-		if(PlotMe.cPerms(p, "PlotMe.admin.tp", false)) allowed_commands.add("tp");
-		if(PlotMe.cPerms(p, "PlotMe.admin.id", false)) allowed_commands.add("id");
-		if(PlotMe.cPerms(p, "PlotMe.use.clear", true) || PlotMe.cPerms(p, "PlotMe.admin.clear", true)) allowed_commands.add("clear");
-		if(PlotMe.cPerms(p, "PlotMe.admin.reset", false)) allowed_commands.add("reset");
-		if(PlotMe.cPerms(p, "PlotMe.use.add", false) || PlotMe.cPerms(p, "PlotMe.admin.add", true)) allowed_commands.add("add");
-		if(PlotMe.cPerms(p, "PlotMe.use.remove", false) || PlotMe.cPerms(p, "PlotMe.admin.remove", true)) allowed_commands.add("remove");
-		if(PlotMe.cPerms(p, "PlotMe.admin.setowner", false)) allowed_commands.add("setowner");
-		if(PlotMe.cPerms(p, "PlotMe.admin.move", false)) allowed_commands.add("move");
-		if(PlotMe.cPerms(p, "PlotMe.admin.weanywhere", false)) allowed_commands.add("weanywhere");
-		if(PlotMe.cPerms(p, "PlotMe.admin.reload", false)) allowed_commands.add("reload");
-		if(PlotMe.cPerms(p, "PlotMe.admin.list", false)) allowed_commands.add("listother");
-		if(PlotMe.cPerms(p, "PlotMe.admin.expired", false)) allowed_commands.add("expired");
-		if(PlotMe.cPerms(p, "PlotMe.admin.addtime", false)) allowed_commands.add("addtime");
+		if(PlotMe.cPerms(p, "PlotMe.admin.tp")) allowed_commands.add("tp");
+		if(PlotMe.cPerms(p, "PlotMe.admin.id")) allowed_commands.add("id");
+		if(PlotMe.cPerms(p, "PlotMe.use.clear") || PlotMe.cPerms(p, "PlotMe.admin.clear")) allowed_commands.add("clear");
+		if(PlotMe.cPerms(p, "PlotMe.admin.reset")) allowed_commands.add("reset");
+		if(PlotMe.cPerms(p, "PlotMe.use.add") || PlotMe.cPerms(p, "PlotMe.admin.add")) allowed_commands.add("add");
+		if(PlotMe.cPerms(p, "PlotMe.use.remove") || PlotMe.cPerms(p, "PlotMe.admin.remove")) allowed_commands.add("remove");
+		if(PlotMe.cPerms(p, "PlotMe.admin.setowner")) allowed_commands.add("setowner");
+		if(PlotMe.cPerms(p, "PlotMe.admin.move")) allowed_commands.add("move");
+		if(PlotMe.cPerms(p, "PlotMe.admin.weanywhere")) allowed_commands.add("weanywhere");
+		if(PlotMe.cPerms(p, "PlotMe.admin.reload")) allowed_commands.add("reload");
+		if(PlotMe.cPerms(p, "PlotMe.admin.list")) allowed_commands.add("listother");
+		if(PlotMe.cPerms(p, "PlotMe.admin.expired")) allowed_commands.add("expired");
+		if(PlotMe.cPerms(p, "PlotMe.admin.addtime")) allowed_commands.add("addtime");
 		
 		maxpage = (int) Math.ceil((double) allowed_commands.size() / max);
 		
@@ -462,7 +462,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean tp(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.tp", false))
+		if (PlotMe.cPerms(p, "PlotMe.admin.tp"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -488,13 +488,13 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean auto(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.use.auto", true))
+		if (PlotMe.cPerms(p, "PlotMe.use.auto"))
 		{			
 			if(!PlotManager.isPlotWorld(p))
 			{
 				p.sendMessage(PREFIX + RED + " This is not a plot world.");
 			}else{				
-				if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.checkPerms(p, "PlotMe.admin"))
+				if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin"))
 					p.sendMessage(PREFIX + RED + " You have already reached your maximum amount of plots (" + 
 							PlotManager.getNbOwnedPlot(p) + "/" + PlotMe.getPlotLimit(p) + "). Use " + RED + "/plotme home" + RESET + " to get to them.");
 				else
@@ -535,7 +535,7 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean claim(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.use.claim", true) || PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
+		if (PlotMe.cPerms(p, "PlotMe.use.claim") || PlotMe.cPerms(p, "PlotMe.admin.claim.other"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -554,7 +554,7 @@ public class PMCommand implements CommandExecutor {
 					p.sendMessage(PREFIX + RED + " This plot is already owned");
 				}else
 				{								
-					if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin.claim.other", false))
+					if(PlotManager.getNbOwnedPlot(p) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin.claim.other"))
 						p.sendMessage(PREFIX + RESET + " You have already reached your maximum amount of plots (" + 
 								PlotManager.getNbOwnedPlot(p) + "/" + PlotMe.getPlotLimit(p) + "). Use " + RED + "/plotme home" + RESET + " to get to it");
 					else
@@ -576,7 +576,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean home(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.use.home", true) || PlotMe.cPerms(p, "PlotMe.admin.home.other", false))
+		if (PlotMe.cPerms(p, "PlotMe.use.home") || PlotMe.cPerms(p, "PlotMe.admin.home.other"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -600,7 +600,7 @@ public class PMCommand implements CommandExecutor {
 				
 				if(args.length == 2)
 				{					
-					if(PlotMe.cPerms(p, "PlotMe.admin.home.other", false))
+					if(PlotMe.cPerms(p, "PlotMe.admin.home.other"))
 					{
 						playername = args[1];
 					}
@@ -648,7 +648,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean info(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.use.info", true))
+		if (PlotMe.cPerms(p, "PlotMe.use.info"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -695,7 +695,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean comment(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.use.comment", true))
+		if (PlotMe.cPerms(p, "PlotMe.use.comment"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -744,7 +744,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean comments(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.use.comments", true))
+		if (PlotMe.cPerms(p, "PlotMe.use.comments"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -764,7 +764,7 @@ public class PMCommand implements CommandExecutor {
 						{
 							Plot plot = PlotManager.getPlotById(p,id);
 							
-							if(plot.owner.equalsIgnoreCase(p.getName()) || plot.isAllowed(p.getName()) || PlotMe.checkPerms(p, "PlotMe.admin"))
+							if(plot.owner.equalsIgnoreCase(p.getName()) || plot.isAllowed(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin"))
 							{
 								if(plot.comments.size() == 0)
 								{
@@ -796,7 +796,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean biome(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.use.biome", true))
+		if (PlotMe.cPerms(p, "PlotMe.use.biome"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -829,7 +829,7 @@ public class PMCommand implements CommandExecutor {
 							}else{
 								Plot plot = PlotManager.getPlotById(p,id);
 								
-								if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.checkPerms(p, "PlotMe.admin"))
+								if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin"))
 								{
 									
 									PlotManager.setBiome(p.getWorld(), id, plot, biome);
@@ -857,7 +857,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean biomelist(CommandSender s, String[] args)
 	{
-		if (!(s instanceof Player) || PlotMe.cPerms((Player) s, "PlotMe.use.biome", true))
+		if (!(s instanceof Player) || PlotMe.cPerms((Player) s, "PlotMe.use.biome"))
 		{
 			s.sendMessage(PREFIX + RESET + " Biomes : ");
 					
@@ -895,7 +895,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean reset(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.reset", false))
+		if (PlotMe.cPerms(p, "PlotMe.admin.reset"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -932,7 +932,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean clear(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.clear", false) || PlotMe.cPerms(p, "PlotMe.use.clear", true))
+		if (PlotMe.cPerms(p, "PlotMe.admin.clear") || PlotMe.cPerms(p, "PlotMe.use.clear"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -949,7 +949,7 @@ public class PMCommand implements CommandExecutor {
 					{
 						Plot plot = PlotManager.getPlotById(p,id);
 						
-						if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.clear", false))
+						if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.clear"))
 						{
 							PlotManager.clear(p.getWorld(), plot);
 							
@@ -970,7 +970,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean add(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.add", false) || PlotMe.cPerms(p, "PlotMe.use.add", false))
+		if (PlotMe.cPerms(p, "PlotMe.admin.add") || PlotMe.cPerms(p, "PlotMe.use.add"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -992,7 +992,7 @@ public class PMCommand implements CommandExecutor {
 						
 							Plot plot = PlotManager.getPlotById(p,id);
 							
-							if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.add", false))
+							if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.add"))
 							{
 								if(plot.isAllowed(args[1]))
 								{
@@ -1019,7 +1019,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean remove(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.remove", false) || PlotMe.cPerms(p, "PlotMe.use.remove", false))
+		if (PlotMe.cPerms(p, "PlotMe.admin.remove") || PlotMe.cPerms(p, "PlotMe.use.remove"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -1041,7 +1041,7 @@ public class PMCommand implements CommandExecutor {
 						
 							Plot plot = PlotManager.getPlotById(p,id);
 							
-							if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.remove", false))
+							if(plot.owner.equalsIgnoreCase(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin.remove"))
 							{
 								if(plot.isAllowed(args[1]))
 								{
@@ -1068,7 +1068,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean setowner(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.setowner", false))
+		if (PlotMe.cPerms(p, "PlotMe.admin.setowner"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -1111,7 +1111,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean id(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.id", false))
+		if (PlotMe.cPerms(p, "PlotMe.admin.id"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -1142,7 +1142,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean move(Player p, String[] args)
 	{
-		if (PlotMe.cPerms(p, "PlotMe.admin.move", false))
+		if (PlotMe.cPerms(p, "PlotMe.admin.move"))
 		{
 			if(!PlotManager.isPlotWorld(p))
 			{
@@ -1168,7 +1168,7 @@ public class PMCommand implements CommandExecutor {
 	
 	private boolean reload(CommandSender s, String[] args)
 	{
-		if (!(s instanceof Player) || PlotMe.cPerms((Player) s, "PlotMe.admin.reload", false))
+		if (!(s instanceof Player) || PlotMe.cPerms((Player) s, "PlotMe.admin.reload"))
 		{
 			plugin.initialize();
 			s.sendMessage(PREFIX + RESET + " reloaded successfully");

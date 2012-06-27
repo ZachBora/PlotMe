@@ -148,14 +148,8 @@ public class PlotMe extends JavaPlugin
 		}
 	}
 	
-	public static boolean checkPerms(Player player, String node)
-	{
-		return player.hasPermission(node) || player.hasPermission(node.toLowerCase()) || player.hasPermission(NAME + ".*") || player.hasPermission("*");
-	}
-	
-	public static boolean cPerms(Player player, String node, Boolean basic)
-	{
-		return checkPerms(player, node) || (basic && checkPerms(player, "PlotMe.use")) || checkPerms(player, "PlotMe.admin");
+	public static boolean cPerms(Player player, String node){
+		return player.hasPermission(node);
 	}
 	
 	public void initialize()
@@ -392,7 +386,7 @@ public class PlotMe extends JavaPlugin
 		*/
 		if(max == 0)
 		{
-			if(cPerms(p, "PlotMe.admin", false))
+			if(cPerms(p, "PlotMe.admin"))
 				max = -1;
 			else
 				max = 1;
