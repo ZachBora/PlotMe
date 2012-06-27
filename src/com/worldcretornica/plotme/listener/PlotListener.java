@@ -40,7 +40,7 @@ public class PlotListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockBreak(final BlockBreakEvent event) 
 	{
-		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
+		boolean canbuild = PlotMe.cPerms(event.getPlayer(), "PlotMe.admin");
 		
 		Block b = event.getBlock();
 		
@@ -86,7 +86,7 @@ public class PlotListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPlace(final BlockPlaceEvent event)
 	{
-		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
+		boolean canbuild = PlotMe.cPerms(event.getPlayer(), "PlotMe.admin");
 
 		Block b = event.getBlock();
 		
@@ -131,7 +131,7 @@ public class PlotListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerBucketEmpty(final PlayerBucketEmptyEvent event)
 	{
-		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
+		if(!PlotMe.cPerms(event.getPlayer(), "PlotMe.admin"))
 		{
 			BlockFace bf = event.getBlockFace();
 			Block b = event.getBlockClicked().getLocation().add(bf.getModX(), bf.getModY(), bf.getModZ()).getBlock();
@@ -166,7 +166,7 @@ public class PlotListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerBucketFill(final PlayerBucketFillEvent event)
 	{
-		if(!PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin"))
+		if(!PlotMe.cPerms(event.getPlayer(), "PlotMe.admin"))
 		{
 			Block b = event.getBlockClicked();
 			if(PlotManager.isPlotWorld(b))
@@ -201,7 +201,7 @@ public class PlotListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerInteract(final PlayerInteractEvent event)
 	{
-		boolean canbuild = PlotMe.checkPerms(event.getPlayer(), "PlotMe.admin");
+		boolean canbuild = PlotMe.cPerms(event.getPlayer(), "PlotMe.admin");
 		
 		Block b = event.getClickedBlock();
 		
