@@ -24,6 +24,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.painting.PaintingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -530,6 +531,37 @@ public class PlotListener implements Listener {
 					}
 				}
 			}*/
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onPaintingPlace(final PaintingPlaceEvent event){
+		boolean canbuild = PlotMe.cPerms(event.getPlayer(), "PlotMe.admin");
+		Block b = event.getBlock();
+		if(PlotManager.isPlotWorld(b)){
+			String id = PlotManager.getPlotId(b.getLocation());
+			Player p = event.getPlayer();
+			if(id.equalsIgnoreCase("")){
+				if(!canbuild){
+					p.sendMessage("You cannot build here.");
+					event.setCancelled(true);
+				}
+			}else{
+				Plot plot = PlotManager.getMap(p).plots.get(id);
+				if (plot == null){
+					if(!canbuild){
+						p.sendMessage("You cannot build here.");
+						event.setCancelled(true);
+					}
+				}else{
+					if(!plot.isAllowed(p.getName())){
+						if(!canbuild){
+							p.sendMessage("You cannot build here.");
+							event.setCancelled(true);
+						}
+					}
+				}
+			}
 		}
 	}
 }
