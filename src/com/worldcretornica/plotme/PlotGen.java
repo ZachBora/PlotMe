@@ -18,7 +18,8 @@ public class PlotGen extends ChunkGenerator {
 	private byte wall;
 	private byte plotfloor;
 	private byte filling;
-	private int worldheight;
+	private int roadheight;
+	private PlotMapInfo temppmi;
 	
 	public PlotGen()
 	{
@@ -28,7 +29,9 @@ public class PlotGen extends ChunkGenerator {
 		wall = 44;
 		plotfloor = 2;
 		filling = 3;
-		worldheight = 64;
+		roadheight = 64;
+		temppmi = null;
+		PlotMe.logger.warning(PlotMe.PREFIX + " Unable to find configuration, using defaults");
 	}
 	
 	public PlotGen(PlotMapInfo pmi)
@@ -39,7 +42,8 @@ public class PlotGen extends ChunkGenerator {
 		wall = pmi.WallBlockId;
 		plotfloor = pmi.PlotFloorBlockId;
 		filling = pmi.PlotFillingBlockId;
-		worldheight = pmi.RoadHeight;
+		roadheight = pmi.RoadHeight;
+		temppmi = pmi;
 	}
 	
 	public byte[] generate(World world, Random random, int cx, int cz) {
@@ -78,7 +82,7 @@ public class PlotGen extends ChunkGenerator {
 				
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int height = worldheight + 2;
+                int height = roadheight + 2;
                 for (int y = 0; y < height; y++) {
                 	valx = (cx * 16 + x);
             		valz = (cz * 16 + z);
@@ -88,7 +92,7 @@ public class PlotGen extends ChunkGenerator {
                 		result[(x * 16 + z) * 128 + y] = bottom;
                 		
                 	}
-            		else if(y == worldheight)
+            		else if(y == roadheight)
                 	{
                 		if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) //middle+3
                 		{
@@ -173,7 +177,7 @@ public class PlotGen extends ChunkGenerator {
 	                		}
                 		}
                 	}
-            		else if(y == (worldheight + 1))
+            		else if(y == (roadheight + 1))
                 	{
                 		
                 		if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) //middle+3
@@ -295,11 +299,18 @@ public class PlotGen extends ChunkGenerator {
         return result;
 	}
 	
-	public List<BlockPopulator> getDefaultPopulators(World world) {
-        return Arrays.asList((BlockPopulator)new PlotPopulator());
+	public List<BlockPopulator> getDefaultPopulators(World world)
+	{
+		if(temppmi == null)
+		{
+			return Arrays.asList((BlockPopulator)new PlotPopulator());
+		}else{
+			return Arrays.asList((BlockPopulator)new PlotPopulator(temppmi));
+		}
     }
 
-	public Location getFixedSpawnLocation(World world, Random random) {
-		return new Location(world, 0, worldheight + 2, 0);
+	public Location getFixedSpawnLocation(World world, Random random)
+	{
+		return new Location(world, 0, roadheight + 2, 0);
 	}
 }

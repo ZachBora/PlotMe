@@ -3,13 +3,16 @@ package com.worldcretornica.plotme;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -203,6 +206,8 @@ public class PlotMe extends JavaPlugin
 			plotworld.set("PlotFillingBlockId", 3);
 			plotworld.set("RoadHeight", 64);
 			plotworld.set("DaysToExpiration", 7);
+			plotworld.set("ProtectedBlocks", getDefaultProtectedBlocks());
+			plotworld.set("PreventedItems", getDefaultPreventedItems());
 			
 			worlds.set("plotworld", plotworld);
 			config.set("worlds", worlds);
@@ -228,6 +233,20 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.PlotFillingBlockId = (byte) currworld.getInt("PlotFillingBlockId", 3);
 			tempPlotInfo.RoadHeight = currworld.getInt("RoadHeight", currworld.getInt("WorldHeight", 64));
 			tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
+						
+			if(currworld.contains("ProtectedBlocks"))
+			{
+				tempPlotInfo.protectedblocks = currworld.getLongList("ProtectedBlocks");
+			}else{
+				tempPlotInfo.protectedblocks = getDefaultProtectedBlocks();
+			}
+			
+			if(currworld.contains("PreventedItems"))
+			{
+				tempPlotInfo.preventeditems = currworld.getStringList("PreventedItems");
+			}else{
+				tempPlotInfo.preventeditems = getDefaultPreventedItems();
+			}
 			
 			if(tempPlotInfo.RoadHeight > 250)
 			{
@@ -245,6 +264,8 @@ public class PlotMe extends JavaPlugin
 			currworld.set("RoadHeight", tempPlotInfo.RoadHeight);
 			currworld.set("WorldHeight", null);
 			currworld.set("DaysToExpiration", tempPlotInfo.DaysToExpiration);
+			currworld.set("ProtectedBlocks", tempPlotInfo.protectedblocks);
+			currworld.set("PreventedItems", tempPlotInfo.preventeditems);
 			
 			tempPlotInfo.plots = SqlManager.getPlots(worldname.toLowerCase());
 			
@@ -423,5 +444,39 @@ public class PlotMe extends JavaPlugin
 	public static String getDate(java.sql.Date expireddate)
 	{		
 		return expireddate.toString();
+	}
+	
+	public List<Long> getDefaultProtectedBlocks()
+	{
+		List<Long> protections = new ArrayList<Long>();
+		
+		protections.add((long) Material.CHEST.getId());
+		protections.add((long) Material.FURNACE.getId());
+		protections.add((long) Material.BURNING_FURNACE.getId());
+		protections.add((long) Material.ENDER_PORTAL_FRAME.getId());
+		protections.add((long) Material.DIODE_BLOCK_ON.getId());
+		protections.add((long) Material.DIODE_BLOCK_OFF.getId());
+		protections.add((long) Material.JUKEBOX.getId());
+		protections.add((long) Material.NOTE_BLOCK.getId());
+		protections.add((long) Material.BED.getId());
+		protections.add((long) Material.CAULDRON.getId());
+		protections.add((long) Material.BREWING_STAND.getId());
+		
+		return protections;
+	}
+	
+	public List<String> getDefaultPreventedItems()
+	{
+		List<String> preventeditems = new ArrayList<String>();
+
+		preventeditems.add("" + Material.INK_SACK.getId() + ":15");
+		preventeditems.add("" + Material.PAINTING.getId());
+		preventeditems.add("" + Material.FLINT_AND_STEEL.getId());
+		preventeditems.add("" + Material.MINECART.getId());
+		preventeditems.add("" + Material.POWERED_MINECART.getId());
+		preventeditems.add("" + Material.STORAGE_MINECART.getId());
+		preventeditems.add("" + Material.BOAT.getId());
+		
+		return preventeditems;
 	}
 }

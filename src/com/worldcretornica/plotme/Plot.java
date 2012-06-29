@@ -95,8 +95,6 @@ public class Plot implements Comparable<Plot> {
 			java.sql.Date temp = new java.sql.Date(utlDate.getTime());
 			if(!temp.toString().equalsIgnoreCase(expireddate.toString()))
 			{
-				PlotMe.logger.info("Temp: " + temp.toString());
-				PlotMe.logger.info("Exp : " + expireddate.toString());
 				expireddate = temp;
 				SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
 			}

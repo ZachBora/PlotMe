@@ -1,6 +1,7 @@
 package com.worldcretornica.plotme;
 
 import java.util.HashMap;
+import java.util.List;
 
 public class PlotMapInfo {
 
@@ -15,4 +16,8 @@ public class PlotMapInfo {
 	public int RoadHeight;
 	public int DaysToExpiration;
 	
+	public List<Long> protectedblocks;
+	
+	public List<String> preventeditems;
+
 }

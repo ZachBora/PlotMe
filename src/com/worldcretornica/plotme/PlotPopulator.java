@@ -11,15 +11,25 @@ import org.bukkit.generator.BlockPopulator;
 
 public class PlotPopulator extends BlockPopulator {
 
-	public void populate(World world, Random rand, Chunk chunk) {
-		
-		int y = PlotManager.getMap(world).RoadHeight;
-		
+	private int roadheight;
+	
+	public PlotPopulator()
+	{
+		roadheight = 64;
+	}
+	
+	public PlotPopulator(PlotMapInfo pmi)
+	{
+		roadheight = pmi.RoadHeight;
+	}
+	
+	public void populate(World world, Random rand, Chunk chunk) 
+	{
 		for(int x = 0; x < 16; x++)
 		{
 			for(int z = 0; z < 16; z++)
 			{
-				Block block = chunk.getBlock(x, y, z);
+				Block block = chunk.getBlock(x, roadheight, z);
 				if(block.getType() == Material.WOOL)
 				{
 					block.setType(Material.WOOD);

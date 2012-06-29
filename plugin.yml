@@ -1,6 +1,6 @@
 name: PlotMe
 main: com.worldcretornica.plotme.PlotMe
-version: 0.6c
+version: 0.7
 author: ZachBora
 load: startup
 website: http://dev.bukkit.org/server-mods/plotme/
@@ -9,7 +9,7 @@ softdepend: [WorldEdit]
 description: >
              Handles plot creation, management and protection
 commands:
-   plotme:
+    plotme:
       description: List PlotMe commands
       usage: /plotme
       aliases: [p,plot]
@@ -45,50 +45,50 @@ permissions:
     plotme.use.claim:
       description: Gives the claim command
     plotme.use.auto:
-      description: Give the auto claim command
+      description: Gives the auto claim command
     plotme.use.home:
-      description: Give the home command
+      description: Gives the home command
     plotme.use.info:
-      description: Give the info command
+      description: Gives the info command
     plotme.use.comment:
-      description: Give the comment command
+      description: Gives the comment command
     plotme.use.comments:
-      description: Give the comments command
+      description: Gives the comments command
     plotme.use.biome:
-      description: Give the biome and biomelist command
+      description: Gives the biome and biomelist command
     plotme.use.clear:
-      description: Give the clear command for plots owned
+      description: Gives the clear command for plots owned
     plotme.use.list:
-      description: Give the list command
+      description: Gives the list command
     plotme.use.add:
-      description: Give the add command for plots owned
+      description: Gives the add command for plots owned
     plotme.use.remove:
-      description: Give the remove command for plots owned
-    plotme.use.*:
-      description: Give unlimited plots
+      description: Gives the remove command for plots owned
+    plotme.limit.*:
+      description: Gives unlimited plots
     plotme.admin.claim.other:
-      description: Admin permission
+      description: Gives the claim command for any player
     plotme.admin.home.other:
-      description: Admin permission
+      description: Gives the home command for any players
     plotme.admin.tp:
-      description: Admin permission
+      description: Gives the tp command
     plotme.admin.id:
-      description: Admin permission
+      description: Gives the id command
     plotme.admin.clear:
-      description: Admin permission
+      description: Gives the clear command for any plots
     plotme.admin.reset:
-      description: Admin permission
+      description: Gives the reset command
     plotme.admin.add:
-      description: Admin permission
+      description: Gives the add command for any plots
     plotme.admin.remove:
-      description: Admin permission
+      description: Gives the remove command for any plots
     plotme.admin.setowner:
-      description: Admin permission
+      description: Gives the setowner command
     plotme.admin.move:
-      description: Admin permission
+      description: Gives the move command
     plotme.admin.weanywhere:
-      description: Admin permission
+      description: Gives the weanywhere command
     plotme.admin.list:
-      description: Admin permission
+      description: Gives the list command for any players
     plotme.admin.reload:
-      description: Admin permission
+      description: Gives the reload command

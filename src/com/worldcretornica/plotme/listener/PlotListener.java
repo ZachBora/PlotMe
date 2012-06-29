@@ -19,7 +19,6 @@ import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -33,6 +32,7 @@ import org.bukkit.inventory.ItemStack;
 
 import com.worldcretornica.plotme.Plot;
 import com.worldcretornica.plotme.PlotManager;
+import com.worldcretornica.plotme.PlotMapInfo;
 import com.worldcretornica.plotme.PlotMe;
 
 public class PlotListener implements Listener {
@@ -205,42 +205,71 @@ public class PlotListener implements Listener {
 		
 		Block b = event.getClickedBlock();
 		
-		ItemStack is = event.getItem();
-		
-		if(is != null && PlotManager.isPlotWorld(b) && event.getAction() == Action.RIGHT_CLICK_BLOCK && 
-				is.getType() == Material.INK_SACK && is.getData().getData() == 15)
+		if(PlotManager.isPlotWorld(b))
 		{
-			String id = PlotManager.getPlotId(b.getLocation());
+			boolean blocked = false;
+			PlotMapInfo pmi = PlotManager.getMap(b);
 			
-			Player p = event.getPlayer();
-			
-			if(id.equalsIgnoreCase(""))
+			if(pmi.protectedblocks.contains((long) b.getTypeId()))
 			{
-				if(!canbuild)
-				{
-					p.sendMessage("You cannot build here.");
-					event.setCancelled(true);
-				}
-			}else{
-				Plot plot = PlotManager.getPlotById(p,id);
+				blocked = true;
+			}
+			
+			ItemStack is = event.getItem();
+			
+			if(is != null && event.getAction() == Action.RIGHT_CLICK_BLOCK)
+			{
+				int itemid = is.getType().getId();
+				byte itemdata = is.getData().getData();
 				
-				if (plot == null)
+				if(pmi.preventeditems.contains("" + itemid) 
+						|| pmi.preventeditems.contains("" + itemid + ":" + itemdata))
+				{
+					blocked = true;
+				}
+			}
+			
+			if(blocked)
+			{
+				String id = PlotManager.getPlotId(b.getLocation());
+				
+				Player p = event.getPlayer();
+				
+				if(id.equalsIgnoreCase(""))
 				{
 					if(!canbuild)
 					{
-						p.sendMessage("You cannot build here.");
+						if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
+						{
+							p.sendMessage("You cannot use that.");
+						}
 						event.setCancelled(true);
 					}
 				}else{
-					if(!plot.isAllowed(p.getName()))
+					Plot plot = PlotManager.getPlotById(p,id);
+					
+					if (plot == null)
 					{
 						if(!canbuild)
 						{
-							p.sendMessage("You cannot build here.");
+							if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
+							{
+								p.sendMessage("You cannot use that.");
+							}
 							event.setCancelled(true);
 						}
 					}else{
-						plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
+						if(!plot.isAllowed(p.getName()))
+						{
+							if(!canbuild)
+							{
+								if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
+								{
+									p.sendMessage("You cannot use that.");
+								}
+								event.setCancelled(true);
+							}
+						}
 					}
 				}
 			}
@@ -353,11 +382,16 @@ public class PlotListener implements Listener {
 		}
 	}
 
+	/*
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBlockPhysics(final BlockPhysicsEvent event)
 	{
+		
 		Block b = event.getBlock();
-		if(PlotManager.isPlotWorld(b))
+		
+		if(PlotManager.isPlotWorld(b)
+			&& !(event.getChangedType() == Material.REDSTONE_TORCH_ON)
+			&& !(event.getChangedType() == Material.POWERED_RAIL))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
 									
@@ -367,6 +401,7 @@ public class PlotListener implements Listener {
 			}
 		}
 	}
+	*/
 	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPistonExtend(final BlockPistonExtendEvent event)
