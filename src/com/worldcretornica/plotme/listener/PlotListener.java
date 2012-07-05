@@ -210,7 +210,7 @@ public class PlotListener implements Listener {
 			boolean blocked = false;
 			PlotMapInfo pmi = PlotManager.getMap(b);
 			
-			if(pmi.protectedblocks.contains((long) b.getTypeId()))
+			if(pmi.ProtectedBlocks.contains((long) b.getTypeId()))
 			{
 				blocked = true;
 			}
@@ -222,8 +222,8 @@ public class PlotListener implements Listener {
 				int itemid = is.getType().getId();
 				byte itemdata = is.getData().getData();
 				
-				if(pmi.preventeditems.contains("" + itemid) 
-						|| pmi.preventeditems.contains("" + itemid + ":" + itemdata))
+				if(pmi.PreventedItems.contains("" + itemid) 
+						|| pmi.PreventedItems.contains("" + itemid + ":" + itemdata))
 				{
 					blocked = true;
 				}

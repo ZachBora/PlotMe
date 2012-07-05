@@ -2,6 +2,7 @@ package com.worldcretornica.plotme;
 
 import java.sql.Date;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -20,6 +21,13 @@ public class Plot implements Comparable<Plot> {
 	public boolean finished;
 	public List<String[]> comments;
 	public String id;
+	public double customprice;
+	public boolean forsale;
+	public String finisheddate;
+	public boolean protect;
+	public boolean auctionned;
+	public String currentbidder;
+	public double currentbid;
 
 	public Plot()
 	{
@@ -35,6 +43,13 @@ public class Plot implements Comparable<Plot> {
 		expireddate = new java.sql.Date(utlDate.getTime());
 		
 		comments = new ArrayList<String[]>();
+		customprice = 0;
+		forsale = false;
+		finisheddate = "";
+		protect = false;
+		auctionned = false;
+		currentbidder = "";
+		currentbid = 0;
 	}
 	
 	public Plot(String o, Location t, Location b, String tid, int days)
@@ -56,9 +71,17 @@ public class Plot implements Comparable<Plot> {
 		}
 		
 		comments = new ArrayList<String[]>();
+		customprice = 0;
+		forsale = false;
+		finisheddate = "";
+		protect = false;
+		auctionned = false;
+		currentbidder = "";
+		currentbid = 0;
 	}
 	
-	public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al, List<String[]> comm, String tid)
+	public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al,
+			List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, Double bid, boolean isauctionned)
 	{
 		owner = o;
 		world = w;
@@ -68,6 +91,13 @@ public class Plot implements Comparable<Plot> {
 		allowed = al;
 		comments = comm;
 		id = tid;
+		customprice = custprice;
+		forsale = sale;
+		finisheddate = finishdt;
+		protect = prot;
+		auctionned = isauctionned;
+		currentbidder = "";
+		currentbid = 0;
 	}
 			
 	public void setExpire(Date date)
@@ -75,7 +105,7 @@ public class Plot implements Comparable<Plot> {
 		if(!expireddate.equals(date))
 		{
 			expireddate = date;
-			SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
+			updateField("expireddate", expireddate);
 		}
 	}
 	
@@ -86,7 +116,7 @@ public class Plot implements Comparable<Plot> {
 			if(expireddate != null)
 			{
 				expireddate = null;
-				SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
+				updateField("expireddate", expireddate);
 			}
 		}else{
 			Calendar cal = Calendar.getInstance();
@@ -96,7 +126,7 @@ public class Plot implements Comparable<Plot> {
 			if(!temp.toString().equalsIgnoreCase(expireddate.toString()))
 			{
 				expireddate = temp;
-				SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, "expireddate", expireddate);
+				updateField("expireddate", expireddate);
 			}
 		}
 	}
@@ -104,6 +134,22 @@ public class Plot implements Comparable<Plot> {
 	public String getExpire()
 	{
 		return DateFormat.getDateInstance().format(expireddate);
+	}
+	
+	public void setFinished()
+	{
+		finisheddate = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(Calendar.getInstance().getTime());
+		finished = true;
+		
+		updateFinished(finisheddate, finished);
+	}
+	
+	public void setUnfinished()
+	{
+		finisheddate = "";
+		finished = false;
+		
+		updateFinished(finisheddate, finished);
 	}
 	
 	public Biome getBiome()
@@ -189,5 +235,35 @@ public class Plot implements Comparable<Plot> {
 			return owner.compareTo(plot.owner);
 		else
 			return expireddate.compareTo(plot.expireddate);
-	}	
+	}
+	
+	private void updateFinished(String finishtime, boolean isfinished)
+	{
+		updateField("finisheddate", finishtime);
+		updateField("finished", isfinished);
+	}
+	
+	public void updateField(String field, Object value)
+	{
+		SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, field, value);
+	}
+	
+	/*private static Map<String, Double> sortByValues(final Map<String, Double> map) 
+	{
+		Comparator<String> valueComparator = new Comparator<String>() 
+		{
+		    public int compare(String k1, String k2) 
+		    {
+		        int compare = map.get(k2).compareTo(map.get(k1));
+		        if (compare == 0) 
+		        	return 1;
+		        else 
+		        	return compare;
+		    }
+		};
+		
+		Map<String, Double> sortedByValues = new TreeMap<String, Double>(valueComparator);
+		sortedByValues.putAll(map);
+		return sortedByValues;
+	}*/
 }

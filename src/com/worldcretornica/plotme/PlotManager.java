@@ -1,7 +1,10 @@
 package com.worldcretornica.plotme;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -30,52 +33,31 @@ public class PlotManager {
 			if(pathsize % 2 == 1)
 			{
 				n3 = Math.ceil(((double)pathsize)/2); //3 7
-			}else{
-				n3 = Math.floor(((double)pathsize)/2); //3 7
-			}
-			
-			if(pathsize % 2 == 1)
-			{
 				mod2 = -1;
 			}
-			
-			
-			boolean found = false;
+			else
+			{
+				n3 = Math.floor(((double)pathsize)/2); //3 7
+			}
+						
 			for(double i = n3; i >= 0; i--)
 			{
-				if((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0)
-				{
-					found = true;
-					break;
-				}	                			
-			}
-	
-			if(found)
-			{
-				return "";
-			}else{
-				
-				boolean found2 = false;
-				for(double i = n3; i >= 0; i--)
-				{
-					if((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0)
-					{
-						found2 = true;
-						break;
-					}	                			
-				}
-	
-				if(found2)
+				if((valx - i + mod1) % size == 0 || 
+				   (valx + i + mod2) % size == 0 || 
+				   (valz - i + mod1) % size == 0 || 
+				   (valz + i + mod2) % size == 0)
 				{
 					return "";
-				}else{
-					int x = (int) Math.ceil((double)valx / size);
-					int z = (int) Math.ceil((double)valz / size);
-					
-					return "" + x + ";" + z;
-				}
+				}	                			
 			}
-		}else{
+			
+			int x = (int) Math.ceil((double)valx / size);
+			int z = (int) Math.ceil((double)valz / size);
+			
+			return "" + x + ";" + z;
+		}
+		else
+		{
 			return "";
 		}
 	}
@@ -95,7 +77,9 @@ public class PlotManager {
 		if(isPlotWorld(world))
 		{
 			return !getPlots(world).containsKey(id);
-		}else{
+		}
+		else
+		{
 			return false;
 		}
 	}
@@ -106,17 +90,19 @@ public class PlotManager {
 		{
 			Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration);
 			
-			setSign(world, plot);
+			setOwnerSign(world, plot);
 			
 			getPlots(world).put(id, plot);
 			SqlManager.addPlot(plot, getIdX(id), getIdZ(id), world);
 			return plot;
-		}else{
+		}
+		else
+		{
 			return null;
 		}
 	}
 	
-	public static void setSign(World world, Plot plot)
+	public static void setOwnerSign(World world, Plot plot)
 	{	
 		Location pillar = new Location(world, bottomX(plot.id, world) - 1, getMap(world).RoadHeight + 1, bottomZ(plot.id, world) - 1);
 						
@@ -133,7 +119,9 @@ public class PlotManager {
 			if(("ID:" + id).length() > 30)
 			{
 				sign.setLine(1, ("ID:" + id).substring(15, 30));
-			}else{
+			}
+			else
+			{
 				sign.setLine(1, ("ID:" + id).substring(15));
 			}
 		}
@@ -147,7 +135,9 @@ public class PlotManager {
 			if(("Owner: " + plot.owner).length() > 30)
 			{
 				sign.setLine(3, ("Owner:" + plot.owner).substring(15, 30));
-			}else{
+			}
+			else
+			{
 				sign.setLine(3, ("Owner:" + plot.owner).substring(15));
 			}
 		}else{
@@ -157,13 +147,67 @@ public class PlotManager {
 		sign.update(true);
 	}
 	
-	public static void removeSign(World world, String id)
+	public static void setSellSign(World world, Plot plot)
+	{
+		if(!plot.forsale && !plot.auctionned)
+		{
+			removeSellSign(world, plot.id);
+		}
+		else
+		{
+			Location pillar = new Location(world, bottomX(plot.id, world) - 1, getMap(world).RoadHeight + 1, bottomZ(plot.id, world) - 1);
+							
+			Block bsign = pillar.add(1, 0, -1).getBlock();
+			bsign.setType(Material.AIR);
+			bsign.setTypeIdAndData(Material.WALL_SIGN.getId(), (byte) 2, false);
+			
+			Sign sign = (Sign) bsign.getState();
+			
+			if(plot.forsale)
+			{
+				sign.setLine(0, "" + ChatColor.BLUE + ChatColor.BOLD + "FOR SALE");
+				sign.setLine(1, "Price :");
+				if(plot.customprice % 1 == 0)
+					sign.setLine(2, "" + ChatColor.BLUE + Math.round(plot.customprice));
+				else
+					sign.setLine(2, "" + ChatColor.BLUE + plot.customprice);
+				sign.setLine(3, "/plotme buy");
+			}
+			else
+			{
+				sign.setLine(0, "" + ChatColor.BLUE + ChatColor.BOLD + "ON AUCTION");
+				if(plot.currentbidder.equals(""))
+					sign.setLine(1, "Minimum bid :");
+				else
+					sign.setLine(1, "Current bid :");
+				if(plot.currentbid % 1 == 0)
+					sign.setLine(2, "" + ChatColor.BLUE + Math.round(plot.currentbid));
+				else
+					sign.setLine(2, "" + ChatColor.BLUE + plot.currentbid);
+				sign.setLine(3, "/plotme bid <x>");
+			}
+	
+			sign.update(true);
+		}
+	}
+	
+	public static void removeOwnerSign(World world, String id)
 	{
 		Location bottom = getPlotBottomLoc(world, id);
 		
 		Location pillar = new Location(world, bottom.getX() - 1, getMap(world).RoadHeight + 1, bottom.getZ() - 1);
 		
 		Block bsign = pillar.add(0, 0, -1).getBlock();
+		bsign.setType(Material.AIR);
+	}
+	
+	public static void removeSellSign(World world, String id)
+	{
+		Location bottom = getPlotBottomLoc(world, id);
+		
+		Location pillar = new Location(world, bottom.getX() - 1, getMap(world).RoadHeight + 1, bottom.getZ() - 1);
+		
+		Block bsign = pillar.add(1, 0, -1).getBlock();
 		bsign.setType(Material.AIR);
 	}
 	
@@ -251,11 +295,16 @@ public class PlotManager {
 						block.setTypeId(pmi.PlotFloorBlockId);
 					else
 					{
-						if(y == (pmi.RoadHeight + 1) && (x == bottom.getBlockX() - 1 || x == top.getBlockX() + 1 ||
-								z == bottom.getBlockZ() - 1 || z == top.getBlockZ() + 1))
+						if(y == (pmi.RoadHeight + 1) && 
+								(x == bottom.getBlockX() - 1 || 
+								 x == top.getBlockX() + 1 ||
+								 z == bottom.getBlockZ() - 1 || 
+								 z == top.getBlockZ() + 1))
 						{
 							block.setTypeId(pmi.WallBlockId);
-						}else{
+						}
+						else
+						{
 							block.setType(Material.AIR);
 						}
 					}
@@ -263,6 +312,107 @@ public class PlotManager {
 			}
 		}
 	}
+	
+	public static void adjustWall(Location l)
+	{
+		Plot plot = getPlotById(l);
+		PlotMapInfo pmi = getMap(l);
+		World w = l.getWorld();
+		
+		List<String> wallids = new ArrayList<String>();
+		
+		String auctionwallid = pmi.AuctionWallBlockId;
+		String forsalewallid = pmi.ForSaleWallBlockId;
+		
+		if(plot.protect) wallids.add(pmi.ProtectedWallBlockId);
+		if(plot.auctionned && !wallids.contains(auctionwallid)) wallids.add(auctionwallid);
+		if(plot.forsale && !wallids.contains(forsalewallid)) wallids.add(forsalewallid);
+		
+		if(wallids.size() == 0) wallids.add("" + pmi.WallBlockId);
+		
+		int ctr = 0;
+			
+		Location bottom = getPlotBottomLoc(w, plot.id);
+		Location top = getPlotTopLoc(w, plot.id);
+		
+		int x;
+		int z;
+		
+		String currentblockid;
+		Block block;
+		
+		for(x = bottom.getBlockX() - 1; x < top.getBlockX() + 1; x++)
+		{
+			z = bottom.getBlockZ() - 1;
+			currentblockid = wallids.get(ctr);
+			ctr = (ctr == wallids.size()-1)? 0 : ctr + 1;
+			block = w.getBlockAt(x, pmi.RoadHeight + 1, z);
+			setWall(block, currentblockid);
+		}
+		
+		for(z = bottom.getBlockZ() - 1; z < top.getBlockZ() + 1; z++)
+		{
+			x = top.getBlockX() + 1;
+			currentblockid = wallids.get(ctr);
+			ctr = (ctr == wallids.size()-1)? 0 : ctr + 1;
+			block = w.getBlockAt(x, pmi.RoadHeight + 1, z);
+			setWall(block, currentblockid);
+		}
+		
+		for(x = top.getBlockX() + 1; x > bottom.getBlockX() - 1; x--)
+		{
+			z = top.getBlockZ() + 1;
+			currentblockid = wallids.get(ctr);
+			ctr = (ctr == wallids.size()-1)? 0 : ctr + 1;
+			block = w.getBlockAt(x, pmi.RoadHeight + 1, z);
+			setWall(block, currentblockid);
+		}
+		
+		for(z = top.getBlockZ() + 1; z > bottom.getBlockZ() - 1; z--)
+		{
+			x = bottom.getBlockX() - 1;
+			currentblockid = wallids.get(ctr);
+			ctr = (ctr == wallids.size()-1)? 0 : ctr + 1;
+			block = w.getBlockAt(x, pmi.RoadHeight + 1, z);
+			setWall(block, currentblockid);
+		}
+	}
+	
+	
+	private static void setWall(Block block, String currentblockid)
+	{
+		
+		int blockId;
+		byte blockData = 0;
+		
+		if(currentblockid.contains(":"))
+		{
+			try
+			{
+				blockId = Integer.parseInt(currentblockid.substring(0, currentblockid.indexOf(":")));
+				blockData = Byte.parseByte(currentblockid.substring(currentblockid.indexOf(":") + 1));
+			}
+			catch(NumberFormatException e)
+			{
+				blockId = 44;
+				blockData = 0;
+			}
+		}
+		else
+		{
+			try
+			{
+				blockId = Integer.parseInt(currentblockid);
+			}
+			catch(NumberFormatException e)
+			{
+				blockId = 44;
+			}
+		}
+		
+		block.setTypeIdAndData(blockId, blockData, true);
+	}
+	
 	
 	public static boolean isBlockInPlot(Plot plot, Location blocklocation)
 	{
@@ -373,10 +523,14 @@ public class PlotManager {
 					SqlManager.addPlotAllowed(player, idX, idZ, plot1.world);
 				}
 				
-				setSign(w, plot1);
-				setSign(w, plot2);
+				setOwnerSign(w, plot1);
+				setSellSign(w, plot1);
+				setOwnerSign(w, plot2);
+				setSellSign(w, plot2);
 				
-			}else{
+			}
+			else
+			{
 				Plot plot = plots.get(idFrom);
 				
 				int idX = getIdX(idFrom);
@@ -399,8 +553,10 @@ public class PlotManager {
 					SqlManager.addPlotAllowed(player, idX, idZ, plot.world);
 				}
 				
-				setSign(w, plot);
-				removeSign(w, idFrom);
+				setOwnerSign(w, plot);
+				setSellSign(w, plot);
+				removeOwnerSign(w, idFrom);
+				removeSellSign(w, idFrom);
 				
 			}
 		}else{
@@ -429,8 +585,10 @@ public class PlotManager {
 					SqlManager.addPlotAllowed(player, idX, idZ, plot.world);
 				}
 				
-				setSign(w, plot);
-				removeSign(w, idTo);
+				setOwnerSign(w, plot);
+				setSellSign(w, plot);
+				removeOwnerSign(w, idTo);
+				removeSellSign(w, idTo);
 			}
 		}
 		
@@ -439,10 +597,15 @@ public class PlotManager {
 	
 	public static int getNbOwnedPlot(Player p)
 	{
+		return getNbOwnedPlot(p.getName(), p.getWorld());
+	}
+	
+	public static int getNbOwnedPlot(String name, World w)
+	{
 		int nbfound = 0;
-		for(Plot plot : PlotManager.getPlots(p).values())
+		for(Plot plot : PlotManager.getPlots(w).values())
 		{
-			if(plot.owner.equalsIgnoreCase(p.getName()))
+			if(plot.owner.equalsIgnoreCase(name))
 			{
 				nbfound++;
 			}
@@ -516,17 +679,69 @@ public class PlotManager {
 			return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
 	}
 	
+	public static boolean isEconomyEnabled(World w)
+	{
+		PlotMapInfo pmi = getMap(w);
+		
+		if(pmi == null)
+			return false;
+		else
+			return pmi.UseEconomy && PlotMe.globalUseEconomy;
+	}
+	
+	public static boolean isEconomyEnabled(String name)
+	{
+		PlotMapInfo pmi = getMap(name);
+		
+		if(pmi == null)
+			return false;
+		else
+			return pmi.UseEconomy && PlotMe.globalUseEconomy;
+	}
+	
+	public static boolean isEconomyEnabled(Player p)
+	{
+		PlotMapInfo pmi = getMap(p);
+		
+		if(pmi == null)
+			return false;
+		else
+			return pmi.UseEconomy && PlotMe.globalUseEconomy;
+	}
+	
+	public static boolean isEconomyEnabled(Block b)
+	{
+		PlotMapInfo pmi = getMap(b);
+		
+		if(pmi == null)
+			return false;
+		else
+			return pmi.UseEconomy && PlotMe.globalUseEconomy;
+	}
+	
 	public static PlotMapInfo getMap(World w)
 	{
 		if(w == null)
 			return null;
 		else
-			return PlotMe.plotmaps.get(w.getName().toLowerCase());
+		{			
+			String worldname = w.getName().toLowerCase();
+			
+			if(PlotMe.plotmaps.containsKey(worldname))
+				return PlotMe.plotmaps.get(worldname);
+			else
+				return null;
+		}
 	}
 	
 	public static PlotMapInfo getMap(String name)
 	{
-		return PlotMe.plotmaps.get(name.toLowerCase());
+		String worldname = name.toLowerCase();
+		
+		if(PlotMe.plotmaps.containsKey(worldname))
+			return PlotMe.plotmaps.get(worldname);
+		else
+			return null;
 	}
 	
 	public static PlotMapInfo getMap(Location l)
@@ -534,7 +749,14 @@ public class PlotManager {
 		if(l == null)
 			return null;
 		else
-			return PlotMe.plotmaps.get(l.getWorld().getName().toLowerCase());
+		{
+			String worldname = l.getWorld().getName().toLowerCase();
+			
+			if(PlotMe.plotmaps.containsKey(worldname))
+				return PlotMe.plotmaps.get(worldname);
+			else
+				return null;
+		}
 	}
 	
 	public static PlotMapInfo getMap(Player p)
@@ -542,7 +764,14 @@ public class PlotManager {
 		if(p == null)
 			return null;
 		else
-			return PlotMe.plotmaps.get(p.getWorld().getName().toLowerCase());
+		{
+			String worldname = p.getWorld().getName().toLowerCase();
+			
+			if(PlotMe.plotmaps.containsKey(worldname))
+				return PlotMe.plotmaps.get(worldname);
+			else
+				return null;
+		}
 	}
 	
 	public static PlotMapInfo getMap(Block b)
@@ -550,7 +779,14 @@ public class PlotManager {
 		if(b == null)
 			return null;
 		else
-			return PlotMe.plotmaps.get(b.getWorld().getName().toLowerCase());
+		{
+			String worldname = b.getWorld().getName().toLowerCase();
+			
+			if(PlotMe.plotmaps.containsKey(worldname))
+				return PlotMe.plotmaps.get(worldname);
+			else
+				return null;
+		}
 	}
 	
 	public static HashMap<String, Plot> getPlots(World w)

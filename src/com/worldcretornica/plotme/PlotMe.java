@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,6 +23,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
@@ -34,6 +37,8 @@ public class PlotMe extends JavaPlugin
 	public static String PREFIX;
 	public static String VERSION;
 	
+	private boolean initializedonce = false;
+	
 	public static final Logger logger = Logger.getLogger("Minecraft");
 		
 	public static boolean usemySQL;
@@ -42,12 +47,12 @@ public class PlotMe extends JavaPlugin
     public static String mySQLconn;
     public static String configpath;
     public static int AutoPlotLimit;
+    public static boolean globalUseEconomy;
     
-    public static Map<String, PlotMapInfo> plotmaps;
+    public static Map<String, PlotMapInfo> plotmaps = null;
     
-    public static WorldEditPlugin we;
-    
-    public static boolean usingPEX = false;
+    public static WorldEditPlugin we = null;
+    public static Economy economy = null;
     
     private static HashSet<String> playersignoringwelimit = null;
 	
@@ -63,25 +68,48 @@ public class PlotMe extends JavaPlugin
 		plotmaps = null;
 		configpath = null;
 		we = null;
+		economy = null;
 	}
 	
 	public void onEnable()
 	{
-		initialize();
+		if(!initializedonce)
+			initialize();
 		
-		try {
+		doMetric();
+		setupEconomy();
+		
+		PluginManager pm = getServer().getPluginManager();
+				
+		pm.registerEvents(new PlotListener(), this);
+		
+		if(pm.getPlugin("WorldEdit") != null)
+		{
+			we = (WorldEditPlugin) pm.getPlugin("WorldEdit");
+			pm.registerEvents(new PlotWorldEditListener(), this);			
+		}
+				
+		getCommand("plotme").setExecutor(new PMCommand(this));
+	}
+	
+	private void doMetric()
+	{
+		try
+		{
 		    Metrics metrics = new Metrics(this);
 		    
 		    Graph graphNbWorlds = metrics.createGraph("Plot worlds");
 		    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds") {
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds")
+		    {
 				@Override
 				public int getValue() {
 					return plotmaps.size();
 				}
 			});
 		    	    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size") {
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size")
+		    {
 				@Override
 				public int getValue() {
 					
@@ -104,7 +132,8 @@ public class PlotMe extends JavaPlugin
 				}
 			});
 		    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots") {
+		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots")
+		    {
 				@Override
 				public int getValue() {
 					int nbplot = 0;
@@ -122,25 +151,12 @@ public class PlotMe extends JavaPlugin
 		} catch (IOException e) {
 		    // Failed to submit the stats :-(
 		}
-		
-		PluginManager pm = getServer().getPluginManager();
-				
-		pm.registerEvents(new PlotListener(), this);
-		
-		if(pm.getPlugin("WorldEdit") != null)
-		{
-			we = (WorldEditPlugin) pm.getPlugin("WorldEdit");
-			pm.registerEvents(new PlotWorldEditListener(), this);			
-		}
-		
-		usingPEX = (pm.getPlugin("PermissionsEx") != null);
-			
-		getCommand("plotme").setExecutor(new PMCommand(this));
 	}
 	
 	public ChunkGenerator getDefaultWorldGenerator(String worldname, String id)
 	{
-		initialize();
+		if(!initializedonce)
+			initialize();
 		
 		if(PlotManager.isPlotWorld(worldname))
 		{
@@ -151,7 +167,8 @@ public class PlotMe extends JavaPlugin
 		}
 	}
 	
-	public static boolean cPerms(Player player, String node){
+	public static boolean cPerms(Player player, String node)
+	{
 		return player.hasPermission(node);
 	}
 	
@@ -188,6 +205,7 @@ public class PlotMe extends JavaPlugin
 		mySQLuname = config.getString("mySQLuname", "root");
 		mySQLpass = config.getString("mySQLpass", "password");
 		AutoPlotLimit = config.getInt("AutoPlotLimit", 100);
+		globalUseEconomy = config.getBoolean("globalUseEconomy", false);
 		
 		ConfigurationSection worlds;
 		
@@ -208,6 +226,31 @@ public class PlotMe extends JavaPlugin
 			plotworld.set("DaysToExpiration", 7);
 			plotworld.set("ProtectedBlocks", getDefaultProtectedBlocks());
 			plotworld.set("PreventedItems", getDefaultPreventedItems());
+			plotworld.set("ProtectedWallBlockId", "44:4");
+			plotworld.set("ForSaleWallBlockId", "44:1");
+			plotworld.set("AuctionWallBlockId", "44:1");
+			
+			ConfigurationSection economysection = plotworld.createSection("economy");
+			
+			economysection.set("UseEconomy", false);
+			economysection.set("CanPutOnSale", false);
+			economysection.set("CanSellToBank", false);
+			economysection.set("RefundClaimPriceOnReset", false);
+			economysection.set("RefundClaimPriceOnSetOwner", false);
+			economysection.set("ClaimPrice", 0);
+			economysection.set("ClearPrice", 0);
+			economysection.set("AddPlayerPrice", 0);
+			economysection.set("RemovePlayerPrice", 0);
+			economysection.set("PlotHomePrice", 0);
+			economysection.set("CanCustomizeSellPrice", false);
+			economysection.set("SellToPlayerPrice", 0);
+			economysection.set("SellToBankPrice", 0);
+			economysection.set("BuyFromBankPrice", 0);
+			economysection.set("AddCommentPrice", 0);
+			economysection.set("BiomeChangePrice", 0);
+			economysection.set("ProtectPrice", 0);
+			
+			plotworld.set("economy", economysection);
 			
 			worlds.set("plotworld", plotworld);
 			config.set("worlds", worlds);
@@ -232,27 +275,57 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.PlotFloorBlockId = (byte) currworld.getInt("PlotFloorBlockId", 2);
 			tempPlotInfo.PlotFillingBlockId = (byte) currworld.getInt("PlotFillingBlockId", 3);
 			tempPlotInfo.RoadHeight = currworld.getInt("RoadHeight", currworld.getInt("WorldHeight", 64));
-			tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
-						
-			if(currworld.contains("ProtectedBlocks"))
-			{
-				tempPlotInfo.protectedblocks = currworld.getLongList("ProtectedBlocks");
-			}else{
-				tempPlotInfo.protectedblocks = getDefaultProtectedBlocks();
-			}
-			
-			if(currworld.contains("PreventedItems"))
-			{
-				tempPlotInfo.preventeditems = currworld.getStringList("PreventedItems");
-			}else{
-				tempPlotInfo.preventeditems = getDefaultPreventedItems();
-			}
-			
 			if(tempPlotInfo.RoadHeight > 250)
 			{
 				logger.severe(PREFIX + " RoadHeight above 250 is unsafe. This is the height at which your road is located. Setting it to 64.");
 				tempPlotInfo.RoadHeight = 64;
 			}
+			tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
+			
+			if(currworld.contains("ProtectedBlocks"))
+			{
+				tempPlotInfo.ProtectedBlocks = currworld.getIntegerList("ProtectedBlocks");
+			}else{
+				tempPlotInfo.ProtectedBlocks = getDefaultProtectedBlocks();
+			}
+			
+			if(currworld.contains("PreventedItems"))
+			{
+				tempPlotInfo.PreventedItems = currworld.getStringList("PreventedItems");
+			}else{
+				tempPlotInfo.PreventedItems = getDefaultPreventedItems();
+			}
+			
+			tempPlotInfo.ProtectedWallBlockId = currworld.getString("ProtectedWallBlockId", "44:4");
+			tempPlotInfo.ForSaleWallBlockId = currworld.getString("ForSaleWallBlockId", "44:1");
+			tempPlotInfo.AuctionWallBlockId = currworld.getString("AuctionWallBlockId", "44:1");
+			
+			ConfigurationSection economysection;
+			
+			if(currworld.getConfigurationSection("economy") == null)
+				economysection = currworld.createSection("economy");
+			else
+				economysection = currworld.getConfigurationSection("economy");
+			
+			tempPlotInfo.UseEconomy = economysection.getBoolean("UseEconomy", false);
+			tempPlotInfo.CanPutOnSale = economysection.getBoolean("CanPutOnSale", false);
+			tempPlotInfo.CanSellToBank = economysection.getBoolean("CanSellToBank", false);
+			tempPlotInfo.RefundClaimPriceOnReset = economysection.getBoolean("RefundClaimPriceOnReset", false);
+			tempPlotInfo.RefundClaimPriceOnSetOwner = economysection.getBoolean("RefundClaimPriceOnSetOwner", false);
+			tempPlotInfo.ClaimPrice = economysection.getDouble("ClaimPrice", 0);
+			tempPlotInfo.ClearPrice = economysection.getDouble("ClearPrice", 0);
+			tempPlotInfo.AddPlayerPrice = economysection.getDouble("AddPlayerPrice", 0);
+			tempPlotInfo.RemovePlayerPrice = economysection.getDouble("RemovePlayerPrice", 0);
+			tempPlotInfo.PlotHomePrice = economysection.getDouble("PlotHomePrice", 0);
+			tempPlotInfo.CanCustomizeSellPrice = economysection.getBoolean("CanCustomizeSellPrice", false);
+			tempPlotInfo.SellToPlayerPrice = economysection.getDouble("SellToPlayerPrice", 0);
+			tempPlotInfo.SellToBankPrice = economysection.getDouble("SellToBankPrice", 0);
+			tempPlotInfo.BuyFromBankPrice = economysection.getDouble("BuyFromBankPrice", 0);
+			tempPlotInfo.AddCommentPrice = economysection.getDouble("AddCommentPrice", 0);
+			tempPlotInfo.BiomeChangePrice = economysection.getDouble("BiomeChangePrice", 0);
+			tempPlotInfo.ProtectPrice = economysection.getDouble("ProtectPrice", 0);
+			
+			
 			
 			currworld.set("PlotAutoLimit", tempPlotInfo.PlotAutoLimit);
 			currworld.set("PathWidth", tempPlotInfo.PathWidth);
@@ -264,8 +337,35 @@ public class PlotMe extends JavaPlugin
 			currworld.set("RoadHeight", tempPlotInfo.RoadHeight);
 			currworld.set("WorldHeight", null);
 			currworld.set("DaysToExpiration", tempPlotInfo.DaysToExpiration);
-			currworld.set("ProtectedBlocks", tempPlotInfo.protectedblocks);
-			currworld.set("PreventedItems", tempPlotInfo.preventeditems);
+			currworld.set("ProtectedBlocks", tempPlotInfo.ProtectedBlocks);
+			currworld.set("PreventedItems", tempPlotInfo.PreventedItems);
+			currworld.set("ProtectedWallBlockId", tempPlotInfo.ProtectedWallBlockId);
+			currworld.set("ForSaleWallBlockId", tempPlotInfo.ForSaleWallBlockId);
+			currworld.set("AuctionWallBlockId", tempPlotInfo.AuctionWallBlockId);
+			
+			economysection = currworld.createSection("economy");
+			
+			economysection.set("UseEconomy", tempPlotInfo.UseEconomy);
+			economysection.set("CanPutOnSale", tempPlotInfo.CanPutOnSale);
+			economysection.set("CanSellToBank", tempPlotInfo.CanSellToBank);
+			economysection.set("RefundClaimPriceOnReset", tempPlotInfo.RefundClaimPriceOnReset);
+			economysection.set("RefundClaimPriceOnSetOwner", tempPlotInfo.RefundClaimPriceOnSetOwner);
+			economysection.set("ClaimPrice", tempPlotInfo.ClaimPrice);
+			economysection.set("ClearPrice", tempPlotInfo.ClearPrice);
+			economysection.set("AddPlayerPrice", tempPlotInfo.AddPlayerPrice);
+			economysection.set("RemovePlayerPrice", tempPlotInfo.RemovePlayerPrice);
+			economysection.set("PlotHomePrice", tempPlotInfo.PlotHomePrice);
+			economysection.set("CanCustomizeSellPrice", tempPlotInfo.CanCustomizeSellPrice);
+			economysection.set("SellToPlayerPrice", tempPlotInfo.SellToPlayerPrice);
+			economysection.set("SellToBankPrice", tempPlotInfo.SellToBankPrice);
+			economysection.set("BuyFromBankPrice", tempPlotInfo.BuyFromBankPrice);
+			economysection.set("AddCommentPrice", tempPlotInfo.AddCommentPrice);
+			economysection.set("BiomeChangePrice", tempPlotInfo.BiomeChangePrice);
+			economysection.set("ProtectPrice", tempPlotInfo.ProtectPrice);
+			
+			currworld.set("economy", economysection);
+			
+			worlds.set(worldname, currworld);
 			
 			tempPlotInfo.plots = SqlManager.getPlots(worldname.toLowerCase());
 			
@@ -276,6 +376,8 @@ public class PlotMe extends JavaPlugin
 		config.set("mySQLconn", mySQLconn);
 		config.set("mySQLuname", mySQLuname);
 		config.set("mySQLpass", mySQLpass);
+		config.set("AutoPlotLimit", AutoPlotLimit);
+		config.set("globalUseEconomy", globalUseEconomy);
 		
 		try {
 			config.save(configfile);
@@ -283,6 +385,18 @@ public class PlotMe extends JavaPlugin
 			logger.severe(PREFIX + " error writting configurations");
 			e.printStackTrace();
 		}
+		
+		initializedonce = true;
+    }
+	
+	private void setupEconomy()
+    {
+        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        if (economyProvider != null) {
+            economy = economyProvider.getProvider();
+        }
+
+        PlotMe.logger.info(PREFIX + " Hooking to vault " + (economy != null));
     }
 	
 	public static void addIgnoreWELimit(Player p)
@@ -446,21 +560,21 @@ public class PlotMe extends JavaPlugin
 		return expireddate.toString();
 	}
 	
-	public List<Long> getDefaultProtectedBlocks()
+	public List<Integer> getDefaultProtectedBlocks()
 	{
-		List<Long> protections = new ArrayList<Long>();
+		List<Integer> protections = new ArrayList<Integer>();
 		
-		protections.add((long) Material.CHEST.getId());
-		protections.add((long) Material.FURNACE.getId());
-		protections.add((long) Material.BURNING_FURNACE.getId());
-		protections.add((long) Material.ENDER_PORTAL_FRAME.getId());
-		protections.add((long) Material.DIODE_BLOCK_ON.getId());
-		protections.add((long) Material.DIODE_BLOCK_OFF.getId());
-		protections.add((long) Material.JUKEBOX.getId());
-		protections.add((long) Material.NOTE_BLOCK.getId());
-		protections.add((long) Material.BED.getId());
-		protections.add((long) Material.CAULDRON.getId());
-		protections.add((long) Material.BREWING_STAND.getId());
+		protections.add(Material.CHEST.getId());
+		protections.add(Material.FURNACE.getId());
+		protections.add(Material.BURNING_FURNACE.getId());
+		protections.add(Material.ENDER_PORTAL_FRAME.getId());
+		protections.add(Material.DIODE_BLOCK_ON.getId());
+		protections.add(Material.DIODE_BLOCK_OFF.getId());
+		protections.add(Material.JUKEBOX.getId());
+		protections.add(Material.NOTE_BLOCK.getId());
+		protections.add(Material.BED.getId());
+		protections.add(Material.CAULDRON.getId());
+		protections.add(Material.BREWING_STAND.getId());
 		
 		return protections;
 	}
@@ -479,4 +593,17 @@ public class PlotMe extends JavaPlugin
 		
 		return preventeditems;
 	}
+	
+	/*
+	private class PlotMeEconomy implements Runnable {   	
+        public void run()
+        {
+        	RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+            if (economyProvider != null) {
+                economy = economyProvider.getProvider();
+            }
+
+            PlotMe.logger.info(PREFIX + " Hooking to vault " + (economy != null));
+        }
+    }*/
 }
