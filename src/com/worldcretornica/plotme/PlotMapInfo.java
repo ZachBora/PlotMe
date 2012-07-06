@@ -41,5 +41,6 @@ public class PlotMapInfo {
 	public double AddCommentPrice;
 	public double BiomeChangePrice;
 	public double ProtectPrice;
+	public double DisposePrice;
 	
 }

@@ -129,7 +129,7 @@ public class SqlManager {
             {
             	/*** START Version 0.8 changes ***/
             	//CustomPrice
-            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' " +
+            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " +
             			"TABLE_NAME='plotmePlots' AND column_name='customprice'");
             	if(!set.next())
             	{
@@ -139,7 +139,7 @@ public class SqlManager {
             	set.close();
             	
             	//ForSale
-            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' " +
+            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " +
             			"TABLE_NAME='plotmePlots' AND column_name='forsale'");
             	if(!set.next())
             	{
@@ -149,7 +149,7 @@ public class SqlManager {
             	set.close();
             	
             	//finisheddate
-            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' " +
+            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " +
             			"TABLE_NAME='plotmePlots' AND column_name='finisheddate'");
             	if(!set.next())
             	{
@@ -159,7 +159,7 @@ public class SqlManager {
             	set.close();
             	
             	//Protected
-            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' " +
+            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " +
             			"TABLE_NAME='plotmePlots' AND column_name='protected'");
             	if(!set.next())
             	{
@@ -169,7 +169,7 @@ public class SqlManager {
             	set.close();
             	
             	//Auctionned
-            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' " +
+            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " +
             			"TABLE_NAME='plotmePlots' AND column_name='auctionned'");
             	if(!set.next())
             	{
@@ -179,7 +179,7 @@ public class SqlManager {
             	set.close();
             	
             	//Auctionenddate
-            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' " +
+            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " +
             			"TABLE_NAME='plotmePlots' AND column_name='auctionenddate'");
             	if(!set.next())
             	{
@@ -189,7 +189,7 @@ public class SqlManager {
             	set.close();
             	
             	//Currentbidder
-            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' " +
+            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " +
             			"TABLE_NAME='plotmePlots' AND column_name='currentbidder'");
             	if(!set.next())
             	{
@@ -199,7 +199,7 @@ public class SqlManager {
             	set.close();
             	
             	//Currentbid
-            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' " +
+            	set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " +
             			"TABLE_NAME='plotmePlots' AND column_name='currentbid'");
             	if(!set.next())
             	{

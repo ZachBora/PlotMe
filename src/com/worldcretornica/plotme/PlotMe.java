@@ -37,8 +37,6 @@ public class PlotMe extends JavaPlugin
 	public static String PREFIX;
 	public static String VERSION;
 	
-	private boolean initializedonce = false;
-	
 	public static final Logger logger = Logger.getLogger("Minecraft");
 		
 	public static boolean usemySQL;
@@ -48,6 +46,8 @@ public class PlotMe extends JavaPlugin
     public static String configpath;
     public static int AutoPlotLimit;
     public static boolean globalUseEconomy;
+    public static boolean advancedlogging;
+    //public static boolean showmoneychanges;
     
     public static Map<String, PlotMapInfo> plotmaps = null;
     
@@ -73,15 +73,18 @@ public class PlotMe extends JavaPlugin
 	
 	public void onEnable()
 	{
-		if(!initializedonce)
-			initialize();
+		initialize();
 		
 		doMetric();
-		setupEconomy();
 		
 		PluginManager pm = getServer().getPluginManager();
 				
 		pm.registerEvents(new PlotListener(), this);
+		
+		if(pm.getPlugin("Vault") != null)
+		{
+			setupEconomy();
+		}
 		
 		if(pm.getPlugin("WorldEdit") != null)
 		{
@@ -154,10 +157,7 @@ public class PlotMe extends JavaPlugin
 	}
 	
 	public ChunkGenerator getDefaultWorldGenerator(String worldname, String id)
-	{
-		if(!initializedonce)
-			initialize();
-		
+	{		
 		if(PlotManager.isPlotWorld(worldname))
 		{
 			return new PlotGen(PlotManager.getMap(worldname));
@@ -206,6 +206,8 @@ public class PlotMe extends JavaPlugin
 		mySQLpass = config.getString("mySQLpass", "password");
 		AutoPlotLimit = config.getInt("AutoPlotLimit", 100);
 		globalUseEconomy = config.getBoolean("globalUseEconomy", false);
+		advancedlogging = config.getBoolean("AdvancedLogging", false);
+		//showmoneychanges = config.getBoolean("ShowMoneyChanges", true);
 		
 		ConfigurationSection worlds;
 		
@@ -249,6 +251,7 @@ public class PlotMe extends JavaPlugin
 			economysection.set("AddCommentPrice", 0);
 			economysection.set("BiomeChangePrice", 0);
 			economysection.set("ProtectPrice", 0);
+			economysection.set("DisposePrice", 0);
 			
 			plotworld.set("economy", economysection);
 			
@@ -324,6 +327,7 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.AddCommentPrice = economysection.getDouble("AddCommentPrice", 0);
 			tempPlotInfo.BiomeChangePrice = economysection.getDouble("BiomeChangePrice", 0);
 			tempPlotInfo.ProtectPrice = economysection.getDouble("ProtectPrice", 0);
+			tempPlotInfo.DisposePrice = economysection.getDouble("DisposePrice", 0);
 			
 			
 			
@@ -362,6 +366,7 @@ public class PlotMe extends JavaPlugin
 			economysection.set("AddCommentPrice", tempPlotInfo.AddCommentPrice);
 			economysection.set("BiomeChangePrice", tempPlotInfo.BiomeChangePrice);
 			economysection.set("ProtectPrice", tempPlotInfo.ProtectPrice);
+			economysection.set("DisposePrice", tempPlotInfo.DisposePrice);
 			
 			currworld.set("economy", economysection);
 			
@@ -378,6 +383,8 @@ public class PlotMe extends JavaPlugin
 		config.set("mySQLpass", mySQLpass);
 		config.set("AutoPlotLimit", AutoPlotLimit);
 		config.set("globalUseEconomy", globalUseEconomy);
+		config.set("AdvancedLogging", advancedlogging);
+		//config.set("ShowMoneyChanges", showmoneychanges);
 		
 		try {
 			config.save(configfile);
@@ -385,8 +392,6 @@ public class PlotMe extends JavaPlugin
 			logger.severe(PREFIX + " error writting configurations");
 			e.printStackTrace();
 		}
-		
-		initializedonce = true;
     }
 	
 	private void setupEconomy()
@@ -395,8 +400,6 @@ public class PlotMe extends JavaPlugin
         if (economyProvider != null) {
             economy = economyProvider.getProvider();
         }
-
-        PlotMe.logger.info(PREFIX + " Hooking to vault " + (economy != null));
     }
 	
 	public static void addIgnoreWELimit(Player p)
@@ -594,16 +597,4 @@ public class PlotMe extends JavaPlugin
 		return preventeditems;
 	}
 	
-	/*
-	private class PlotMeEconomy implements Runnable {   	
-        public void run()
-        {
-        	RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-            if (economyProvider != null) {
-                economy = economyProvider.getProvider();
-            }
-
-            PlotMe.logger.info(PREFIX + " Hooking to vault " + (economy != null));
-        }
-    }*/
 }

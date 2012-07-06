@@ -149,17 +149,15 @@ public class PlotManager {
 	
 	public static void setSellSign(World world, Plot plot)
 	{
-		if(!plot.forsale && !plot.auctionned)
-		{
-			removeSellSign(world, plot.id);
-		}
-		else
+		removeSellSign(world, plot.id);
+		
+		if(plot.forsale || plot.auctionned)
 		{
 			Location pillar = new Location(world, bottomX(plot.id, world) - 1, getMap(world).RoadHeight + 1, bottomZ(plot.id, world) - 1);
 							
-			Block bsign = pillar.add(1, 0, -1).getBlock();
+			Block bsign = pillar.clone().add(-1, 0, 0).getBlock();
 			bsign.setType(Material.AIR);
-			bsign.setTypeIdAndData(Material.WALL_SIGN.getId(), (byte) 2, false);
+			bsign.setTypeIdAndData(Material.WALL_SIGN.getId(), (byte) 4, false);
 			
 			Sign sign = (Sign) bsign.getState();
 			
@@ -172,9 +170,21 @@ public class PlotManager {
 				else
 					sign.setLine(2, "" + ChatColor.BLUE + plot.customprice);
 				sign.setLine(3, "/plotme buy");
+				
+				sign.update(true);
 			}
-			else
-			{
+			
+			if(plot.auctionned)
+			{				
+				if(plot.forsale)
+				{
+					bsign = pillar.clone().add(-1, 0, 1).getBlock();
+					bsign.setType(Material.AIR);
+					bsign.setTypeIdAndData(Material.WALL_SIGN.getId(), (byte) 4, false);
+					
+					sign = (Sign) bsign.getState();
+				}
+				
 				sign.setLine(0, "" + ChatColor.BLUE + ChatColor.BOLD + "ON AUCTION");
 				if(plot.currentbidder.equals(""))
 					sign.setLine(1, "Minimum bid :");
@@ -185,9 +195,9 @@ public class PlotManager {
 				else
 					sign.setLine(2, "" + ChatColor.BLUE + plot.currentbid);
 				sign.setLine(3, "/plotme bid <x>");
+				
+				sign.update(true);
 			}
-	
-			sign.update(true);
 		}
 	}
 	
@@ -207,7 +217,10 @@ public class PlotManager {
 		
 		Location pillar = new Location(world, bottom.getX() - 1, getMap(world).RoadHeight + 1, bottom.getZ() - 1);
 		
-		Block bsign = pillar.add(1, 0, -1).getBlock();
+		Block bsign = pillar.clone().add(-1, 0, 0).getBlock();
+		bsign.setType(Material.AIR);
+						
+		bsign = pillar.clone().add(-1, 0, 1).getBlock();
 		bsign.setType(Material.AIR);
 	}
 	
@@ -251,7 +264,7 @@ public class PlotManager {
 	{
 		for(int x = PlotManager.bottomX(plot.id, w); x <= PlotManager.topX(plot.id, w); x++)
 		{
-			for(int z = PlotManager.bottomZ(plot.id, w); z <= PlotManager.bottomZ(plot.id, w); z++)
+			for(int z = PlotManager.bottomZ(plot.id, w); z <= PlotManager.topZ(plot.id, w); z++)
 			{
 				w.getBlockAt(x, 0, z).setBiome(b);
 			}
@@ -275,9 +288,9 @@ public class PlotManager {
 	{
 		PlotMapInfo pmi = getMap(bottom);
 		
-		for(int x = bottom.getBlockX() - 1; x <= top.getBlockX() + 1; x++)
+		for(int x = bottom.getBlockX(); x <= top.getBlockX(); x++)
 		{
-			for(int z = bottom.getBlockZ() - 1; z <= top.getBlockZ() + 1; z++)
+			for(int z = bottom.getBlockZ(); z <= top.getBlockZ(); z++)
 			{
 				Block block = new Location(bottom.getWorld(), x, 0, z).getBlock();
 				
@@ -301,7 +314,7 @@ public class PlotManager {
 								 z == bottom.getBlockZ() - 1 || 
 								 z == top.getBlockZ() + 1))
 						{
-							block.setTypeId(pmi.WallBlockId);
+							//block.setTypeId(pmi.WallBlockId);
 						}
 						else
 						{
@@ -311,13 +324,15 @@ public class PlotManager {
 				}
 			}
 		}
+		
+		adjustWall(bottom);
 	}
-	
+		
 	public static void adjustWall(Location l)
 	{
 		Plot plot = getPlotById(l);
-		PlotMapInfo pmi = getMap(l);
 		World w = l.getWorld();
+		PlotMapInfo pmi = getMap(w);
 		
 		List<String> wallids = new ArrayList<String>();
 		
@@ -701,6 +716,8 @@ public class PlotManager {
 	
 	public static boolean isEconomyEnabled(Player p)
 	{
+		if(PlotMe.economy == null) return false;
+		
 		PlotMapInfo pmi = getMap(p);
 		
 		if(pmi == null)
