@@ -207,14 +207,18 @@ public class PlotListener implements Listener {
 		
 		if(PlotManager.isPlotWorld(b))
 		{
-			boolean blocked = false;
 			PlotMapInfo pmi = PlotManager.getMap(b);
+			boolean blocked = false;
 			
-			if(pmi.ProtectedBlocks.contains((long) b.getTypeId()))
+			
+			for(int blockid : pmi.ProtectedBlocks)
 			{
-				blocked = true;
+				if(blockid == b.getTypeId())
+				{
+					blocked = true;
+				}
 			}
-			
+						
 			ItemStack is = event.getItem();
 			
 			if(is != null && event.getAction() == Action.RIGHT_CLICK_BLOCK)

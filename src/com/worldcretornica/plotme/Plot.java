@@ -198,10 +198,13 @@ public class Plot implements Comparable<Plot> {
 	
 	public void removeAllowed(String name)
 	{
-		if(isAllowed(name))
+		for(String n : allowed)
 		{
-			allowed.remove(name);
-			SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, world);
+			if(n.equalsIgnoreCase(name))
+			{
+				allowed.remove(n);
+				SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, world);
+			}
 		}
 	}
 	

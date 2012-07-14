@@ -1,6 +1,6 @@
 name: PlotMe
 main: com.worldcretornica.plotme.PlotMe
-version: 0.8
+version: 0.8c
 author: ZachBora
 load: startup
 website: http://dev.bukkit.org/server-mods/plotme/
@@ -26,6 +26,12 @@ permissions:
         plotme.use.biome: true
         plotme.use.clear: true
         plotme.use.list: true
+        plotme.use.buy: true
+        plotme.use.sell: true
+        plotme.use.auction: true
+        plotme.use.bid: true
+        plotme.use.dispose: true
+        plotme.use.done: true
     plotme.admin:
       description: Gives default administrator commands
       children:
@@ -42,6 +48,25 @@ permissions:
         plotme.admin.weanywhere: true
         plotme.admin.list: true
         plotme.admin.reload: true
+        plotme.admin.buy: true
+        plotme.admin.sell: true
+        plotme.admin.auction: true
+        plotme.admin.dispose: true
+        plotme.admin.done: true
+        plotme.admin.addtime: true
+        plotme.admin.expired: true
+    plotme.use.buy:
+      description: Gives the buy command
+    plotme.use.sell:
+      description: Gives the sell command
+    plotme.use.auction:
+      description: Gives the auction command
+    plotme.use.bid:
+      description: Gives the bid command
+    plotme.use.dispose:
+      description: Gives the dispose command
+    plotme.use.done:
+      description: Gives the done command
     plotme.use.claim:
       description: Gives the claim command
     plotme.use.auto:
@@ -64,6 +89,8 @@ permissions:
       description: Gives the add command for plots owned
     plotme.use.remove:
       description: Gives the remove command for plots owned
+    plotme.use.protect:
+      description: Gives the protect command
     plotme.limit.*:
       description: Gives unlimited plots
     plotme.admin.claim.other:
@@ -92,3 +119,17 @@ permissions:
       description: Gives the list command for any players
     plotme.admin.reload:
       description: Gives the reload command
+    plotme.admin.buy:
+      description: Gives the buy command
+    plotme.admin.sell:
+      description: Gives the sell command for any plots
+    plotme.admin.auction:
+      description: Gives the auction command for any plots
+    plotme.admin.dispose:
+      description: Gives the dispose command for any plots
+    plotme.admin.done:
+      description: Gives the done command for any plots and the donelist command
+    plotme.admin.addtime:
+      description: Gives the addtime command for any plots
+    plotme.admin.expired:
+      description: Gives the expired command

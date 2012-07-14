@@ -303,72 +303,83 @@ public class PMCommand implements CommandExecutor
 						}
 						else
 						{
-							if(plot.owner.equalsIgnoreCase(p.getName()))
+							String buyer = p.getName();
+							
+							if(plot.owner.equalsIgnoreCase(buyer))
 							{
 								p.sendMessage(PREFIX + RED + " You can't buy your own plot.");
 							}
 							else
 							{
-								World w = p.getWorld();
+								int plotlimit = PlotMe.getPlotLimit(p);
 								
-								double cost = plot.customprice;
-								String buyer = p.getName();
-								
-								if(PlotMe.economy.getBalance(buyer) < cost)
+								if(plotlimit != -1 && PlotManager.getNbOwnedPlot(p) >= plotlimit)
 								{
-									p.sendMessage(PREFIX + RED + " You do not have enough money to buy this plot.");
+									p.sendMessage(PREFIX + RESET + " You have already reached your maximum amount of plots (" + 
+											PlotManager.getNbOwnedPlot(p) + "/" + PlotMe.getPlotLimit(p) + "). Use " + RED + "/plotme home" + RESET + " to get to it");
 								}
 								else
 								{
-									EconomyResponse er = PlotMe.economy.withdrawPlayer(buyer, cost);
+									World w = p.getWorld();
 									
-									if(er.transactionSuccess())
+									double cost = plot.customprice;
+									
+									if(PlotMe.economy.getBalance(buyer) < cost)
 									{
-										String oldowner = plot.owner;
-										
-										if(!oldowner.equalsIgnoreCase("$Bank$"))
-										{
-											EconomyResponse er2 = PlotMe.economy.depositPlayer(oldowner, cost);
-											
-											if(!er2.transactionSuccess())
-											{
-												p.sendMessage(PREFIX + RED + " " + er2.errorMessage);
-												warn(LOG + er2.errorMessage);
-											}
-											else
-											{
-												for(Player player : Bukkit.getServer().getOnlinePlayers())
-												{
-													if(player.getName().equalsIgnoreCase(oldowner))
-													{
-														player.sendMessage(PREFIX + RESET + " Plot " + id + " sold to " + buyer + ". " + f(cost));
-														break;
-													}
-												}
-											}
-										}
-										
-										plot.owner = buyer;
-										plot.customprice = 0;
-										plot.forsale = false;
-										
-										plot.updateField("owner", buyer);
-										plot.updateField("customprice", 0);
-										plot.updateField("forsale", false);
-										
-										PlotManager.adjustWall(l);
-										PlotManager.setSellSign(w, plot);
-										PlotManager.setOwnerSign(w, plot);
-										
-										p.sendMessage(PREFIX + RESET + " Plot bought. " + f(-cost));
-										
-										if(isAdv)
-											PlotMe.logger.info(LOG + buyer + " bought plot " + id + " for " + cost);
+										p.sendMessage(PREFIX + RED + " You do not have enough money to buy this plot.");
 									}
 									else
 									{
-										p.sendMessage(PREFIX + RED + " " + er.errorMessage);
-										warn(LOG + er.errorMessage);
+										EconomyResponse er = PlotMe.economy.withdrawPlayer(buyer, cost);
+										
+										if(er.transactionSuccess())
+										{
+											String oldowner = plot.owner;
+											
+											if(!oldowner.equalsIgnoreCase("$Bank$"))
+											{
+												EconomyResponse er2 = PlotMe.economy.depositPlayer(oldowner, cost);
+												
+												if(!er2.transactionSuccess())
+												{
+													p.sendMessage(PREFIX + RED + " " + er2.errorMessage);
+													warn(LOG + er2.errorMessage);
+												}
+												else
+												{
+													for(Player player : Bukkit.getServer().getOnlinePlayers())
+													{
+														if(player.getName().equalsIgnoreCase(oldowner))
+														{
+															player.sendMessage(PREFIX + RESET + " Plot " + id + " sold to " + buyer + ". " + f(cost));
+															break;
+														}
+													}
+												}
+											}
+											
+											plot.owner = buyer;
+											plot.customprice = 0;
+											plot.forsale = false;
+											
+											plot.updateField("owner", buyer);
+											plot.updateField("customprice", 0);
+											plot.updateField("forsale", false);
+											
+											PlotManager.adjustWall(l);
+											PlotManager.setSellSign(w, plot);
+											PlotManager.setOwnerSign(w, plot);
+											
+											p.sendMessage(PREFIX + RESET + " Plot bought. " + f(-cost));
+											
+											if(isAdv)
+												PlotMe.logger.info(LOG + buyer + " bought plot " + id + " for " + cost);
+										}
+										else
+										{
+											p.sendMessage(PREFIX + RED + " " + er.errorMessage);
+											warn(LOG + er.errorMessage);
+										}
 									}
 								}
 							}
@@ -888,6 +899,9 @@ public class PMCommand implements CommandExecutor
 							{
 								plot.protect = false;
 								PlotManager.adjustWall(p.getLocation());
+								
+								plot.updateField("protected", false);
+								
 								p.sendMessage(PREFIX + RESET + " Plot is no longer protected. It is now possible to Clear or Reset it.");
 								
 								if(isAdv)
@@ -923,7 +937,7 @@ public class PMCommand implements CommandExecutor
 								plot.protect = true;
 								PlotManager.adjustWall(p.getLocation());
 								
-								plot.updateField("protect", true);
+								plot.updateField("protected", true);
 								
 								p.sendMessage(PREFIX + RESET + " Plot is now protected. It won't be possible to Clear or Reset it. " + f(-cost));
 								
@@ -1163,7 +1177,7 @@ public class PMCommand implements CommandExecutor
 				{
 					Plot plot = plots.get(id);
 					
-					if(plot.expireddate != null && PlotMe.getDate(plot.expireddate).compareTo(date.toString()) < 0)
+					if(!plot.protect && plot.expireddate != null && PlotMe.getDate(plot.expireddate).compareTo(date.toString()) < 0)
 					{
 						nbexpiredplots++;
 						expiredplots.add(plot);
@@ -1787,7 +1801,6 @@ public class PMCommand implements CommandExecutor
 					}
 					else
 					{
-						
 						World w = p.getWorld();
 						PlotMapInfo pmi = PlotManager.getMap(w);
 						
