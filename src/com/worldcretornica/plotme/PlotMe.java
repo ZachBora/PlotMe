@@ -27,7 +27,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.worldcretornica.plotme.Metrics.Graph;
 import com.worldcretornica.plotme.listener.PlotListener;
 import com.worldcretornica.plotme.listener.PlotWorldEditListener;
 
@@ -74,9 +73,7 @@ public class PlotMe extends JavaPlugin
 	public void onEnable()
 	{
 		initialize();
-		
-		doMetric();
-		
+				
 		PluginManager pm = getServer().getPluginManager();
 				
 		pm.registerEvents(new PlotListener(), this);
@@ -94,68 +91,7 @@ public class PlotMe extends JavaPlugin
 				
 		getCommand("plotme").setExecutor(new PMCommand(this));
 	}
-	
-	private void doMetric()
-	{
-		try
-		{
-		    Metrics metrics = new Metrics(this);
-		    
-		    Graph graphNbWorlds = metrics.createGraph("Plot worlds");
-		    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds")
-		    {
-				@Override
-				public int getValue() {
-					return plotmaps.size();
-				}
-			});
-		    	    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size")
-		    {
-				@Override
-				public int getValue() {
-					
-					if(plotmaps.size() > 0)
-					{
-						int totalplotsize = 0;
-						
-						for(PlotMapInfo p : plotmaps.values())
-						{
-							totalplotsize += p.PlotSize;
-						}
-						
-						
-						return totalplotsize / plotmaps.size();
-					}
-					else
-					{
-						return 0;
-					}
-				}
-			});
-		    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots")
-		    {
-				@Override
-				public int getValue() {
-					int nbplot = 0;
-					
-					for(PlotMapInfo p : plotmaps.values())
-					{
-						nbplot += p.plots.size();
-					}
-					
-					return nbplot;
-				}
-			});
-		    		    
-		    metrics.start();
-		} catch (IOException e) {
-		    // Failed to submit the stats :-(
-		}
-	}
-	
+		
 	public ChunkGenerator getDefaultWorldGenerator(String worldname, String id)
 	{		
 		if(PlotManager.isPlotWorld(worldname))
