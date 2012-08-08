@@ -471,9 +471,12 @@ public class PlotListener implements Listener {
 	{	
 		Location l = event.getLocation();
 		
-		if(l != null && PlotManager.isPlotWorld(l.getWorld()))
+		if(l != null)
 		{
-			event.setCancelled(true);
+			PlotMapInfo pmi = PlotManager.getMap(l);
+			
+			if(pmi != null && pmi.DisableExplosion)
+				event.setCancelled(true);
 			
 			/*
 			List<Block> blocks = event.blockList();
@@ -511,29 +514,39 @@ public class PlotListener implements Listener {
 	{
 		Block b = event.getBlock();
 		
-		if(b != null && PlotManager.isPlotWorld(b))
+		if(b != null)
 		{
-			event.setCancelled(true);
-			/*
-			String id = PlotManager.getPlotId(b.getLocation());
-			Player p = event.getPlayer();
+			PlotMapInfo pmi = PlotManager.getMap(b);
 			
-			if(id.equalsIgnoreCase("") || p == null)
+			if(pmi != null)
 			{
-				event.setCancelled(true);
-			}else{
-				Plot plot = PlotManager.getPlotById(b,id);
-				
-				if (plot == null)
+				if(pmi.DisableIgnition)
 				{
 					event.setCancelled(true);
-				}else{
-					if(!plot.isAllowed(p.getName()))
+				}
+				else
+				{
+					String id = PlotManager.getPlotId(b.getLocation());
+					Player p = event.getPlayer();
+					
+					if(id.equalsIgnoreCase("") || p == null)
 					{
 						event.setCancelled(true);
+					}else{
+						Plot plot = PlotManager.getPlotById(b,id);
+						
+						if (plot == null)
+						{
+							event.setCancelled(true);
+						}else{
+							if(!plot.isAllowed(p.getName()))
+							{
+								event.setCancelled(true);
+							}
+						}
 					}
 				}
-			}*/
+			}
 		}
 	}
 }

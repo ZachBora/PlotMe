@@ -1830,6 +1830,8 @@ public class PMCommand implements CommandExecutor
 						}
 						
 						Plot plot = PlotManager.createPlot(w, id, playername);
+						
+						PlotManager.adjustLinkedPlots(id, w);
 		
 						if(plot == null)
 							p.sendMessage(PREFIX + RED + " An error occured while creating the plot at " + id);

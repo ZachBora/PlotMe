@@ -43,4 +43,9 @@ public class PlotMapInfo {
 	public double ProtectPrice;
 	public double DisposePrice;
 	
+	public boolean AutoLinkPlots;
+	public boolean DisableExplosion;
+	public boolean DisableIgnition;
+	
+	
 }

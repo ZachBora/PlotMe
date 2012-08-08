@@ -231,6 +231,9 @@ public class PlotMe extends JavaPlugin
 			plotworld.set("ProtectedWallBlockId", "44:4");
 			plotworld.set("ForSaleWallBlockId", "44:1");
 			plotworld.set("AuctionWallBlockId", "44:1");
+			plotworld.set("AutoLinkPlots", true);
+			plotworld.set("DisableExplosion", true);
+			plotworld.set("DisableIgnition", true);
 			
 			ConfigurationSection economysection = plotworld.createSection("economy");
 			
@@ -302,6 +305,9 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.ProtectedWallBlockId = currworld.getString("ProtectedWallBlockId", "44:4");
 			tempPlotInfo.ForSaleWallBlockId = currworld.getString("ForSaleWallBlockId", "44:1");
 			tempPlotInfo.AuctionWallBlockId = currworld.getString("AuctionWallBlockId", "44:1");
+			tempPlotInfo.AutoLinkPlots = currworld.getBoolean("AutoLinkPlots", true);
+			tempPlotInfo.DisableExplosion = currworld.getBoolean("DisableExplosion", true);
+			tempPlotInfo.DisableIgnition = currworld.getBoolean("DisableIgnition", true);
 			
 			ConfigurationSection economysection;
 			
@@ -346,6 +352,9 @@ public class PlotMe extends JavaPlugin
 			currworld.set("ProtectedWallBlockId", tempPlotInfo.ProtectedWallBlockId);
 			currworld.set("ForSaleWallBlockId", tempPlotInfo.ForSaleWallBlockId);
 			currworld.set("AuctionWallBlockId", tempPlotInfo.AuctionWallBlockId);
+			currworld.set("AutoLinkPlots", tempPlotInfo.AutoLinkPlots);
+			currworld.set("DisableExplosion", tempPlotInfo.DisableExplosion);
+			currworld.set("DisableIgnition", tempPlotInfo.DisableIgnition);
 			
 			economysection = currworld.createSection("economy");
 			
