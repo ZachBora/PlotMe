@@ -27,6 +27,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -536,4 +537,15 @@ public class PlotListener implements Listener {
 			}*/
 		}
 	}
+
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onPlayerJoin(final PlayerJoinEvent event){
+		if (PlotMe.cPerms(event.getPlayer(), "PlotMe.admin.weanywhere"))
+		{
+			if(!PlotMe.isIgnoringWELimit(event.getPlayer())){
+				PlotMe.addIgnoreWELimit(event.getPlayer());
+			}
+		}
+	}
+
 }
