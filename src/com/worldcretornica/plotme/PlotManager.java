@@ -287,7 +287,7 @@ public class PlotManager {
 	
 	public static void clear(World w, Plot plot)
 	{
-		clear(new Location(w, PlotManager.bottomX(plot.id, w), 0, PlotManager.bottomZ(plot.id, w)), new Location(w, PlotManager.topX(plot.id, w), 256, PlotManager.topZ(plot.id, w)));
+		clear(new Location(w, PlotManager.bottomX(plot.id, w), 0, PlotManager.bottomZ(plot.id, w)).subtract(-1, 0, -1), new Location(w, PlotManager.topX(plot.id, w), w.getMaxHeight(), PlotManager.topZ(plot.id, w)).subtract(1,0,1));
 	}
 	
 	public static void clear(Location bottom, Location top)
@@ -935,6 +935,7 @@ public class PlotManager {
 			return plots.get(plotid);
 	}
 
+	//Refresh Chunk functions:
 	ArrayList<Chunk> rfchnk = new ArrayList<Chunk>();
 	
 	public void addChunkToRefresh(World w, int x, int z){
@@ -959,5 +960,51 @@ public class PlotManager {
 		}
 	}
 
+	//Sign functions
+	public static void setSign(World world, Plot plot){
+		setSign(world, plot, "");
+	}
+	
+	public static void setSign(World world, Plot plot, String secondline)
+	{
+		Location enleft = new Location(world, getPlotBottomLoc(world, plot.id).getBlockX() + (getPlotTopLoc(world, plot.id).getBlockX() - getPlotBottomLoc(world, plot.id).getBlockX())/2-1, 66, getPlotTopLoc(world, plot.id).getBlockZ()+1);
+		Location enright = enleft.clone().add(4, 0, 0);
+		enleft.getBlock().setType(Material.SMOOTH_BRICK);
+		enright.getBlock().setType(Material.SMOOTH_BRICK);
+		
+		int locX = PlotManager.getIdX(plot.id), locZ = PlotManager.getIdZ(plot.id);
+		
+		enleft.add(0, 0, 1).getBlock().setTypeIdAndData(Material.WALL_SIGN.getId(), (byte)3, true);
+		Sign sign = (Sign) enleft.getBlock().getState();
+		sign.setLine(0, "ID: " + locX + "," + locZ);
+		sign.setLine(1, secondline);
+		sign.setLine(2, "Plot Owner:");
+		sign.setLine(3, (plot.owner).substring(0, (plot.owner.length() > 15 ? 15 : plot.owner.length())));
+		sign.update(true);
+		sign = null;
+		
+		enright.add(0, 0, 1).getBlock().setTypeIdAndData(Material.WALL_SIGN.getId(), (byte)3, true);
+		sign = (Sign) enright.getBlock().getState();
+		sign.setLine(0, "ID: " + locX + "," + locZ);
+		sign.setLine(1, secondline);
+		sign.setLine(2, "Plot Owner:");
+		sign.setLine(3, (plot.owner).substring(0, (plot.owner.length() > 15 ? 15 : plot.owner.length())));
+		sign.update(true);
+	}
+	
+	public static void removeSign(World world, Plot plot)
+	{
+		removeSign(world, PlotManager.getPlotBottomLoc(world, plot.id), PlotManager.getPlotTopLoc(world, plot.id));
+	}
 
+	public static void removeSign(World world, Location bottom, Location top)
+	{
+		Location enleft = new Location(world, bottom.getX() + (top.getX() - bottom.getX())/2-1, 66, top.getZ()+2);
+		Location enright = enleft.clone().add(4, 0, 0);
+		enleft.getBlock().setType(Material.FENCE);
+		enright.getBlock().setType(Material.FENCE);
+				
+		enleft.add(0, 0, 1).getBlock().setType(Material.AIR);
+		enright.add(0, 0, 1).getBlock().setType(Material.AIR);
+	}
 }
