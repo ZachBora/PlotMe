@@ -288,15 +288,15 @@ public class PlotManager {
 	{
 		PlotMapInfo pmi = getMap(bottom);
 		
-		for(int x = bottom.getBlockX(); x <= top.getBlockX(); x++)
+		for(int x = bottom.getBlockX() - 1; x <= top.getBlockX() + 1; x++)
 		{
-			for(int z = bottom.getBlockZ(); z <= top.getBlockZ(); z++)
+			for(int z = bottom.getBlockZ() - 1; z <= top.getBlockZ() + 1; z++)
 			{
 				Block block = new Location(bottom.getWorld(), x, 0, z).getBlock();
 				
 				block.setBiome(Biome.PLAINS);
 				
-				for(int y = 0; y < 256; y++)
+				for(int y = 0; y < block.getWorld().getMaxHeight(); y++)
 				{
 					block = new Location(bottom.getWorld(), x, y, z).getBlock();
 					
