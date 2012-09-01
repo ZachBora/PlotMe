@@ -140,6 +140,12 @@ public class PMCommand implements CommandExecutor
 						if (a0.equalsIgnoreCase("buy")) { return buy(p, args);}
 						if (a0.equalsIgnoreCase("bid")) { return bid(p, args);}
 						if (a0.startsWith("home") || a0.startsWith("h")) { return home(p, args);}
+						
+						if (a0.equalsIgnoreCase("convert")){return convert(p, args);}
+						if (a0.equalsIgnoreCase("submit")){return submit(p, args);}
+						if (a0.equalsIgnoreCase("approve")){return approve(p, args);}
+						if (a0.equalsIgnoreCase("deny") || a0.equalsIgnoreCase("decline") || a0.equalsIgnoreCase("refuse")){return refuse(p, args);}
+				
 					}
 				}
 			}
@@ -2966,6 +2972,28 @@ public class PMCommand implements CommandExecutor
 			return GREEN + ((price > 0) ? "+" + format : "-" + format);
 		else
 			return GREEN + format;
+	}
+
+
+	// New functions added for xemcorp infiniplots compatibitity (only stubs for now)
+	private boolean refuse(Player p, String[] args){
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean approve(Player p, String[] args){
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean submit(Player p, String[] args){
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private boolean convert(Player p, String[] args){
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 }
