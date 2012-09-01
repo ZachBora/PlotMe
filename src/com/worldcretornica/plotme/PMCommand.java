@@ -2360,7 +2360,7 @@ public class PMCommand implements CommandExecutor
 						Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
 						Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
 						
-						PlotManager.clear(bottom, top);
+						PlotManager.clear(bottom.subtract(-1, 0, -1), top.subtract(1, 0, 1));
 						
 						if(PlotManager.isEconomyEnabled(p))
 						{
