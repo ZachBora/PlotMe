@@ -123,7 +123,7 @@ public class Plot implements Comparable<Plot> {
 			cal.add(Calendar.DAY_OF_YEAR, days);
 			java.util.Date utlDate = cal.getTime();
 			java.sql.Date temp = new java.sql.Date(utlDate.getTime());
-			if(!temp.toString().equalsIgnoreCase(expireddate.toString()))
+			if(expireddate == null || !temp.toString().equalsIgnoreCase(expireddate.toString()))
 			{
 				expireddate = temp;
 				updateField("expireddate", expireddate);
