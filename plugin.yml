@@ -1,9 +1,8 @@
 name: PlotMe
 main: com.worldcretornica.plotme.PlotMe
-version: 0.9
-author: ZachBora
+version: 0.9.9
+author: ZachBora, Knorke
 load: startup
-website: http://dev.bukkit.org/server-mods/plotme/
 loadbefore: [bPermissions]
 softdepend: [WorldEdit, Vault]
 description: >
