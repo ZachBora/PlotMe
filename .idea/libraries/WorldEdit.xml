@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="WorldEdit">
+    <CLASSES>
+      <root url="jar://C:/MinecraftServer/plugins/WorldEdit.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

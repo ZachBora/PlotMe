@@ -13,8 +13,11 @@ import java.util.logging.Logger;
 
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -55,6 +58,11 @@ public class PlotMe extends JavaPlugin
     public static Economy economy = null;
     
     private static HashSet<String> playersignoringwelimit = null;
+    
+    public static World worldcurrentlyprocessingexpired;
+    public static CommandSender cscurrentlyprocessingexpired;
+    public static int counterexpired;
+    public static int nbperdeletionprocessingexpired;
 	
 	public void onDisable()
 	{	
@@ -167,9 +175,9 @@ public class PlotMe extends JavaPlugin
 		}
 	}
 	
-	public static boolean cPerms(Player player, String node)
+	public static boolean cPerms(CommandSender sender, String node)
 	{
-		return player.hasPermission(node);
+		return sender.hasPermission(node);
 	}
 	
 	public void initialize()
@@ -231,6 +239,9 @@ public class PlotMe extends JavaPlugin
 			plotworld.set("ProtectedWallBlockId", "44:4");
 			plotworld.set("ForSaleWallBlockId", "44:1");
 			plotworld.set("AuctionWallBlockId", "44:1");
+			plotworld.set("AutoLinkPlots", true);
+			plotworld.set("DisableExplosion", true);
+			plotworld.set("DisableIgnition", true);
 			
 			ConfigurationSection economysection = plotworld.createSection("economy");
 			
@@ -302,6 +313,9 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.ProtectedWallBlockId = currworld.getString("ProtectedWallBlockId", "44:4");
 			tempPlotInfo.ForSaleWallBlockId = currworld.getString("ForSaleWallBlockId", "44:1");
 			tempPlotInfo.AuctionWallBlockId = currworld.getString("AuctionWallBlockId", "44:1");
+			tempPlotInfo.AutoLinkPlots = currworld.getBoolean("AutoLinkPlots", true);
+			tempPlotInfo.DisableExplosion = currworld.getBoolean("DisableExplosion", true);
+			tempPlotInfo.DisableIgnition = currworld.getBoolean("DisableIgnition", true);
 			
 			ConfigurationSection economysection;
 			
@@ -346,6 +360,9 @@ public class PlotMe extends JavaPlugin
 			currworld.set("ProtectedWallBlockId", tempPlotInfo.ProtectedWallBlockId);
 			currworld.set("ForSaleWallBlockId", tempPlotInfo.ForSaleWallBlockId);
 			currworld.set("AuctionWallBlockId", tempPlotInfo.AuctionWallBlockId);
+			currworld.set("AutoLinkPlots", tempPlotInfo.AutoLinkPlots);
+			currworld.set("DisableExplosion", tempPlotInfo.DisableExplosion);
+			currworld.set("DisableIgnition", tempPlotInfo.DisableIgnition);
 			
 			economysection = currworld.createSection("economy");
 			
@@ -578,6 +595,9 @@ public class PlotMe extends JavaPlugin
 		protections.add(Material.BED.getId());
 		protections.add(Material.CAULDRON.getId());
 		protections.add(Material.BREWING_STAND.getId());
+		protections.add(Material.BEACON.getId());
+		protections.add(Material.FLOWER_POT.getId());
+		protections.add(Material.ANVIL.getId());
 		
 		return protections;
 	}
@@ -587,7 +607,6 @@ public class PlotMe extends JavaPlugin
 		List<String> preventeditems = new ArrayList<String>();
 
 		preventeditems.add("" + Material.INK_SACK.getId() + ":15");
-		preventeditems.add("" + Material.PAINTING.getId());
 		preventeditems.add("" + Material.FLINT_AND_STEEL.getId());
 		preventeditems.add("" + Material.MINECART.getId());
 		preventeditems.add("" + Material.POWERED_MINECART.getId());
@@ -597,4 +616,15 @@ public class PlotMe extends JavaPlugin
 		return preventeditems;
 	}
 	
+	public void scheduleTask(Runnable task, int eachseconds, int howmanytimes)
+	{		 		 
+		//return Bukkit.getServer().getScheduler().scheduleAsyncRepeatingTask(this, task, eachseconds, howmanytimes * eachseconds);
+		
+		PlotMe.cscurrentlyprocessingexpired.sendMessage("" + PlotMe.PREFIX + ChatColor.RESET + " Starting delete session");
+		
+		for(int ctr = 0; ctr < (howmanytimes / nbperdeletionprocessingexpired); ctr++)
+		{
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, task, ctr * eachseconds * 20);
+		}
+	}
 }

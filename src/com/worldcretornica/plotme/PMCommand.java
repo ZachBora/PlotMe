@@ -57,6 +57,7 @@ public class PMCommand implements CommandExecutor
 					if(!(s instanceof Player))
 					{
 						if (a0.equalsIgnoreCase("reload")) { return reload(s, args);}
+						if (a0.equalsIgnoreCase("resetexpired")) { return resetexpired(s, args); }
 					}
 				}
 			}
@@ -140,6 +141,8 @@ public class PMCommand implements CommandExecutor
 						if (a0.equalsIgnoreCase("buy")) { return buy(p, args);}
 						if (a0.equalsIgnoreCase("bid")) { return bid(p, args);}
 						if (a0.startsWith("home") || a0.startsWith("h")) { return home(p, args);}
+						
+						if (a0.equalsIgnoreCase("resetexpired")) { return resetexpired(p, args); }
 					}
 				}
 			}
@@ -147,6 +150,56 @@ public class PMCommand implements CommandExecutor
 		return false;
 	}
 	
+	private boolean resetexpired(CommandSender s, String[] args)
+	{
+		if(PlotMe.cPerms(s, "PlotMe.admin.resetexpired"))
+		{
+			if(args.length <= 1)
+			{
+				s.sendMessage(PREFIX + RESET + " Usage: " + RED + "/plotme resetexpired <world> " + RESET + "Example: " + RED + "/plotme resetexpired plotworld ");
+			}
+			else
+			{
+				if(PlotMe.worldcurrentlyprocessingexpired != null)
+				{
+					s.sendMessage(PREFIX + RESET + " " + PlotMe.cscurrentlyprocessingexpired.getName() + " is already processing expired plots");
+				}
+				else
+				{
+					World w = s.getServer().getWorld(args[1]);
+					
+					if(w == null)
+					{
+						s.sendMessage(PREFIX + RED + " World '" + args[1] + "' does not exist or is not loaded.");
+						return true;
+					}
+					else
+					{					
+						if(!PlotManager.isPlotWorld(w))
+						{
+							s.sendMessage(PREFIX + RED + " This is not a plot world.");
+							return true;
+						}
+						else
+						{
+							PlotMe.worldcurrentlyprocessingexpired = w;
+							PlotMe.cscurrentlyprocessingexpired = s;
+							PlotMe.counterexpired = 50;
+							PlotMe.nbperdeletionprocessingexpired = 5;
+							
+							plugin.scheduleTask(new PlotRunnableDeleteExpire(), 5, 50);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			s.sendMessage(PREFIX + RED + " Permission denied");
+		}
+		return true;
+	}
+
 	private boolean bid(Player p, String[] args) 
 	{	
 		if(PlotManager.isEconomyEnabled(p))
@@ -1398,6 +1451,7 @@ public class PMCommand implements CommandExecutor
 		if(PlotMe.cPerms(p, "PlotMe.admin.list")) allowed_commands.add("listother");
 		if(PlotMe.cPerms(p, "PlotMe.admin.expired")) allowed_commands.add("expired");
 		if(PlotMe.cPerms(p, "PlotMe.admin.addtime")) allowed_commands.add("addtime");
+		if(PlotMe.cPerms(p, "PlotMe.admin.resetexpired")) allowed_commands.add("resetexpired");
 		
 		PlotMapInfo pmi = PlotManager.getMap(p);
 		
@@ -1639,6 +1693,11 @@ public class PMCommand implements CommandExecutor
 				p.sendMessage(GREEN + " /plotme auction [amount]");
 				p.sendMessage(AQUA + " Put your plot for auction. Default : " + RESET + "1");
 			}
+			else if(allowedcmd.equalsIgnoreCase("resetexpired"))
+			{
+				p.sendMessage(GREEN + " /plotme resetexpired <world>");
+				p.sendMessage(AQUA + " Resets the 50 oldest plots on that world.");
+			}
 		}
 		
 		return true;
@@ -1735,6 +1794,8 @@ public class PMCommand implements CommandExecutor
 									
 									Plot plot = PlotManager.createPlot(w, id, name);
 									
+									//PlotManager.adjustLinkedPlots(id, w);
+									
 									p.teleport(new Location(p.getWorld(), PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - 
 											PlotManager.bottomX(plot.id, w))/2, pmi.RoadHeight + 2, PlotManager.bottomZ(plot.id, w) - 2));
 		
@@ -1830,6 +1891,8 @@ public class PMCommand implements CommandExecutor
 						}
 						
 						Plot plot = PlotManager.createPlot(w, id, playername);
+						
+						//PlotManager.adjustLinkedPlots(id, w);
 		
 						if(plot == null)
 							p.sendMessage(PREFIX + RED + " An error occured while creating the plot at " + id);

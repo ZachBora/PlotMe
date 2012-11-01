@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,8 +25,12 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
@@ -471,9 +476,12 @@ public class PlotListener implements Listener {
 	{	
 		Location l = event.getLocation();
 		
-		if(l != null && PlotManager.isPlotWorld(l.getWorld()))
+		if(l != null)
 		{
-			event.setCancelled(true);
+			PlotMapInfo pmi = PlotManager.getMap(l);
+			
+			if(pmi != null && pmi.DisableExplosion)
+				event.setCancelled(true);
 			
 			/*
 			List<Block> blocks = event.blockList();
@@ -511,29 +519,225 @@ public class PlotListener implements Listener {
 	{
 		Block b = event.getBlock();
 		
-		if(b != null && PlotManager.isPlotWorld(b))
+		if(b != null)
 		{
-			event.setCancelled(true);
-			/*
+			PlotMapInfo pmi = PlotManager.getMap(b);
+			
+			if(pmi != null)
+			{
+				if(pmi.DisableIgnition)
+				{
+					event.setCancelled(true);
+				}
+				else
+				{
+					String id = PlotManager.getPlotId(b.getLocation());
+					Player p = event.getPlayer();
+					
+					if(id.equalsIgnoreCase("") || p == null)
+					{
+						event.setCancelled(true);
+					}else{
+						Plot plot = PlotManager.getPlotById(b,id);
+						
+						if (plot == null)
+						{
+							event.setCancelled(true);
+						}else{
+							if(!plot.isAllowed(p.getName()))
+							{
+								event.setCancelled(true);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onHangingBreakEvent(final HangingPlaceEvent event)
+	{
+		boolean canbuild = PlotMe.cPerms(event.getPlayer(), "PlotMe.admin");
+		
+		Block b = event.getBlock();
+		
+		if(PlotManager.isPlotWorld(b))
+		{
 			String id = PlotManager.getPlotId(b.getLocation());
 			Player p = event.getPlayer();
 			
-			if(id.equalsIgnoreCase("") || p == null)
+			if(id.equalsIgnoreCase(""))
 			{
-				event.setCancelled(true);
+				if(!canbuild)
+				{
+					p.sendMessage("You cannot build here.");
+					event.setCancelled(true);
+				}
 			}else{
-				Plot plot = PlotManager.getPlotById(b,id);
+				Plot plot = PlotManager.getPlotById(p,id);
 				
 				if (plot == null)
 				{
-					event.setCancelled(true);
+					if(!canbuild)
+					{
+						p.sendMessage("You cannot build here.");
+						event.setCancelled(true);
+					}
 				}else{
 					if(!plot.isAllowed(p.getName()))
 					{
-						event.setCancelled(true);
+						if(!canbuild)
+						{
+							p.sendMessage("You cannot build here.");
+							event.setCancelled(true);
+						}
+					}else{
+						plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
 					}
 				}
-			}*/
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onHangingBreakEvent(final HangingBreakByEntityEvent event)
+	{
+		Entity entity = event.getRemover();
+		
+		if(entity instanceof Player)
+		{
+			Player p = (Player)entity;
+			
+			boolean canbuild = PlotMe.cPerms(p, "PlotMe.admin");
+	
+			Location l = event.getEntity().getLocation();
+			
+			if(PlotManager.isPlotWorld(l))
+			{
+				String id = PlotManager.getPlotId(l);
+				
+				if(id.equalsIgnoreCase(""))
+				{
+					if(!canbuild)
+					{
+						p.sendMessage("You cannot build here.");
+						event.setCancelled(true);
+					}
+				}else{
+					Plot plot = PlotManager.getPlotById(p,id);
+					
+					if (plot == null)
+					{
+						if(!canbuild)
+						{
+							p.sendMessage("You cannot build here.");
+							event.setCancelled(true);
+						}
+					}else{
+						if(!plot.isAllowed(p.getName()))
+						{
+							if(!canbuild)
+							{
+								p.sendMessage("You cannot build here.");
+								event.setCancelled(true);
+							}
+						}else{
+							plot.resetExpire(PlotManager.getMap(l).DaysToExpiration);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onPlayerInteractEntityEvent(final PlayerInteractEntityEvent event)
+	{
+		Player p = event.getPlayer();
+		
+		boolean canbuild = PlotMe.cPerms(p, "PlotMe.admin");
+
+		Location l = event.getRightClicked().getLocation();
+		
+		if(PlotManager.isPlotWorld(l))
+		{
+			String id = PlotManager.getPlotId(l);
+			
+			if(id.equalsIgnoreCase(""))
+			{
+				if(!canbuild)
+				{
+					p.sendMessage("You cannot build here.");
+					event.setCancelled(true);
+				}
+			}else{
+				Plot plot = PlotManager.getPlotById(p,id);
+				
+				if (plot == null)
+				{
+					if(!canbuild)
+					{
+						p.sendMessage("You cannot build here.");
+						event.setCancelled(true);
+					}
+				}else{
+					if(!plot.isAllowed(p.getName()))
+					{
+						if(!canbuild)
+						{
+							p.sendMessage("You cannot build here.");
+							event.setCancelled(true);
+						}
+					}else{
+						plot.resetExpire(PlotManager.getMap(l).DaysToExpiration);
+					}
+				}
+			}
+		}
+	}	
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void onPlayerEggThrowEvent(final PlayerEggThrowEvent event)
+	{
+		Player p = event.getPlayer();
+			
+		boolean canbuild = PlotMe.cPerms(p, "PlotMe.admin");
+
+		Location l = event.getEgg().getLocation();
+		
+		if(PlotManager.isPlotWorld(l))
+		{
+			String id = PlotManager.getPlotId(l);
+			
+			if(id.equalsIgnoreCase(""))
+			{
+				if(!canbuild)
+				{
+					p.sendMessage("You cannot use eggs here.");
+					event.setHatching(false);
+				}
+			}else{
+				Plot plot = PlotManager.getPlotById(p,id);
+				
+				if (plot == null)
+				{
+					if(!canbuild)
+					{
+						p.sendMessage("You cannot use eggs here.");
+						event.setHatching(false);
+					}
+				}else{
+					if(!plot.isAllowed(p.getName()))
+					{
+						if(!canbuild)
+						{
+							p.sendMessage("You cannot use eggs here.");
+							event.setHatching(false);
+						}
+					}
+				}
+			}
 		}
 	}
 }

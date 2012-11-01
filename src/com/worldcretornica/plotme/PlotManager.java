@@ -1,6 +1,7 @@
 package com.worldcretornica.plotme;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,17 +19,26 @@ public class PlotManager {
 				
 	public static String getPlotId(Location loc)
 	{
-		if(isPlotWorld(loc))
+		PlotMapInfo pmi = getMap(loc);
+		
+		if(pmi != null)
 		{
 			int valx = loc.getBlockX();
 			int valz = loc.getBlockZ();
-			PlotMapInfo pmi = getMap(loc);
+			
 			int size = pmi.PlotSize + pmi.PathWidth;
 			int pathsize = pmi.PathWidth;
+			boolean road = false;
 			
 			double n3;
 			int mod2 = 0;
 			int mod1 = 1;
+			
+			int x = (int) Math.ceil((double)valx / size);
+			int z = (int) Math.ceil((double)valz / size);
+			
+			//int x2 = (int) Math.ceil((double)valx / size);
+			//int z2 = (int) Math.ceil((double)valz / size);
 			
 			if(pathsize % 2 == 1)
 			{
@@ -42,23 +52,265 @@ public class PlotManager {
 						
 			for(double i = n3; i >= 0; i--)
 			{
-				if((valx - i + mod1) % size == 0 || 
-				   (valx + i + mod2) % size == 0 || 
-				   (valz - i + mod1) % size == 0 || 
+				if((valx - i + mod1) % size == 0 ||
+				   (valx + i + mod2) % size == 0)
+				{
+					road = true;
+					
+					x = (int) Math.ceil((double)(valx - n3) / size);
+					//x2 = (int) Math.ceil((double)(valx + n3) / size);
+				}
+				if((valz - i + mod1) % size == 0 ||
 				   (valz + i + mod2) % size == 0)
 				{
-					return "";
-				}	                			
+					road = true;
+					
+					z = (int) Math.ceil((double)(valz - n3) / size);
+					//z2 = (int) Math.ceil((double)(valz + n3) / size);
+				}
 			}
 			
-			int x = (int) Math.ceil((double)valx / size);
-			int z = (int) Math.ceil((double)valz / size);
-			
-			return "" + x + ";" + z;
+			if(road)
+			{
+				/*if(pmi.AutoLinkPlots)
+				{
+					String id1 = x + ";" + z;
+					String id2 = x2 + ";" + z2;
+					String id3 = x + ";" + z2;
+					String id4 = x2 + ";" + z;
+					
+					HashMap<String, Plot> plots = pmi.plots;
+					
+					Plot p1 = plots.get(id1);
+					Plot p2 = plots.get(id2);
+					Plot p3 = plots.get(id3);
+					Plot p4 = plots.get(id4);
+					
+					if(p1 == null || p2 == null || p3 == null || p4 == null || 
+							!p1.owner.equalsIgnoreCase(p2.owner) ||
+							!p2.owner.equalsIgnoreCase(p3.owner) ||
+							!p3.owner.equalsIgnoreCase(p4.owner))
+					{						
+						return "";
+					}
+					else
+					{
+						return id1;
+					}
+				}
+				else*/
+					return "";
+			}
+			else
+				return "" + x + ";" + z;
 		}
 		else
 		{
 			return "";
+		}
+	}
+	
+	public static void adjustLinkedPlots(String id, World world)
+	{
+		PlotMapInfo pmi = getMap(world);
+		
+		if(pmi != null)
+		{
+			HashMap<String, Plot> plots = pmi.plots;
+			
+			int x = getIdX(id);
+			int z = getIdZ(id);
+			
+			Plot p11 = plots.get(id);
+			
+			if(p11 != null)
+			{
+				Plot p01 = plots.get((x - 1) + ";" + z);
+				Plot p10 = plots.get(x + ";" + (z - 1));
+				Plot p12 = plots.get(x + ";" + (z + 1));
+				Plot p21 = plots.get((x + 1) + ";" + z);
+				Plot p00 = plots.get((x - 1) + ";" + (z - 1));
+				Plot p02 = plots.get((x - 1) + ";" + (z + 1));
+				Plot p20 = plots.get((x + 1) + ";" + (z - 1));
+				Plot p22 = plots.get((x + 1) + ";" + (z + 1));
+				
+				if(p01 != null && p01.owner.equalsIgnoreCase(p11.owner))
+				{
+					fillroad(p01, p11, world);
+				}
+				
+				if(p10 != null && p10.owner.equalsIgnoreCase(p11.owner))
+				{
+					fillroad(p10, p11, world);
+				}
+
+				if(p12 != null && p12.owner.equalsIgnoreCase(p11.owner))
+				{
+					fillroad(p12, p11, world);
+				}
+
+				if(p21 != null && p21.owner.equalsIgnoreCase(p11.owner))
+				{
+					fillroad(p21, p11, world);
+				}
+				
+				if(p00 != null && p10 != null && p01 != null &&
+						p00.owner.equalsIgnoreCase(p11.owner) &&
+						p11.owner.equalsIgnoreCase(p10.owner) &&
+						p10.owner.equalsIgnoreCase(p01.owner))
+				{
+					fillmiddleroad(p00, p11, world);
+				}
+				
+				if(p10 != null && p20 != null && p21 != null &&
+						p10.owner.equalsIgnoreCase(p11.owner) &&
+						p11.owner.equalsIgnoreCase(p20.owner) &&
+						p20.owner.equalsIgnoreCase(p21.owner))
+				{
+					fillmiddleroad(p20, p11, world);
+				}
+				
+				if(p01 != null && p02 != null && p12 != null &&
+						p01.owner.equalsIgnoreCase(p11.owner) &&
+						p11.owner.equalsIgnoreCase(p02.owner) &&
+						p02.owner.equalsIgnoreCase(p12.owner))
+				{
+					fillmiddleroad(p02, p11, world);
+				}
+				
+				if(p12 != null && p21 != null && p22 != null &&
+						p12.owner.equalsIgnoreCase(p11.owner) &&
+						p11.owner.equalsIgnoreCase(p21.owner) &&
+						p21.owner.equalsIgnoreCase(p22.owner))
+				{
+					fillmiddleroad(p22, p11, world);
+				}
+				
+			}
+		}
+	}
+	
+	private static void fillroad(Plot plot1, Plot plot2, World w)
+	{
+		Location bottomPlot1 = getPlotBottomLoc(w, plot1.id);
+		Location topPlot1 = getPlotTopLoc(w, plot1.id);
+		Location bottomPlot2 = getPlotBottomLoc(w, plot2.id);
+		Location topPlot2 = getPlotTopLoc(w, plot2.id);
+		
+		int minX;
+		int maxX;
+		int minZ;
+		int maxZ;
+		boolean isWallX;
+		
+		PlotMapInfo pmi = getMap(w);
+		int h = pmi.RoadHeight;
+		int wallId = pmi.WallBlockId;
+		int fillId = pmi.PlotFloorBlockId;
+				
+		if(bottomPlot1.getBlockX() == bottomPlot2.getBlockX())
+		{
+			minX = bottomPlot1.getBlockX();
+			maxX = topPlot1.getBlockX();
+			
+			minZ = Math.min(bottomPlot1.getBlockZ(), bottomPlot2.getBlockZ()) + pmi.PlotSize;
+			maxZ = Math.max(topPlot1.getBlockZ(), topPlot2.getBlockZ()) - pmi.PlotSize;
+		}
+		else
+		{
+			minZ = bottomPlot1.getBlockZ();
+			maxZ = topPlot1.getBlockZ();
+			
+			minX = Math.min(bottomPlot1.getBlockX(), bottomPlot2.getBlockX()) + pmi.PlotSize;
+			maxX = Math.max(topPlot1.getBlockX(), topPlot2.getBlockX()) - pmi.PlotSize;
+		}
+		
+		isWallX = (maxX - minX) > (maxZ - minZ);
+		
+		if(isWallX)
+		{
+			minX--;
+			maxX++;
+		}
+		else
+		{
+			minZ--;
+			maxZ++;
+		}
+		
+		for(int x = minX; x <= maxX; x++)
+		{
+			for(int z = minZ; z <= maxZ; z++)
+			{
+				for(int y = h; y < 256; y++)
+				{
+					if(y >= (h + 2))
+					{
+						w.getBlockAt(x, y, z).setType(Material.AIR);
+					}
+					else if(y == (h + 1))
+					{
+						if(isWallX && (x == minX || x == maxX))
+						{
+							w.getBlockAt(x, y, z).setTypeId(wallId);
+						}
+						else if(!isWallX && (z == minZ || z == maxZ))
+						{
+							w.getBlockAt(x, y, z).setTypeId(wallId);
+						}
+						else
+						{
+							w.getBlockAt(x, y, z).setType(Material.AIR);
+						}
+					}
+					else
+					{
+						w.getBlockAt(x, y, z).setTypeId(fillId);
+					}
+				}
+			}
+		}
+	}
+	
+	private static void fillmiddleroad(Plot plot1, Plot plot2, World w)
+	{
+		Location bottomPlot1 = getPlotBottomLoc(w, plot1.id);
+		Location topPlot1 = getPlotTopLoc(w, plot1.id);
+		Location bottomPlot2 = getPlotBottomLoc(w, plot2.id);
+		Location topPlot2 = getPlotTopLoc(w, plot2.id);
+		
+		int minX;
+		int maxX;
+		int minZ;
+		int maxZ;
+		
+		PlotMapInfo pmi = getMap(w);
+		int h = pmi.RoadHeight;
+		int fillId = pmi.PlotFloorBlockId;
+				
+		
+		minX = Math.min(topPlot1.getBlockX(), topPlot2.getBlockX());
+		maxX = Math.max(bottomPlot1.getBlockX(), bottomPlot2.getBlockX());
+		
+		minZ = Math.min(topPlot1.getBlockZ(), topPlot2.getBlockZ());
+		maxZ = Math.max(bottomPlot1.getBlockZ(), bottomPlot2.getBlockZ());
+				
+		for(int x = minX; x <= maxX; x++)
+		{
+			for(int z = minZ; z <= maxZ; z++)
+			{
+				for(int y = h; y < 256; y++)
+				{
+					if(y >= (h + 1))
+					{
+						w.getBlockAt(x, y, z).setType(Material.AIR);
+					}
+					else
+					{
+						w.getBlockAt(x, y, z).setTypeId(fillId);
+					}
+				}
+			}
 		}
 	}
 	
@@ -701,7 +953,7 @@ public class PlotManager {
 		if(pmi == null)
 			return false;
 		else
-			return pmi.UseEconomy && PlotMe.globalUseEconomy;
+			return pmi.UseEconomy && PlotMe.globalUseEconomy && PlotMe.economy != null;
 	}
 	
 	public static boolean isEconomyEnabled(String name)
@@ -927,5 +1179,42 @@ public class PlotManager {
 			return null;
 		else
 			return plots.get(plotid);
+	}
+	
+	public static void deleteNextExpired(World w)
+	{
+		List<Plot> expiredplots = new ArrayList<Plot>();
+		HashMap<String, Plot> plots = getPlots(w);
+		String date = PlotMe.getDate();
+		Plot expiredplot;
+		
+		for(String id : plots.keySet())
+		{
+			Plot plot = plots.get(id);
+			
+			if(!plot.protect && !plot.finished && plot.expireddate != null && PlotMe.getDate(plot.expireddate).compareTo(date.toString()) < 0)
+			{
+				expiredplots.add(plot);
+			}
+		}
+		
+		plots = null;
+		
+		Collections.sort(expiredplots);
+		
+		expiredplot = expiredplots.get(0);
+		
+		expiredplots = null;
+		
+		clear(w, expiredplot);
+		
+		String id = expiredplot.id;
+		
+		getPlots(w).remove(id);
+			
+		removeOwnerSign(w, id);
+		removeSellSign(w, id);
+		
+		SqlManager.deletePlot(getIdX(id), getIdZ(id), w.getName().toLowerCase());
 	}
 }
