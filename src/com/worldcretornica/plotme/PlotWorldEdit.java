@@ -11,19 +11,21 @@ import com.sk89q.worldedit.bukkit.BukkitPlayer;
 import com.sk89q.worldedit.masks.RegionMask;
 import com.sk89q.worldedit.regions.CuboidRegion;
 
+import com.worldcretornica.plotme.PlotManager;
+
 public class PlotWorldEdit {
 	
 	public static void setMask(Player p)
 	{
-		setMask(p, p.getLocation());
+		Location loc = p.getLocation();
+		String id = PlotManager.getPlotId(loc);
+		setMask(p, id);
 	}
 	
-	public static void setMask(Player p, Location l)
+	public static void setMask(Player p, String id)
 	{
 		World w = p.getWorld();
-		
-		String id = PlotManager.getPlotId(l);
-				
+						
 		Location bottom = null;
 		Location top = null;
 		
