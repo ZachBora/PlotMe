@@ -6,6 +6,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
+import com.sk89q.worldedit.LocalSession;
 import com.worldcretornica.plotme.Plot;
 import com.worldcretornica.plotme.PlotManager;
 import com.worldcretornica.plotme.PlotMe;
@@ -33,13 +34,16 @@ public class PlotWorldEditListener implements Listener {
 			{
 				String id = PlotManager.getPlotId(p.getLocation());
 				Plot plot = PlotManager.getPlotById(p);
+				LocalSession session = PlotMe.we.getSession(p);
 				
 				if(plot != null && plot.isAllowed(p.getName())) {
 					PlotWorldEdit.setMask(p, id);
 				} else {
 					if(PlotManager.getPlots(p).values().size() > 0) {
-						String id1 = PlotManager.getPlots(p).values().iterator().next().id;
-						PlotWorldEdit.setMask(p, id1);
+						if(session.getMask() == null) {
+							String id1 = PlotManager.getPlots(p).values().iterator().next().id;
+							PlotWorldEdit.setMask(p, id1);
+						}
 					} else {
 						event.setCancelled(true);
 						p.sendMessage("WorldEdit disabled until you have at least one plot");
