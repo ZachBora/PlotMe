@@ -2747,7 +2747,14 @@ public class PMCommand implements CommandExecutor
 											return true;
 										}
 									}
-									
+
+									Player target = Bukkit.getPlayer(allowed);
+									LocalSession session = PlotMe.we.getSession(target);
+										
+									if(session.getMask() != null) {
+									   PlotWorldEdit.removeMask(target);
+									}
+
 									plot.removeAllowed(allowed);
 																	
 									p.sendMessage(PREFIX + RESET + "Player " + RED + allowed + RESET + " removed. " + f(-price));
