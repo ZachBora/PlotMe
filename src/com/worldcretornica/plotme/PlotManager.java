@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -365,35 +365,35 @@ public class PlotManager {
 		String id = getPlotId(new Location(world, bottomX(plot.id, world), 0, bottomZ(plot.id, world)));
 		
 		Sign sign = (Sign) bsign.getState();
-		if(("ID:" + id).length() > 15)
+		if((PlotMe.caption("SignId") + id).length() > 15)
 		{
-			sign.setLine(0, ("ID:" + id).substring(0, 15));
-			if(("ID:" + id).length() > 30)
+			sign.setLine(0, (PlotMe.caption("SignId") + id).substring(0, 15));
+			if((PlotMe.caption("SignId") + id).length() > 30)
 			{
-				sign.setLine(1, ("ID:" + id).substring(15, 30));
+				sign.setLine(1, (PlotMe.caption("SignId") + id).substring(15, 30));
 			}
 			else
 			{
-				sign.setLine(1, ("ID:" + id).substring(15));
+				sign.setLine(1, (PlotMe.caption("SignId") + id).substring(15));
 			}
 		}
 		else
 		{
-			sign.setLine(0, "ID:" + id);
+			sign.setLine(0, PlotMe.caption("SignId") + id);
 		}
-		if(("Owner:" + plot.owner).length() > 15)
+		if((PlotMe.caption("SignOwner") + plot.owner).length() > 15)
 		{
-			sign.setLine(2, ("Owner:" + plot.owner).substring(0, 15));
-			if(("Owner: " + plot.owner).length() > 30)
+			sign.setLine(2, (PlotMe.caption("SignOwner") + plot.owner).substring(0, 15));
+			if((PlotMe.caption("SignOwner") + plot.owner).length() > 30)
 			{
-				sign.setLine(3, ("Owner:" + plot.owner).substring(15, 30));
+				sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(15, 30));
 			}
 			else
 			{
-				sign.setLine(3, ("Owner:" + plot.owner).substring(15));
+				sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(15));
 			}
 		}else{
-			sign.setLine(2, "Owner:" + plot.owner);
+			sign.setLine(2, PlotMe.caption("SignOwner") + plot.owner);
 			sign.setLine(3, "");
 		}
 		sign.update(true);
@@ -415,13 +415,13 @@ public class PlotManager {
 			
 			if(plot.forsale)
 			{
-				sign.setLine(0, "" + ChatColor.BLUE + ChatColor.BOLD + "FOR SALE");
-				sign.setLine(1, "Price :");
+				sign.setLine(0, PlotMe.caption("SignForSale"));
+				sign.setLine(1, PlotMe.caption("SignPrice"));
 				if(plot.customprice % 1 == 0)
-					sign.setLine(2, "" + ChatColor.BLUE + Math.round(plot.customprice));
+					sign.setLine(2, PlotMe.caption("SignPriceColor") + Math.round(plot.customprice));
 				else
-					sign.setLine(2, "" + ChatColor.BLUE + plot.customprice);
-				sign.setLine(3, "/plotme buy");
+					sign.setLine(2, PlotMe.caption("SignPriceColor") + plot.customprice);
+				sign.setLine(3, "/plotme " + PlotMe.caption("CommandBuy"));
 				
 				sign.update(true);
 			}
@@ -437,16 +437,16 @@ public class PlotManager {
 					sign = (Sign) bsign.getState();
 				}
 				
-				sign.setLine(0, "" + ChatColor.BLUE + ChatColor.BOLD + "ON AUCTION");
+				sign.setLine(0, "" + PlotMe.caption("SignOnAuction"));
 				if(plot.currentbidder.equals(""))
-					sign.setLine(1, "Minimum bid :");
+					sign.setLine(1, PlotMe.caption("SignMinimumBid"));
 				else
-					sign.setLine(1, "Current bid :");
+					sign.setLine(1, PlotMe.caption("SignCurrentBid"));
 				if(plot.currentbid % 1 == 0)
-					sign.setLine(2, "" + ChatColor.BLUE + Math.round(plot.currentbid));
+					sign.setLine(2, PlotMe.caption("SignCurrentBidColor") + Math.round(plot.currentbid));
 				else
-					sign.setLine(2, "" + ChatColor.BLUE + plot.currentbid);
-				sign.setLine(3, "/plotme bid <x>");
+					sign.setLine(2, PlotMe.caption("SignCurrentBidColor") + plot.currentbid);
+				sign.setLine(3, "/plotme " + PlotMe.caption("CommandBid") + " <x>");
 				
 				sign.update(true);
 			}
@@ -867,17 +867,24 @@ public class PlotManager {
 		return getNbOwnedPlot(p.getName(), p.getWorld());
 	}
 	
+	public static int getNbOwnedPlot(Player p, World w)
+	{
+		return getNbOwnedPlot(p.getName(), w);
+	}
+
 	public static int getNbOwnedPlot(String name, World w)
 	{
 		int nbfound = 0;
-		for(Plot plot : PlotManager.getPlots(w).values())
+		if(PlotManager.getPlots(w) != null)
 		{
-			if(plot.owner.equalsIgnoreCase(name))
+			for(Plot plot : PlotManager.getPlots(w).values())
 			{
-				nbfound++;
+				if(plot.owner.equalsIgnoreCase(name))
+				{
+					nbfound++;
+				}
 			}
 		}
-		
 		return nbfound;
 	}
 		
@@ -1216,5 +1223,88 @@ public class PlotManager {
 		removeSellSign(w, id);
 		
 		SqlManager.deletePlot(getIdX(id), getIdZ(id), w.getName().toLowerCase());
+	}
+
+	public static World getFirstWorld()
+	{
+		if(PlotMe.plotmaps != null)
+		{
+			if(PlotMe.plotmaps.keySet() != null)
+			{
+				if(PlotMe.plotmaps.keySet().toArray().length > 0)
+				{
+					return Bukkit.getWorld((String) PlotMe.plotmaps.keySet().toArray()[0]);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static World getFirstWorld(String player)
+	{
+		if(PlotMe.plotmaps != null)
+		{
+			if(PlotMe.plotmaps.keySet() != null)
+			{
+				if(PlotMe.plotmaps.keySet().toArray().length > 0)
+				{
+					for(String mapkey : PlotMe.plotmaps.keySet())
+					{
+						for(String id : PlotMe.plotmaps.get(mapkey).plots.keySet())
+						{
+							if(PlotMe.plotmaps.get(mapkey).plots.get(id).owner.equalsIgnoreCase(player))
+							{
+								return Bukkit.getWorld(mapkey);
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static Plot getFirstPlot(String player)
+	{
+		if(PlotMe.plotmaps != null)
+		{
+			if(PlotMe.plotmaps.keySet() != null)
+			{
+				if(PlotMe.plotmaps.keySet().toArray().length > 0)
+				{
+					for(String mapkey : PlotMe.plotmaps.keySet())
+					{
+						for(String id : PlotMe.plotmaps.get(mapkey).plots.keySet())
+						{
+							if(PlotMe.plotmaps.get(mapkey).plots.get(id).owner.equalsIgnoreCase(player))
+							{
+								return PlotMe.plotmaps.get(mapkey).plots.get(id);
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static boolean isValidId(String id)
+	{
+		String[] coords = id.split(";");
+		
+		if(coords.length != 2)
+			return false;
+		else
+		{
+			try
+			{
+				Integer.parseInt(coords[0]);
+				Integer.parseInt(coords[1]);
+				return true;
+			}catch(Exception e)
+			{
+				return false;
+			}
+		}
 	}
 }

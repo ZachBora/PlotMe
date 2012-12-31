@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 
@@ -198,24 +199,40 @@ public class Plot implements Comparable<Plot> {
 	
 	public void removeAllowed(String name)
 	{
+		String found = "";
+		
 		for(String n : allowed)
 		{
 			if(n.equalsIgnoreCase(name))
 			{
-				allowed.remove(n);
-				SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, world);
+				found = n;
+				break;
 			}
+		}
+		
+		if(found != "")
+		{
+			allowed.remove(found);
+			SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), found, world);
 		}
 	}
 	
 	public boolean isAllowed(String name)
 	{
-		if(owner.equalsIgnoreCase(name)) return true;
+		if(owner.equalsIgnoreCase(name) || owner.equals("*")) return true;
+		
+		if(owner.toLowerCase().startsWith("group:") && Bukkit.getServer().getPlayerExact(name) != null)
+			if(Bukkit.getServer().getPlayerExact(name).hasPermission("plotme.group." + owner.replace("Group:", "")))
+				return true;
 		
 		for(String str : allowed)
 		{
-			if(str.equalsIgnoreCase(name))
+			if(str.equalsIgnoreCase(name) || str.equals("*"))
 				return true;
+			
+			if(str.toLowerCase().startsWith("group:") && Bukkit.getServer().getPlayerExact(name) != null)
+				if(Bukkit.getServer().getPlayerExact(name).hasPermission("plotme.group." + str.replace("Group:", "")))
+					return true;
 		}
 		
 		return false;

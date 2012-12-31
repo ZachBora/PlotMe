@@ -42,9 +42,11 @@ import com.worldcretornica.plotme.PlotMe;
 
 public class PlotListener implements Listener {
 	
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGH) //, ignoreCancelled = true
 	public void onBlockBreak(final BlockBreakEvent event) 
 	{
+		Player p = event.getPlayer();
+
 		boolean canbuild = PlotMe.cPerms(event.getPlayer(), "PlotMe.admin");
 		
 		Block b = event.getBlock();
@@ -52,13 +54,12 @@ public class PlotListener implements Listener {
 		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
-			Player p = event.getPlayer();
 			
 			if(id.equalsIgnoreCase(""))
 			{
 				if(!canbuild)
 				{
-					p.sendMessage("You cannot build here.");
+					p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 					event.setCancelled(true);
 				}
 			}else{
@@ -68,7 +69,7 @@ public class PlotListener implements Listener {
 				{
 					if(!canbuild)
 					{
-						p.sendMessage("You cannot build here.");
+						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
 				}else{
@@ -77,7 +78,7 @@ public class PlotListener implements Listener {
 					{
 						if(!canbuild)
 						{
-							p.sendMessage("You cannot build here.");
+							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
 						}
 					}else{
@@ -88,9 +89,11 @@ public class PlotListener implements Listener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGH) //, ignoreCancelled = true
 	public void onBlockPlace(final BlockPlaceEvent event)
 	{
+		Player p = event.getPlayer();
+
 		boolean canbuild = PlotMe.cPerms(event.getPlayer(), "PlotMe.admin");
 
 		Block b = event.getBlock();
@@ -98,13 +101,12 @@ public class PlotListener implements Listener {
 		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());
-			Player p = event.getPlayer();
 			
 			if(id.equalsIgnoreCase(""))
 			{
 				if(!canbuild)
 				{
-					p.sendMessage("You cannot build here.");
+					p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 					event.setCancelled(true);
 				}
 			}else{
@@ -114,7 +116,7 @@ public class PlotListener implements Listener {
 				{
 					if(!canbuild)
 					{
-						p.sendMessage("You cannot build here.");
+						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
 				}else{
@@ -122,7 +124,7 @@ public class PlotListener implements Listener {
 					{
 						if(!canbuild)
 						{
-							p.sendMessage("You cannot build here.");
+							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
 						}
 					}else{
@@ -147,19 +149,19 @@ public class PlotListener implements Listener {
 				
 				if(id.equalsIgnoreCase(""))
 				{
-					p.sendMessage("You cannot build here.");
+					p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 					event.setCancelled(true);
 				}else{
 					Plot plot = PlotManager.getPlotById(p,id);
 					
 					if (plot == null)
 					{
-						p.sendMessage("You cannot build here.");
+						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}else{
 						if(!plot.isAllowed(p.getName()))
 						{
-							p.sendMessage("You cannot build here.");
+							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
 						}
 					}
@@ -181,19 +183,19 @@ public class PlotListener implements Listener {
 				
 				if(id.equalsIgnoreCase(""))
 				{
-					p.sendMessage("You cannot build here.");
+					p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 					event.setCancelled(true);
 				}else{
 					Plot plot = PlotManager.getPlotById(p,id);
 					
 					if (plot == null)
 					{
-						p.sendMessage("You cannot build here.");
+						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}else{
 						if(!plot.isAllowed(p.getName()))
 						{
-							p.sendMessage("You cannot build here.");
+							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
 						}
 					}
@@ -250,7 +252,7 @@ public class PlotListener implements Listener {
 					{
 						if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
 						{
-							p.sendMessage("You cannot use that.");
+							p.sendMessage(PlotMe.caption("ErrCannotUse"));
 						}
 						event.setCancelled(true);
 					}
@@ -263,7 +265,7 @@ public class PlotListener implements Listener {
 						{
 							if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
 							{
-								p.sendMessage("You cannot use that.");
+								p.sendMessage(PlotMe.caption("ErrCannotUse"));
 							}
 							event.setCancelled(true);
 						}
@@ -274,7 +276,7 @@ public class PlotListener implements Listener {
 							{
 								if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
 								{
-									p.sendMessage("You cannot use that.");
+									p.sendMessage(PlotMe.caption("ErrCannotUse"));
 								}
 								event.setCancelled(true);
 							}
@@ -391,27 +393,6 @@ public class PlotListener implements Listener {
 		}
 	}
 
-	/*
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onBlockPhysics(final BlockPhysicsEvent event)
-	{
-		
-		Block b = event.getBlock();
-		
-		if(PlotManager.isPlotWorld(b)
-			&& !(event.getChangedType() == Material.REDSTONE_TORCH_ON)
-			&& !(event.getChangedType() == Material.POWERED_RAIL))
-		{
-			String id = PlotManager.getPlotId(b.getLocation());
-									
-			if(id.equalsIgnoreCase(""))
-			{
-				event.setCancelled(true);
-			}
-		}
-	}
-	*/
-	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPistonExtend(final BlockPistonExtendEvent event)
 	{
@@ -482,35 +463,6 @@ public class PlotListener implements Listener {
 			
 			if(pmi != null && pmi.DisableExplosion)
 				event.setCancelled(true);
-			
-			/*
-			List<Block> blocks = event.blockList();
-			
-			Location el = e.getLocation();
-			
-			Plot plot = PlotManager.getPlotById(el);
-			
-			if(plot == null)
-			{
-				event.setCancelled(true);
-			}else{
-			
-				for(int i = 0 ; i < blocks.size();)
-				{
-					Block b = blocks.get(i);
-					
-					Location l = b.getLocation();
-					
-					Plot plotblock = PlotManager.getPlotById(l);
-					
-					if(plotblock == null || !plot.equals(plotblock))
-					{
-						blocks.remove(b);
-					}else{
-						i++;
-					}
-				}
-			}*/
 		}
 	}
 	
@@ -571,7 +523,7 @@ public class PlotListener implements Listener {
 			{
 				if(!canbuild)
 				{
-					p.sendMessage("You cannot build here.");
+					p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 					event.setCancelled(true);
 				}
 			}else{
@@ -581,7 +533,7 @@ public class PlotListener implements Listener {
 				{
 					if(!canbuild)
 					{
-						p.sendMessage("You cannot build here.");
+						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
 				}else{
@@ -589,7 +541,7 @@ public class PlotListener implements Listener {
 					{
 						if(!canbuild)
 						{
-							p.sendMessage("You cannot build here.");
+							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
 						}
 					}else{
@@ -621,7 +573,7 @@ public class PlotListener implements Listener {
 				{
 					if(!canbuild)
 					{
-						p.sendMessage("You cannot build here.");
+						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
 				}else{
@@ -631,7 +583,7 @@ public class PlotListener implements Listener {
 					{
 						if(!canbuild)
 						{
-							p.sendMessage("You cannot build here.");
+							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
 						}
 					}else{
@@ -639,7 +591,7 @@ public class PlotListener implements Listener {
 						{
 							if(!canbuild)
 							{
-								p.sendMessage("You cannot build here.");
+								p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 								event.setCancelled(true);
 							}
 						}else{
@@ -668,7 +620,7 @@ public class PlotListener implements Listener {
 			{
 				if(!canbuild)
 				{
-					p.sendMessage("You cannot build here.");
+					p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 					event.setCancelled(true);
 				}
 			}else{
@@ -678,7 +630,7 @@ public class PlotListener implements Listener {
 				{
 					if(!canbuild)
 					{
-						p.sendMessage("You cannot build here.");
+						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
 				}else{
@@ -686,7 +638,7 @@ public class PlotListener implements Listener {
 					{
 						if(!canbuild)
 						{
-							p.sendMessage("You cannot build here.");
+							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
 						}
 					}else{
@@ -714,7 +666,7 @@ public class PlotListener implements Listener {
 			{
 				if(!canbuild)
 				{
-					p.sendMessage("You cannot use eggs here.");
+					p.sendMessage(PlotMe.caption("ErrCannotUseEggs"));
 					event.setHatching(false);
 				}
 			}else{
@@ -724,7 +676,7 @@ public class PlotListener implements Listener {
 				{
 					if(!canbuild)
 					{
-						p.sendMessage("You cannot use eggs here.");
+						p.sendMessage(PlotMe.caption("ErrCannotUseEggs"));
 						event.setHatching(false);
 					}
 				}else{
@@ -732,7 +684,7 @@ public class PlotListener implements Listener {
 					{
 						if(!canbuild)
 						{
-							p.sendMessage("You cannot use eggs here.");
+							p.sendMessage(PlotMe.caption("ErrCannotUseEggs"));
 							event.setHatching(false);
 						}
 					}

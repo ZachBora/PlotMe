@@ -28,6 +28,11 @@ public class PlotRunnableDeleteExpire implements Runnable {
 				{
 					expiredplots.add(plot);
 				}
+				
+				if(expiredplots.size() == PlotMe.nbperdeletionprocessingexpired)
+				{
+					break;
+				}
 			}
 			
 			if(expiredplots.size() == 0)
@@ -42,38 +47,38 @@ public class PlotRunnableDeleteExpire implements Runnable {
 				
 				String ids = "";
 				
-				for(int ictr = 0; ictr < PlotMe.nbperdeletionprocessingexpired; ictr++)
+				for(int ictr = 0; ictr < PlotMe.nbperdeletionprocessingexpired && expiredplots.size() > 0; ictr++)
 				{
 					expiredplot = expiredplots.get(0);
 					
-					expiredplots = null;
+					expiredplots.remove(0);
 					
 					PlotManager.clear(w, expiredplot);
 					
 					String id = expiredplot.id;
-					ids += ids + ", ";
+					ids += ChatColor.RED + id + ChatColor.RESET + ", ";
 					
 					PlotManager.getPlots(w).remove(id);
 						
 					PlotManager.removeOwnerSign(w, id);
 					PlotManager.removeSellSign(w, id);
-					
+										
 					SqlManager.deletePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), w.getName().toLowerCase());
 					
 					PlotMe.counterexpired--;
 				}
 				
-				if(ids.substring(ids.length() -1) == ",")
+				if(ids.substring(ids.length() - 2).equals(", "))
 				{
-					ids = ids.substring(0, ids.length() - 1);
+					ids = ids.substring(0, ids.length() - 2);
 				}
 				
-				PlotMe.cscurrentlyprocessingexpired.sendMessage("" + PlotMe.PREFIX + ChatColor.RESET + " Deleted expired plot " + ids);
+				PlotMe.cscurrentlyprocessingexpired.sendMessage("" + PlotMe.PREFIX + PlotMe.caption("MsgDeletedExpiredPlots") + " " + ids);
 			}
 			
 			if(PlotMe.counterexpired == 0)
 			{
-				PlotMe.cscurrentlyprocessingexpired.sendMessage("" + PlotMe.PREFIX + ChatColor.RESET + " Deletion session finished, rerun to reset more plots");
+				PlotMe.cscurrentlyprocessingexpired.sendMessage("" + PlotMe.PREFIX + PlotMe.caption("MsgDeleteSessionFinished"));
 				PlotMe.worldcurrentlyprocessingexpired = null;
 				PlotMe.cscurrentlyprocessingexpired = null;
 			}
