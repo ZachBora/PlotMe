@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import net.minecraft.server.Packet51MapChunk;
-
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -16,8 +12,6 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.CraftChunk;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 public class PlotManager {
@@ -935,30 +929,30 @@ public class PlotManager {
 			return plots.get(plotid);
 	}
 
-	//Refresh Chunk functions:
-	ArrayList<Chunk> rfchnk = new ArrayList<Chunk>();
-	
-	public void addChunkToRefresh(World w, int x, int z){
-		Chunk ch = w.getBlockAt(x, 1, z).getChunk();
-		if (!rfchnk.contains(ch)) rfchnk.add(ch);
-	}
-	
-	public void refreshChunks(){
-		if (rfchnk.size() > 0){
-			for (Chunk ch : rfchnk){
-				World w = ch.getWorld();
-				for (Player p : w.getPlayers()){
-					if (p.isOnline()){
-						Location loc = ch.getBlock(7, p.getLocation().getBlockY(), 7).getLocation();
-						if (p.getLocation().distance(loc) <= Bukkit.getServer().getViewDistance() * 16){
-							((CraftPlayer) p).getHandle().netServerHandler.sendPacket(new Packet51MapChunk(((CraftChunk) ch).getHandle(), true, 0));
-						}
-					}
-				}
-			}
-			rfchnk.clear();
-		}
-	}
+//	//Refresh Chunk functions:
+//	ArrayList<Chunk> rfchnk = new ArrayList<Chunk>();
+//	
+//	public void addChunkToRefresh(World w, int x, int z){
+//		Chunk ch = w.getBlockAt(x, 1, z).getChunk();
+//		if (!rfchnk.contains(ch)) rfchnk.add(ch);
+//	}
+//	
+//	public void refreshChunks(){
+//		if (rfchnk.size() > 0){
+//			for (Chunk ch : rfchnk){
+//				World w = ch.getWorld();
+//				for (Player p : w.getPlayers()){
+//					if (p.isOnline()){
+//						Location loc = ch.getBlock(7, p.getLocation().getBlockY(), 7).getLocation();
+//						if (p.getLocation().distance(loc) <= Bukkit.getServer().getViewDistance() * 16){
+//							((CraftPlayer) p).getHandle().netServerHandler.sendPacket(new Packet51MapChunk(((CraftChunk) ch).getHandle(), true, 0));
+//						}
+//					}
+//				}
+//			}
+//			rfchnk.clear();
+//		}
+//	}
 
 	//Sign functions
 	public static void setSign(World world, Plot plot){
