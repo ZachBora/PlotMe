@@ -1664,10 +1664,7 @@ public class PMCommand implements CommandExecutor
 				{
 					String id = args[1];
 					
-					Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
-					Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
-					
-					p.teleport(new Location(p.getWorld(), bottom.getX() + (top.getBlockX() - bottom.getBlockX())/2, PlotManager.getMap(p).RoadHeight + 2, bottom.getZ() - 2));
+					p.teleport(getLocation(PlotManager.getPlotById(p.getWorld(), id)));
 				}
 				else
 				{
@@ -1741,8 +1738,7 @@ public class PMCommand implements CommandExecutor
 									
 									Plot plot = PlotManager.createPlot(w, id, name);
 									
-									p.teleport(new Location(p.getWorld(), PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - 
-											PlotManager.bottomX(plot.id, w))/2, pmi.RoadHeight + 2, PlotManager.bottomZ(plot.id, w) - 2));
+									p.teleport(getLocation(plot));
 		
 									p.sendMessage(PREFIX + RESET + " This plot is now yours. Use " + RED + "/plotme home" + RESET + " to get back to them. " + f(-price));
 									
@@ -1927,8 +1923,7 @@ public class PMCommand implements CommandExecutor
 								}
 							}
 							
-							p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - 
-									PlotManager.bottomX(plot.id, w))/2, pmi.RoadHeight + 2, PlotManager.bottomZ(plot.id, w) - 2));
+							p.teleport(getLocation(plot));
 							
 							if(price != 0)
 								p.sendMessage(PREFIX + RESET + " " + f(-price));
@@ -2996,4 +2991,9 @@ public class PMCommand implements CommandExecutor
 		return false;
 	}
 	
+	//Location function
+	private Location getLocation(Plot plot){
+		return new Location(Bukkit.getWorld(plot.world), PlotManager.getPlotBottomLoc(Bukkit.getWorld(plot.world), plot.id).getBlockX() + (PlotManager.getPlotTopLoc(Bukkit.getWorld(plot.world), plot.id).getBlockX() - PlotManager.getPlotBottomLoc(Bukkit.getWorld(plot.world), plot.id).getBlockX()) / 2 + 1.5d, 66, PlotManager.getPlotTopLoc(Bukkit.getWorld(plot.world), plot.id).getBlockZ() + 4.5d, 180.0f, 0.5f);
+	}
+
 }
