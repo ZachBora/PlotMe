@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -48,6 +47,7 @@ public class PlotMe extends JavaPlugin
 	public static String NAME;
 	public static String PREFIX;
 	public static String VERSION;
+	public static String WEBSITE;
 	
 	public static final Logger logger = Logger.getLogger("Minecraft");
 		
@@ -61,6 +61,8 @@ public class PlotMe extends JavaPlugin
     public static boolean advancedlogging;
     public static String language;
     public static boolean allowWorldTeleport;
+    public static boolean autoUpdate;
+    
     //public static boolean showmoneychanges;
     
     public static Map<String, PlotMapInfo> plotmaps = null;
@@ -71,11 +73,14 @@ public class PlotMe extends JavaPlugin
     private static HashSet<String> playersignoringwelimit = null;
     private static HashMap<String, String> captions;
     
+    private static boolean update = false;
+    
     public static World worldcurrentlyprocessingexpired;
     public static CommandSender cscurrentlyprocessingexpired;
     public static int counterexpired;
     public static int nbperdeletionprocessingexpired;
     public static boolean defaultWEAnywhere;
+
 	
 	public void onDisable()
 	{	
@@ -114,7 +119,28 @@ public class PlotMe extends JavaPlugin
 		}
 				
 		getCommand("plotme").setExecutor(new PMCommand(this));
+				
+		setupUpdater();
 	}
+	
+	private void setupUpdater()
+	{
+		if (autoUpdate)
+		{
+			if (advancedlogging)
+			{
+				logger.info("Checking for a new update...");
+			}
+			
+			Updater updater = new Updater(this, NAME, this.getFile(), Updater.UpdateType.DEFAULT, false);
+			update = updater.getResult() != Updater.UpdateResult.NO_UPDATE;
+			
+			if (advancedlogging)
+			{
+				logger.info("Update available: " + update);
+			}
+		}
+	}	
 	
 	private void doMetric()
 	{
@@ -183,7 +209,7 @@ public class PlotMe extends JavaPlugin
 		{
 			return new PlotGen(PlotManager.getMap(worldname));
 		}else{
-			logger.warning(PREFIX + " Configuration not found for PlotMe world '" + worldname + "' Using defaults");
+			logger.warning(PREFIX + "Configuration not found for PlotMe world '" + worldname + "' Using defaults");
 			return new PlotGen();
 		}
 	}
@@ -199,6 +225,7 @@ public class PlotMe extends JavaPlugin
 		NAME = pdfFile.getName();
 		PREFIX = ChatColor.BLUE + "[" + NAME + "] " + ChatColor.RESET;
 		VERSION = pdfFile.getVersion();
+		WEBSITE = pdfFile.getWebsite();
 		configpath = getDataFolder().getAbsolutePath();
 		playersignoringwelimit = new HashSet<String>();
 
@@ -231,6 +258,7 @@ public class PlotMe extends JavaPlugin
 		language = config.getString("Language", "english");
 		allowWorldTeleport = config.getBoolean("allowWorldTeleport", true);
 		defaultWEAnywhere = config.getBoolean("defaultWEAnywhere", false);
+		autoUpdate = config.getBoolean("auto-update", false);
 
 		ConfigurationSection worlds;
 		
@@ -419,6 +447,7 @@ public class PlotMe extends JavaPlugin
 		config.set("Language", language);
 		config.set("allowWorldTeleport", allowWorldTeleport);
 		config.set("defaultWEAnywhere", defaultWEAnywhere);
+		config.set("auto-update", autoUpdate);
 		
 		try {
 			config.save(configfile);

@@ -379,21 +379,6 @@ public class PlotListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-	public void onBlockIgnite(final BlockIgniteEvent event)
-	{
-		Block b = event.getBlock();
-		if(PlotManager.isPlotWorld(b))
-		{
-			String id = PlotManager.getPlotId(b.getLocation());
-									
-			if(id.equalsIgnoreCase(""))
-			{
-				event.setCancelled(true);
-			}
-		}
-	}
-
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPistonExtend(final BlockPistonExtendEvent event)
 	{
 		boolean found = false;
