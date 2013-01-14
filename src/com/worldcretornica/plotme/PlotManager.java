@@ -118,13 +118,16 @@ public class PlotManager {
 	public static List<Player> getPlayersInPlot(String id) 
 	{
 		List<Player> playersInPlot = new ArrayList<Player>();
-		for (Player p : Bukkit.getOnlinePlayers()) {
-		    if (getPlotId(p).equals(id)) {
+		for (Player p : Bukkit.getOnlinePlayers()) 
+		{
+		    if (getPlotId(p).equals(id)) 
+		    {
 				playersInPlot.add(p);
 		    }
 		}
 		return playersInPlot;
 	}
+	
 	public static void adjustLinkedPlots(String id, World world)
 	{
 		PlotMapInfo pmi = getMap(world);
