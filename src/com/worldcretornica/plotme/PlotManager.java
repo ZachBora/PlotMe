@@ -119,13 +119,16 @@ public class PlotManager {
 	public static List<Player> getPlayersInPlot(String id) 
 	{
 		List<Player> playersInPlot = new ArrayList<Player>();
-		for (Player p : Bukkit.getOnlinePlayers()) {
-		    if (getPlotId(p).equals(id)) {
+		for (Player p : Bukkit.getOnlinePlayers()) 
+		{
+		    if (getPlotId(p).equals(id)) 
+		    {
 				playersInPlot.add(p);
 		    }
 		}
 		return playersInPlot;
 	}
+	
 	public static void adjustLinkedPlots(String id, World world)
 	{
 		PlotMapInfo pmi = getMap(world);
@@ -258,7 +261,7 @@ public class PlotManager {
 		{
 			for(int z = minZ; z <= maxZ; z++)
 			{
-				for(int y = h; y < 256; y++)
+				for(int y = h; y < w.getMaxHeight(); y++)
 				{
 					if(y >= (h + 2))
 					{
@@ -315,7 +318,7 @@ public class PlotManager {
 		{
 			for(int z = minZ; z <= maxZ; z++)
 			{
-				for(int y = h; y < 256; y++)
+				for(int y = h; y < w.getMaxHeight(); y++)
 				{
 					if(y >= (h + 1))
 					{
@@ -381,32 +384,32 @@ public class PlotManager {
 		String id = getPlotId(new Location(world, bottomX(plot.id, world), 0, bottomZ(plot.id, world)));
 		
 		Sign sign = (Sign) bsign.getState();
-		if((PlotMe.caption("SignId") + id).length() > 15)
+		if((PlotMe.caption("SignId") + id).length() > 16)
 		{
-			sign.setLine(0, (PlotMe.caption("SignId") + id).substring(0, 15));
-			if((PlotMe.caption("SignId") + id).length() > 30)
+			sign.setLine(0, (PlotMe.caption("SignId") + id).substring(0, 16));
+			if((PlotMe.caption("SignId") + id).length() > 32)
 			{
-				sign.setLine(1, (PlotMe.caption("SignId") + id).substring(15, 30));
+				sign.setLine(1, (PlotMe.caption("SignId") + id).substring(16, 32));
 			}
 			else
 			{
-				sign.setLine(1, (PlotMe.caption("SignId") + id).substring(15));
+				sign.setLine(1, (PlotMe.caption("SignId") + id).substring(16));
 			}
 		}
 		else
 		{
 			sign.setLine(0, PlotMe.caption("SignId") + id);
 		}
-		if((PlotMe.caption("SignOwner") + plot.owner).length() > 15)
+		if((PlotMe.caption("SignOwner") + plot.owner).length() > 16)
 		{
-			sign.setLine(2, (PlotMe.caption("SignOwner") + plot.owner).substring(0, 15));
-			if((PlotMe.caption("SignOwner") + plot.owner).length() > 30)
+			sign.setLine(2, (PlotMe.caption("SignOwner") + plot.owner).substring(0, 16));
+			if((PlotMe.caption("SignOwner") + plot.owner).length() > 32)
 			{
-				sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(15, 30));
+				sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(16, 32));
 			}
 			else
 			{
-				sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(15));
+				sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(16));
 			}
 		}else{
 			sign.setLine(2, PlotMe.caption("SignOwner") + plot.owner);
@@ -530,26 +533,46 @@ public class PlotManager {
 	
 	public static void setBiome(World w, String id, Plot plot, Biome b)
 	{
-		for(int x = PlotManager.bottomX(plot.id, w); x <= PlotManager.topX(plot.id, w); x++)
+		int bottomX = PlotManager.bottomX(plot.id, w);
+		int topX = PlotManager.topX(plot.id, w);
+		int bottomZ = PlotManager.bottomZ(plot.id, w);
+		int topZ = PlotManager.topZ(plot.id, w);
+		
+		for(int x = bottomX; x <= topX; x++)
 		{
-			for(int z = PlotManager.bottomZ(plot.id, w); z <= PlotManager.topZ(plot.id, w); z++)
+			for(int z = bottomZ; z <= topZ; z++)
 			{
 				w.getBlockAt(x, 0, z).setBiome(b);
 			}
 		}
 		
 		plot.biome = b;
+		
+		
+		int minChunkX = (int) Math.floor((double) bottomX / 16);
+		int maxChunkX = (int) Math.floor((double) topX / 16);
+		int minChunkZ = (int) Math.floor((double) bottomZ / 16);
+		int maxChunkZ = (int) Math.floor((double) topZ / 16);
+		
+		for(int x = minChunkX; x <= maxChunkX; x++)
+		{
+			for(int z = minChunkZ; z <= maxChunkZ; z++)
+			{
+				w.refreshChunk(x, z);
+			}
+		}
+		
 		SqlManager.updatePlot(getIdX(id), getIdZ(id), plot.world, "biome", b.name());
 	}
 	
 	public static Location getTop(World w, Plot plot)
 	{
-		return new Location(w, PlotManager.topX(plot.id, w), 256, PlotManager.topZ(plot.id, w));
+		return new Location(w, PlotManager.topX(plot.id, w), w.getMaxHeight(), PlotManager.topZ(plot.id, w));
 	}
 	
 	public static void clear(World w, Plot plot)
 	{
-		clear(new Location(w, PlotManager.bottomX(plot.id, w), 0, PlotManager.bottomZ(plot.id, w)), new Location(w, PlotManager.topX(plot.id, w), 256, PlotManager.topZ(plot.id, w)));
+		clear(new Location(w, PlotManager.bottomX(plot.id, w), 0, PlotManager.bottomZ(plot.id, w)), new Location(w, PlotManager.topX(plot.id, w), w.getMaxHeight(), PlotManager.topZ(plot.id, w)));
 	}
 	
 	public static void clear(Location bottom, Location top)
@@ -564,7 +587,7 @@ public class PlotManager {
 				
 				block.setBiome(Biome.PLAINS);
 				
-				for(int y = 0; y < 256; y++)
+				for(int y = 0; y < bottom.getWorld().getMaxHeight(); y++)
 				{
 					block = new Location(bottom.getWorld(), x, y, z).getBlock();
 					
@@ -735,7 +758,7 @@ public class PlotManager {
 				plot1Block.setBiome(Biome.valueOf(plot2Biome));
 				plot2Block.setBiome(Biome.valueOf(plot1Biome));
 				
-				for(int y = 0; y < 256 ; y++)
+				for(int y = 0; y < w.getMaxHeight() ; y++)
 				{
 					plot1Block = w.getBlockAt(new Location(w, x, y, z));
 					int plot1Type = plot1Block.getTypeId();
