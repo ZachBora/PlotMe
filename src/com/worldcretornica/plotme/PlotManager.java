@@ -12,6 +12,7 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
@@ -566,6 +567,10 @@ public class PlotManager {
 				for(int y = 0; y < 256; y++)
 				{
 					block = new Location(bottom.getWorld(), x, y, z).getBlock();
+					
+					if (block.getType().equals(Material.CHEST)) {//TODO Test if clearing the chest fixes the problem.
+					    ((Chest) block).getBlockInventory().clear();
+					}
 					
 					if(y == 0)
 						block.setTypeId(pmi.BottomBlockId);
