@@ -262,15 +262,34 @@ public class PlotManager {
 	
 	public static void setBiome(World w, String id, Plot plot, Biome b)
 	{
-		for(int x = PlotManager.bottomX(plot.id, w); x <= PlotManager.topX(plot.id, w); x++)
+		int bottomX = PlotManager.bottomX(plot.id, w);
+		int topX = PlotManager.topX(plot.id, w);
+		int bottomZ = PlotManager.bottomZ(plot.id, w);
+		int topZ = PlotManager.topZ(plot.id, w);
+		
+		for(int x = bottomX; x <= topX; x++)
 		{
-			for(int z = PlotManager.bottomZ(plot.id, w); z <= PlotManager.topZ(plot.id, w); z++)
+			for(int z = bottomZ; z <= topZ; z++)
 			{
 				w.getBlockAt(x, 0, z).setBiome(b);
 			}
 		}
 		
 		plot.biome = b;
+		
+		int minChunkX = (int) Math.floor((double) bottomX / 16);
+		int maxChunkX = (int) Math.floor((double) topX / 16);
+		int minChunkZ = (int) Math.floor((double) bottomZ / 16);
+		int maxChunkZ = (int) Math.floor((double) topZ / 16);
+		
+		for(int x = minChunkX; x <= maxChunkX; x++)
+		{
+			for(int z = minChunkZ; z <= maxChunkZ; z++)
+			{
+				w.refreshChunk(x, z);
+			}
+		}
+		
 		SqlManager.updatePlot(getIdX(id), getIdZ(id), plot.world, "biome", b.name());
 	}
 	
