@@ -139,6 +139,7 @@ public class PMCommand implements CommandExecutor
 						if (a0.equalsIgnoreCase(C("CommandAddtime"))) { return addtime(p, args);}
 						if (a0.equalsIgnoreCase(C("CommandDone"))) { return done(p, args);}
 						if (a0.equalsIgnoreCase(C("CommandDoneList"))) { return donelist(p, args);}
+						if (a0.equalsIgnoreCase(C("CommandChat"))) { return chat(p, args);}
 						if (a0.equalsIgnoreCase(C("CommandProtect"))) { return protect(p, args);}
 						
 						if (a0.equalsIgnoreCase(C("CommandSell"))) { return sell(p, args);}
@@ -156,6 +157,31 @@ public class PMCommand implements CommandExecutor
 		return false;
 	}
 	
+	private boolean chat(CommandSender s, String[] args) 
+	{
+		if(PlotMe.cPerms(s, "PlotMe.use.chat"))
+		{
+			if(args.length <= 1)
+			{
+				Send(s, C("WordUsage") + ": " + RED + "/plotme " + C("CommandChat") + " <" + C("WordMessage") + "> " + RESET + "Example: " + RED + "/plotme " + C("CommandChat") + " Hello everyone on my plot! ");
+			}
+			else
+			{
+				String str = "";
+				boolean firstLoop=true;
+				for (String currentArg : args) {
+					if (!firstLoop) {
+						str = str + currentArg + " ";
+					} else {
+						firstLoop = false;
+					}
+				}
+				PlotManager.sendMessageToPlot(PlotManager.getPlotId((Player)s), str.trim());
+			}
+		}
+		return true;
+	}
+
 	private boolean resetexpired(CommandSender s, String[] args)
 	{
 		if(PlotMe.cPerms(s, "PlotMe.admin.resetexpired"))

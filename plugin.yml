@@ -32,6 +32,7 @@ permissions:
         plotme.use.bid: true
         plotme.use.dispose: true
         plotme.use.done: true
+        plotme.use.chat: true
     plotme.admin:
       description: Gives default administrator commands
       children:
@@ -92,6 +93,8 @@ permissions:
       description: Gives the remove command for plots owned
     plotme.use.protect:
       description: Gives the protect command
+    plotme.use.chat:
+      description: Gives the chat command
     plotme.limit.*:
       description: Gives unlimited plots
     plotme.admin.claim.other:

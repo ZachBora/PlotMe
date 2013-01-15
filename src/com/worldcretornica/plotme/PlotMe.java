@@ -15,9 +15,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.logging.Logger;
+
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -812,6 +813,7 @@ public class PlotMe extends JavaPlugin
 		properties.put("WordBottom", "Bottom");
 		properties.put("WordTop", "Top");
 		properties.put("WordPossessive", "'s");
+		properties.put("WordMessage", "Message");
 		
 		properties.put("SignOwner", "Owner:");
 		properties.put("SignId", "ID:");
@@ -860,6 +862,7 @@ public class PlotMe extends JavaPlugin
 		properties.put("CommandAddtime", "addtime");
 		properties.put("CommandDone", "done");
 		properties.put("CommandDoneList", "donelist");
+		properties.put("CommandChat", "chat");
 		properties.put("CommandProtect", "protect");
 		properties.put("CommandSell", "sell");
 		properties.put("CommandSellBank", "sell bank");
