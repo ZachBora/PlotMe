@@ -5,7 +5,7 @@ author: ZachBora
 load: startup
 website: http://dev.bukkit.org/server-mods/plotme/
 loadbefore: [bPermissions, Multiverse-Core]
-softdepend: [WorldEdit, Vault]
+softdepend: [WorldEdit, Vault, LWC]
 description: >
              Handles plot creation, management and protection
 commands:

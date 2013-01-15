@@ -69,6 +69,7 @@ public class PlotMe extends JavaPlugin
     
     public static WorldEditPlugin we = null;
     public static Economy economy = null;
+    public static boolean usinglwc = false;
     
     private static HashSet<String> playersignoringwelimit = null;
     private static HashMap<String, String> captions;
@@ -116,6 +117,11 @@ public class PlotMe extends JavaPlugin
 		{
 			we = (WorldEditPlugin) pm.getPlugin("WorldEdit");
 			pm.registerEvents(new PlotWorldEditListener(), this);			
+		}
+		
+		if(pm.getPlugin("LWC") != null)
+		{
+			usinglwc = true;
 		}
 				
 		getCommand("plotme").setExecutor(new PMCommand(this));

@@ -13,9 +13,14 @@ import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 
-public class PlotManager {
+import com.griefcraft.model.Protection;
+
+public class PlotManager
+{
 				
 	public static String getPlotId(Location loc)
 	{
@@ -547,6 +552,17 @@ public class PlotManager {
 		
 		plot.biome = b;
 		
+		refreshPlotChunks(w, plot);
+		
+		SqlManager.updatePlot(getIdX(id), getIdZ(id), plot.world, "biome", b.name());
+	}
+	
+	public static void refreshPlotChunks(World w, Plot plot)
+	{
+		int bottomX = PlotManager.bottomX(plot.id, w);
+		int topX = PlotManager.topX(plot.id, w);
+		int bottomZ = PlotManager.bottomZ(plot.id, w);
+		int topZ = PlotManager.topZ(plot.id, w);
 		
 		int minChunkX = (int) Math.floor((double) bottomX / 16);
 		int maxChunkX = (int) Math.floor((double) topX / 16);
@@ -560,8 +576,6 @@ public class PlotManager {
 				w.refreshChunk(x, z);
 			}
 		}
-		
-		SqlManager.updatePlot(getIdX(id), getIdZ(id), plot.world, "biome", b.name());
 	}
 	
 	public static Location getTop(World w, Plot plot)
@@ -578,6 +592,19 @@ public class PlotManager {
 	{
 		PlotMapInfo pmi = getMap(bottom);
 		
+		
+		for (Entity e : bottom.getWorld().getEntities())
+		{
+			Location eloc = e.getLocation();
+			
+			if(!(e instanceof Player) && eloc.getBlockX() >= bottom.getBlockX() && eloc.getBlockX() <= top.getBlockX() &&
+					eloc.getBlockZ() >= bottom.getBlockZ() && eloc.getBlockZ() <= top.getBlockZ())
+			{
+				e.remove();
+			}
+		}
+		
+		
 		for(int x = bottom.getBlockX(); x <= top.getBlockX(); x++)
 		{
 			for(int z = bottom.getBlockZ(); z <= top.getBlockZ(); z++)
@@ -586,10 +613,36 @@ public class PlotManager {
 				
 				block.setBiome(Biome.PLAINS);
 				
-				for(int y = 0; y < bottom.getWorld().getMaxHeight(); y++)
+				for(int y = bottom.getWorld().getMaxHeight(); y > 0; y--)
 				{
 					block = new Location(bottom.getWorld(), x, y, z).getBlock();
 					
+					if(PlotMe.usinglwc)
+					{
+						Protection protection = com.griefcraft.lwc.LWC.getInstance().findProtection(block);
+						if(protection != null)
+						{
+							protection.remove();
+						}
+					}
+					
+					BlockState state = block.getState();
+					
+					if(state instanceof InventoryHolder)
+					{
+						InventoryHolder holder = (InventoryHolder) state;
+						holder.getInventory().clear();
+					}
+					
+					//Put on hold until Bukkit fixes NullPointerException when setting to AIR or null
+					/*
+					if(state instanceof Jukebox)
+					{
+						Jukebox jukebox = (Jukebox) state;						
+						jukebox.setPlaying(Material.AIR);
+					}*/
+					
+										
 					if(y == 0)
 						block.setTypeId(pmi.BottomBlockId);
 					else if(y < pmi.RoadHeight)
@@ -608,7 +661,7 @@ public class PlotManager {
 						}
 						else
 						{
-							block.setType(Material.AIR);
+							block.setTypeIdAndData(0, (byte) 0, false); //.setType(Material.AIR);
 						}
 					}
 				}
