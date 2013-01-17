@@ -8,10 +8,21 @@ public class PlotMapInfo {
 	public int PlotSize;
 	public int PlotAutoLimit;
 	public int PathWidth;
-	public byte BottomBlockId;
-	public byte WallBlockId;
-	public byte PlotFloorBlockId;
-	public byte PlotFillingBlockId;
+	
+	public short BottomBlockId;
+	public byte BottomBlockValue;
+	public short WallBlockId;
+	public byte WallBlockValue;
+	public short PlotFloorBlockId;
+	public byte PlotFloorBlockValue;
+	public short PlotFillingBlockId;
+	public byte PlotFillingBlockValue;
+	
+	public short RoadMainBlockId;
+	public byte RoadMainBlockValue;
+	public short RoadStripeBlockId;
+	public byte RoadStripeBlockValue;
+	
 	public HashMap<String, Plot> plots;
 	public int RoadHeight;
 	public int DaysToExpiration;

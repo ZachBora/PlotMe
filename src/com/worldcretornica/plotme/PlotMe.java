@@ -63,8 +63,6 @@ public class PlotMe extends JavaPlugin
     public static boolean allowWorldTeleport;
     public static boolean autoUpdate;
     
-    //public static boolean showmoneychanges;
-    
     public static Map<String, PlotMapInfo> plotmaps = null;
     
     public static WorldEditPlugin we = null;
@@ -277,10 +275,14 @@ public class PlotMe extends JavaPlugin
 			plotworld.set("PlotAutoLimit", 100);
 			plotworld.set("PathWidth", 7);
 			plotworld.set("PlotSize", 32);
-			plotworld.set("BottomBlockId", 7);
-			plotworld.set("WallBlockId", 44);
-			plotworld.set("PlotFloorBlockId", 2);
-			plotworld.set("PlotFillingBlockId", 3);
+			
+			plotworld.set("BottomBlockId", "7");
+			plotworld.set("WallBlockId", "44");
+			plotworld.set("PlotFloorBlockId", "2");
+			plotworld.set("PlotFillingBlockId", "3");
+			plotworld.set("RoadMainBlockId", "5");
+			plotworld.set("RoadStripeBlockId", "5:2");
+			
 			plotworld.set("RoadHeight", 64);
 			plotworld.set("DaysToExpiration", 7);
 			plotworld.set("ProtectedBlocks", getDefaultProtectedBlocks());
@@ -333,10 +335,20 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.PlotAutoLimit = currworld.getInt("PlotAutoLimit", 100);
 			tempPlotInfo.PathWidth = currworld.getInt("PathWidth", 7);
 			tempPlotInfo.PlotSize = currworld.getInt("PlotSize", 32);
-			tempPlotInfo.BottomBlockId = (byte) currworld.getInt("BottomBlockId", 7);
-			tempPlotInfo.WallBlockId = (byte) currworld.getInt("WallBlockId", 44);
-			tempPlotInfo.PlotFloorBlockId = (byte) currworld.getInt("PlotFloorBlockId", 2);
-			tempPlotInfo.PlotFillingBlockId = (byte) currworld.getInt("PlotFillingBlockId", 3);
+			
+			tempPlotInfo.BottomBlockId = getBlockId(currworld, "BottomBlockId", "7:0");
+			tempPlotInfo.BottomBlockValue = getBlockValue(currworld, "BottomBlockId", "7:0");
+			tempPlotInfo.WallBlockId = getBlockId(currworld, "WallBlockId", "44:0");
+			tempPlotInfo.WallBlockValue = getBlockValue(currworld, "WallBlockId", "44:0");
+			tempPlotInfo.PlotFloorBlockId = getBlockId(currworld, "PlotFloorBlockId", "2:0");
+			tempPlotInfo.PlotFloorBlockValue = getBlockValue(currworld, "PlotFloorBlockId", "2:0");
+			tempPlotInfo.PlotFillingBlockId = getBlockId(currworld, "PlotFillingBlockId", "3:0");
+			tempPlotInfo.PlotFillingBlockValue = getBlockValue(currworld, "PlotFillingBlockId", "3:0");
+			tempPlotInfo.RoadMainBlockId = getBlockId(currworld, "RoadMainBlockId", "5:0");
+			tempPlotInfo.RoadMainBlockValue = getBlockValue(currworld, "RoadMainBlockId", "5:0");
+			tempPlotInfo.RoadStripeBlockId = getBlockId(currworld, "RoadStripeBlockId", "5:2");
+			tempPlotInfo.RoadStripeBlockValue = getBlockValue(currworld, "RoadStripeBlockId", "5:2");
+			
 			tempPlotInfo.RoadHeight = currworld.getInt("RoadHeight", currworld.getInt("WorldHeight", 64));
 			if(tempPlotInfo.RoadHeight > 250)
 			{
@@ -397,10 +409,14 @@ public class PlotMe extends JavaPlugin
 			currworld.set("PlotAutoLimit", tempPlotInfo.PlotAutoLimit);
 			currworld.set("PathWidth", tempPlotInfo.PathWidth);
 			currworld.set("PlotSize", tempPlotInfo.PlotSize);
-			currworld.set("BottomBlockId", tempPlotInfo.BottomBlockId);
-			currworld.set("WallBlockId", tempPlotInfo.WallBlockId);
-			currworld.set("PlotFloorBlockId", tempPlotInfo.PlotFloorBlockId);
-			currworld.set("PlotFillingBlockId", tempPlotInfo.PlotFillingBlockId);
+			
+			currworld.set("BottomBlockId", getBlockValueId(tempPlotInfo.BottomBlockId, tempPlotInfo.BottomBlockValue));
+			currworld.set("WallBlockId", getBlockValueId(tempPlotInfo.WallBlockId, tempPlotInfo.WallBlockValue));
+			currworld.set("PlotFloorBlockId", getBlockValueId(tempPlotInfo.PlotFloorBlockId, tempPlotInfo.PlotFloorBlockValue));
+			currworld.set("PlotFillingBlockId", getBlockValueId(tempPlotInfo.PlotFillingBlockId, tempPlotInfo.PlotFillingBlockValue));
+			currworld.set("RoadMainBlockId", getBlockValueId(tempPlotInfo.RoadMainBlockId, tempPlotInfo.RoadMainBlockValue));
+			currworld.set("RoadStripeBlockId", getBlockValueId(tempPlotInfo.RoadStripeBlockId, tempPlotInfo.RoadStripeBlockValue));
+			
 			currworld.set("RoadHeight", tempPlotInfo.RoadHeight);
 			currworld.set("WorldHeight", null);
 			currworld.set("DaysToExpiration", tempPlotInfo.DaysToExpiration);
@@ -1002,7 +1018,40 @@ public class PlotMe extends JavaPlugin
 		}
 	}
 	
-	public static String addColor(String string) {
-        return string.replaceAll("(&([a-fk-or0-9]))", "\u00A7$2");
+	public static String addColor(String string) 
+	{
+		return ChatColor.translateAlternateColorCodes('&', string);
+        //return string.replaceAll("(&([a-fk-or0-9]))", "\u00A7$2");
     }
+	
+	public short getBlockId(ConfigurationSection cs, String section, String def)
+	{
+		String idvalue = cs.getString(section, def.toString());
+		if(idvalue.indexOf(":") > 0)
+		{
+			return Short.parseShort(idvalue.split(":")[0]);
+		}
+		else
+		{
+			return Short.parseShort(idvalue);
+		}
+	}
+	
+	public byte getBlockValue(ConfigurationSection cs, String section, String def)
+	{
+		String idvalue = cs.getString(section, def.toString());
+		if(idvalue.indexOf(":") > 0)
+		{
+			return Byte.parseByte(idvalue.split(":")[1]);
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	
+	public String getBlockValueId(Short id, Byte value)
+	{
+		return (value == 0) ? id.toString() : id.toString() + ":" + value.toString();
+	}
 }

@@ -12,6 +12,7 @@ import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Jukebox;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -229,7 +230,9 @@ public class PlotManager
 		PlotMapInfo pmi = getMap(w);
 		int h = pmi.RoadHeight;
 		int wallId = pmi.WallBlockId;
+		byte wallValue = pmi.WallBlockValue;
 		int fillId = pmi.PlotFloorBlockId;
+		byte fillValue = pmi.PlotFloorBlockValue;
 				
 		if(bottomPlot1.getBlockX() == bottomPlot2.getBlockX())
 		{
@@ -275,11 +278,11 @@ public class PlotManager
 					{
 						if(isWallX && (x == minX || x == maxX))
 						{
-							w.getBlockAt(x, y, z).setTypeId(wallId);
+							w.getBlockAt(x, y, z).setTypeIdAndData(wallId, wallValue, true);
 						}
 						else if(!isWallX && (z == minZ || z == maxZ))
 						{
-							w.getBlockAt(x, y, z).setTypeId(wallId);
+							w.getBlockAt(x, y, z).setTypeIdAndData(wallId, wallValue, true);
 						}
 						else
 						{
@@ -288,7 +291,7 @@ public class PlotManager
 					}
 					else
 					{
-						w.getBlockAt(x, y, z).setTypeId(fillId);
+						w.getBlockAt(x, y, z).setTypeIdAndData(fillId, fillValue, true);
 					}
 				}
 			}
@@ -613,7 +616,7 @@ public class PlotManager
 				
 				block.setBiome(Biome.PLAINS);
 				
-				for(int y = bottom.getWorld().getMaxHeight(); y > 0; y--)
+				for(int y = bottom.getWorld().getMaxHeight(); y >= 0; y--)
 				{
 					block = new Location(bottom.getWorld(), x, y, z).getBlock();
 					
@@ -634,13 +637,16 @@ public class PlotManager
 						holder.getInventory().clear();
 					}
 					
-					//Put on hold until Bukkit fixes NullPointerException when setting to AIR or null
-					/*
+					
 					if(state instanceof Jukebox)
 					{
-						Jukebox jukebox = (Jukebox) state;						
-						jukebox.setPlaying(Material.AIR);
-					}*/
+						Jukebox jukebox = (Jukebox) state;
+						//Remove once they fix the NullPointerException
+						try
+						{
+							jukebox.setPlaying(Material.AIR);
+						}catch(Exception e){}
+					}
 					
 										
 					if(y == 0)
@@ -686,7 +692,7 @@ public class PlotManager
 		if(plot.auctionned && !wallids.contains(auctionwallid)) wallids.add(auctionwallid);
 		if(plot.forsale && !wallids.contains(forsalewallid)) wallids.add(forsalewallid);
 		
-		if(wallids.size() == 0) wallids.add("" + pmi.WallBlockId);
+		if(wallids.size() == 0) wallids.add("" + pmi.WallBlockId + ":" + pmi.WallBlockValue);
 		
 		int ctr = 0;
 			
@@ -742,6 +748,7 @@ public class PlotManager
 		
 		int blockId;
 		byte blockData = 0;
+		PlotMapInfo pmi = getMap(block);
 		
 		if(currentblockid.contains(":"))
 		{
@@ -752,8 +759,8 @@ public class PlotManager
 			}
 			catch(NumberFormatException e)
 			{
-				blockId = 44;
-				blockData = 0;
+				blockId = pmi.WallBlockId;
+				blockData = pmi.WallBlockValue;
 			}
 		}
 		else
@@ -764,7 +771,7 @@ public class PlotManager
 			}
 			catch(NumberFormatException e)
 			{
-				blockId = 44;
+				blockId = pmi.WallBlockId;
 			}
 		}
 		

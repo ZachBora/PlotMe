@@ -1,6 +1,6 @@
 name: PlotMe
 main: com.worldcretornica.plotme.PlotMe
-version: '0.11c'
+version: '0.12'
 author: ZachBora
 load: startup
 website: http://dev.bukkit.org/server-mods/plotme/

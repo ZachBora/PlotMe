@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
@@ -14,10 +13,12 @@ public class PlotGen extends ChunkGenerator {
 	
 	private double plotsize;
 	private double pathsize;
-	private byte bottom;
-	private byte wall;
-	private byte plotfloor;
-	private byte filling;
+	private short bottom;
+	private short wall;
+	private short plotfloor;
+	private short filling;
+	private short floor1;
+	private short floor2;
 	private int roadheight;
 	private PlotMapInfo temppmi;
 	
@@ -30,6 +31,8 @@ public class PlotGen extends ChunkGenerator {
 		plotfloor = 2;
 		filling = 3;
 		roadheight = 64;
+		floor1 = 5;
+		floor2 = 5;
 		temppmi = null;
 		PlotMe.logger.warning(PlotMe.PREFIX + " Unable to find configuration, using defaults");
 	}
@@ -43,22 +46,24 @@ public class PlotGen extends ChunkGenerator {
 		plotfloor = pmi.PlotFloorBlockId;
 		filling = pmi.PlotFillingBlockId;
 		roadheight = pmi.RoadHeight;
+		floor1 = pmi.RoadMainBlockId;
+		floor2 = pmi.RoadStripeBlockId;
 		temppmi = pmi;
 	}
 	
 	@Override
-	public byte[][] generateBlockSections(World world, Random random, int cx, int cz, BiomeGrid biomes)
+	public short[][] generateExtBlockSections(World world, Random random, int cx, int cz, BiomeGrid biomes)
 	{
 		int maxY = world.getMaxHeight();
 		
-		byte[][] result = new byte[maxY / 16][]; 
+		short[][] result = new short[maxY / 16][]; 
 		
 		double size = plotsize + pathsize;
 		int valx;
 		int valz;
 		
-		byte floor1 = (byte)Material.WOOL.getId();
-		byte floor2 = (byte)Material.WOOD.getId();
+		//floor1 = (short)Material.WOOL.getId();
+		//floor2 = (short)Material.WOOD.getId();
 		//byte air = (byte)Material.AIR.getId();
 		
 		double n1;
@@ -281,9 +286,9 @@ public class PlotGen extends ChunkGenerator {
 		return result;
 	}
 	
-	private void setBlock(byte[][] result, int x, int y, int z, byte blkid) {
+	private void setBlock(short[][] result, int x, int y, int z, short blkid) {
         if (result[y >> 4] == null) {
-            result[y >> 4] = new byte[4096];
+            result[y >> 4] = new short[4096];
         }
         result[y >> 4][((y & 0xF) << 8) | (z << 4) | x] = blkid;
     }
