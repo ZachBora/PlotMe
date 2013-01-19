@@ -26,6 +26,7 @@ public class PlotMapInfo {
 	public HashMap<String, Plot> plots;
 	public int RoadHeight;
 	public int DaysToExpiration;
+	public boolean ClearOnExpiration;
 	
 	public String ProtectedWallBlockId;
 	public String ForSaleWallBlockId;

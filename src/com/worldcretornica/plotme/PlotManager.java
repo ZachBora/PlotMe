@@ -1292,6 +1292,7 @@ public class PlotManager
 		HashMap<String, Plot> plots = getPlots(w);
 		String date = PlotMe.getDate();
 		Plot expiredplot;
+		PlotMapInfo pmi = getMap(w);
 		
 		for(String id : plots.keySet())
 		{
@@ -1311,8 +1312,10 @@ public class PlotManager
 		
 		expiredplots = null;
 		
-		clear(w, expiredplot);
-		
+		if (pmi.ClearOnExpiration)
+		{
+		    clear(w, expiredplot);
+		}
 		String id = expiredplot.id;
 		
 		getPlots(w).remove(id);

@@ -15,9 +15,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.logging.Logger;
+
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -285,6 +286,7 @@ public class PlotMe extends JavaPlugin
 			
 			plotworld.set("RoadHeight", 64);
 			plotworld.set("DaysToExpiration", 7);
+			plotworld.set("ClearOnExpiration", true);
 			plotworld.set("ProtectedBlocks", getDefaultProtectedBlocks());
 			plotworld.set("PreventedItems", getDefaultPreventedItems());
 			plotworld.set("ProtectedWallBlockId", "44:4");
@@ -356,6 +358,7 @@ public class PlotMe extends JavaPlugin
 				tempPlotInfo.RoadHeight = 64;
 			}
 			tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
+			tempPlotInfo.ClearOnExpiration = currworld.getBoolean("ClearOnExpiration", true);
 			
 			if(currworld.contains("ProtectedBlocks"))
 			{
@@ -420,6 +423,7 @@ public class PlotMe extends JavaPlugin
 			currworld.set("RoadHeight", tempPlotInfo.RoadHeight);
 			currworld.set("WorldHeight", null);
 			currworld.set("DaysToExpiration", tempPlotInfo.DaysToExpiration);
+			currworld.set("ClearOnExpiration", tempPlotInfo.ClearOnExpiration);
 			currworld.set("ProtectedBlocks", tempPlotInfo.ProtectedBlocks);
 			currworld.set("PreventedItems", tempPlotInfo.PreventedItems);
 			currworld.set("ProtectedWallBlockId", tempPlotInfo.ProtectedWallBlockId);
