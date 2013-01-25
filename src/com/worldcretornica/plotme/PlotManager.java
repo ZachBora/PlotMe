@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -14,15 +14,16 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Jukebox;
 import org.bukkit.block.Sign;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 
+import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
 
 public class PlotManager
-{
-				
+{			
 	public static String getPlotId(Location loc)
 	{
 		PlotMapInfo pmi = getMap(loc);
@@ -540,10 +541,10 @@ public class PlotManager
 	
 	public static void setBiome(World w, String id, Plot plot, Biome b)
 	{
-		int bottomX = PlotManager.bottomX(plot.id, w);
-		int topX = PlotManager.topX(plot.id, w);
-		int bottomZ = PlotManager.bottomZ(plot.id, w);
-		int topZ = PlotManager.topZ(plot.id, w);
+		int bottomX = PlotManager.bottomX(plot.id, w) - 1;
+		int topX = PlotManager.topX(plot.id, w) + 1;
+		int bottomZ = PlotManager.bottomZ(plot.id, w) - 1;
+		int topZ = PlotManager.topZ(plot.id, w) + 1;
 		
 		for(int x = bottomX; x <= topX; x++)
 		{
@@ -586,48 +587,66 @@ public class PlotManager
 		return new Location(w, PlotManager.topX(plot.id, w), w.getMaxHeight(), PlotManager.topZ(plot.id, w));
 	}
 	
+	public static Location getBottom(World w, Plot plot)
+	{
+		return new Location(w, PlotManager.bottomX(plot.id, w), 0, PlotManager.bottomZ(plot.id, w));
+	}
+	
 	public static void clear(World w, Plot plot)
 	{
-		clear(new Location(w, PlotManager.bottomX(plot.id, w), 0, PlotManager.bottomZ(plot.id, w)), new Location(w, PlotManager.topX(plot.id, w), w.getMaxHeight(), PlotManager.topZ(plot.id, w)));
+		clear(getBottom(w, plot), getTop(w, plot));
+		
+		RemoveLWC(w, plot);
+		
+		//regen(w, plot);
 	}
 	
 	public static void clear(Location bottom, Location top)
 	{
 		PlotMapInfo pmi = getMap(bottom);
 		
+		int bottomX = bottom.getBlockX();
+		int topX = top.getBlockX();
+		int bottomZ = bottom.getBlockZ();
+		int topZ = top.getBlockZ();
 		
-		for (Entity e : bottom.getWorld().getEntities())
-		{
-			Location eloc = e.getLocation();
-			
-			if(!(e instanceof Player) && eloc.getBlockX() >= bottom.getBlockX() && eloc.getBlockX() <= top.getBlockX() &&
-					eloc.getBlockZ() >= bottom.getBlockZ() && eloc.getBlockZ() <= top.getBlockZ())
-			{
-				e.remove();
+		int minChunkX = (int) Math.floor((double) bottomX / 16);
+		int maxChunkX = (int) Math.floor((double) topX / 16);
+		int minChunkZ = (int) Math.floor((double) bottomZ / 16);
+		int maxChunkZ = (int) Math.floor((double) topZ / 16);
+		
+		World w = bottom.getWorld();
+		
+		for(int cx = minChunkX; cx <= maxChunkX; cx++)
+		{			
+			for(int cz = minChunkZ; cz <= maxChunkZ; cz++)
+			{			
+				Chunk chunk = w.getChunkAt(cx, cz);
+				
+				for(Entity e : chunk.getEntities())
+				{
+					Location eloc = e.getLocation();
+					
+					if(!(e instanceof Player) && eloc.getBlockX() >= bottom.getBlockX() && eloc.getBlockX() <= top.getBlockX() &&
+							eloc.getBlockZ() >= bottom.getBlockZ() && eloc.getBlockZ() <= top.getBlockZ())
+					{
+						e.remove();
+					}
+				}
 			}
 		}
-		
-		
-		for(int x = bottom.getBlockX(); x <= top.getBlockX(); x++)
+
+		for(int x = bottomX; x <= topX; x++)
 		{
-			for(int z = bottom.getBlockZ(); z <= top.getBlockZ(); z++)
+			for(int z = bottomZ; z <= topZ; z++)
 			{
-				Block block = new Location(bottom.getWorld(), x, 0, z).getBlock();
+				Block block = new Location(w, x, 0, z).getBlock();
 				
 				block.setBiome(Biome.PLAINS);
 				
-				for(int y = bottom.getWorld().getMaxHeight(); y >= 0; y--)
+				for(int y = w.getMaxHeight(); y >= 0; y--)
 				{
-					block = new Location(bottom.getWorld(), x, y, z).getBlock();
-					
-					if(PlotMe.usinglwc)
-					{
-						Protection protection = com.griefcraft.lwc.LWC.getInstance().findProtection(block);
-						if(protection != null)
-						{
-							protection.remove();
-						}
-					}
+					block = new Location(w, x, y, z).getBlock();
 					
 					BlockState state = block.getState();
 					
@@ -658,10 +677,10 @@ public class PlotManager
 					else
 					{
 						if(y == (pmi.RoadHeight + 1) && 
-								(x == bottom.getBlockX() - 1 || 
-								 x == top.getBlockX() + 1 ||
-								 z == bottom.getBlockZ() - 1 || 
-								 z == top.getBlockZ() + 1))
+								(x == bottomX - 1 || 
+								 x == topX + 1 ||
+								 z == bottomZ - 1 || 
+								 z == topZ + 1))
 						{
 							//block.setTypeId(pmi.WallBlockId);
 						}
@@ -1286,7 +1305,7 @@ public class PlotManager
 			return plots.get(plotid);
 	}
 	
-	public static void deleteNextExpired(World w)
+	public static void deleteNextExpired(World w, CommandSender sender)
 	{
 		List<Plot> expiredplots = new ArrayList<Plot>();
 		HashMap<String, Plot> plots = getPlots(w);
@@ -1404,5 +1423,223 @@ public class PlotManager
 				return false;
 			}
 		}
+	}
+	
+	public static void regen(World w, Plot plot, CommandSender sender)
+	{
+		int bottomX = PlotManager.bottomX(plot.id, w);
+		int topX = PlotManager.topX(plot.id, w);
+		int bottomZ = PlotManager.bottomZ(plot.id, w);
+		int topZ = PlotManager.topZ(plot.id, w);
+		
+		int minChunkX = (int) Math.floor((double) bottomX / 16);
+		int maxChunkX = (int) Math.floor((double) topX / 16);
+		int minChunkZ = (int) Math.floor((double) bottomZ / 16);
+		int maxChunkZ = (int) Math.floor((double) topZ / 16);
+		
+		HashMap<Location, Biome> biomes = new HashMap<Location, Biome>();
+		
+		for(int cx = minChunkX; cx <= maxChunkX; cx++)
+		{
+			int xx = cx << 4;
+			
+			for(int cz = minChunkZ; cz <= maxChunkZ; cz++)
+			{	
+				int zz = cz << 4;
+				
+				BlockState[][][] blocks = new BlockState[16][16][w.getMaxHeight()];
+				//Biome[][] biomes = new Biome[16][16];
+				
+				for(int x = 0; x < 16; x++)
+				{
+					for(int z = 0; z < 16; z++)
+					{
+						biomes.put(new Location(w, x + xx, 0, z + zz), w.getBiome(x + xx, z + zz));
+						
+						for(int y = 0; y < w.getMaxHeight(); y++)
+						{
+							Block block = w.getBlockAt(x + xx, y, z + zz);
+							blocks[x][z][y] = block.getState();
+							
+							if(PlotMe.usinglwc)
+							{
+								LWC lwc = com.griefcraft.lwc.LWC.getInstance();
+								Material material = block.getType();
+								
+								boolean ignoreBlockDestruction = Boolean.parseBoolean(lwc.resolveProtectionConfiguration(material, "ignoreBlockDestruction"));
+								
+								if (!ignoreBlockDestruction)
+								{
+									Protection protection = lwc.findProtection(block);
+
+									if(protection != null)
+									{
+										protection.remove();
+										
+										/*if(sender instanceof Player)
+										{
+											Player p = (Player) sender;
+											boolean canAccess = lwc.canAccessProtection(p, protection);
+									        boolean canAdmin = lwc.canAdminProtection(p, protection);
+											
+											try 
+											{
+									            LWCProtectionDestroyEvent evt = new LWCProtectionDestroyEvent(p, protection, LWCProtectionDestroyEvent.Method.BLOCK_DESTRUCTION, canAccess, canAdmin);
+									            lwc.getModuleLoader().dispatchEvent(evt);
+									        } 
+											catch (Exception e) 
+									        {
+									            lwc.sendLocale(p, "protection.internalerror", "id", "BLOCK_BREAK");
+									            e.printStackTrace();
+									        }
+										}*/
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				try
+				{
+		            w.regenerateChunk(cx, cz);
+		        } catch (Throwable t) {
+		            t.printStackTrace();
+		        }
+				
+				for(int x = 0; x < 16; x++)
+				{
+					for(int z = 0; z < 16; z++)
+					{						
+						for(int y = 0; y < w.getMaxHeight(); y++)
+						{
+							if((x + xx) < bottomX || (x + xx) > topX || (z + zz) < bottomZ || (z + zz) > topZ)
+							{
+								Block newblock = w.getBlockAt(x + xx, y, z + zz);
+								BlockState oldblock = blocks[x][z][y];
+								
+								newblock.setTypeIdAndData(oldblock.getTypeId(), oldblock.getRawData(), false);
+								oldblock.update();
+								
+								//blocks[x][z][y].update(true);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		for(Location loc : biomes.keySet())
+		{
+			int x = loc.getBlockX();
+			int z = loc.getBlockX();
+			
+			w.setBiome(x, z, biomes.get(loc));
+		}
+		
+		//refreshPlotChunks(w, plot);
+	}
+	
+	public static void RemoveLWC(World w, Plot plot)
+	{
+		if(PlotMe.usinglwc)
+		{
+			
+			Location bottom = getBottom(w, plot);
+			Location top = getTop(w, plot);
+			final int x1 = bottom.getBlockX();
+			final int y1 = bottom.getBlockY();
+	    	final int z1 = bottom.getBlockZ();
+	    	final int x2 = top.getBlockX();
+	    	final int y2 = top.getBlockY();
+	    	final int z2 = top.getBlockZ();
+			final String wname = w.getName();
+	    	
+			Bukkit.getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() 
+			{	
+				public void run() 
+				{
+					LWC lwc = com.griefcraft.lwc.LWC.getInstance();
+					List<Protection> protections = lwc.getPhysicalDatabase().loadProtections(wname, x1, x2, y1, y2, z1, z2);
+
+					for (Protection protection : protections) {
+					    protection.remove();
+					}
+				}
+			});
+			
+			// loadProtections(String world, int x1, int x2, int y1, int y2, int z1, int z2)
+			// _1 is min, _2 max
+			/*List<Protection> protections = lwc.getPhysicalDatabase().loadProtections(wname, x1, x2, y1, y2, z1, z2);
+
+			for (Protection protection : protections) {
+			    protection.remove();
+			}*/
+			
+			
+			//plugin.scheduleProtectionRemoval(PlotManager.getBottom(w, plot), PlotManager.getTop(w, plot));
+			
+			/*Player p = Bukkit.getServer().getPlayerExact(plot.owner);
+			
+			if(p == null)
+			{
+				p = (Player) Bukkit.getServer().getOfflinePlayer(plot.owner);
+			}
+			
+			if(p == null)
+			{
+				PlotMe.logger.info("didnt find player:" + plot.owner);
+			}else{
+				Location bottom = getBottom(w, plot);
+				Location top = getTop(w, plot);
+				
+				LWC lwc = com.griefcraft.lwc.LWC.getInstance();
+				
+				int x1 = bottom.getBlockX();
+		    	int y1 = bottom.getBlockY();
+		    	int z1 = bottom.getBlockZ();
+		    	int x2 = top.getBlockX();
+		    	int y2 = top.getBlockY();
+		    	int z2 = top.getBlockZ();
+		    	
+		    	for(int x = x1; x <= x2; x++)
+		    	{
+		    		for(int z = z1; z <= z2; z++)
+		    		{
+		    			for(int y = y1; y <= y2; y++)
+		    			{
+		    				Block block = w.getBlockAt(x, y, z);
+	
+							Material material = block.getType();
+							
+							boolean ignoreBlockDestruction = Boolean.parseBoolean(lwc.resolveProtectionConfiguration(material, "ignoreBlockDestruction"));
+							
+							if (!ignoreBlockDestruction)
+							{							
+								Protection protection = lwc.findProtection(block);
+								
+								if(protection != null)
+								{
+									protection.remove();
+									boolean canAccess = lwc.canAccessProtection(p, protection);
+							        boolean canAdmin = lwc.canAdminProtection(p, protection);
+									
+									try 
+									{
+							            LWCProtectionDestroyEvent evt = new LWCProtectionDestroyEvent(p, protection, LWCProtectionDestroyEvent.Method.BLOCK_DESTRUCTION, canAccess, canAdmin);
+							            lwc.getModuleLoader().dispatchEvent(evt);
+							        } 
+									catch (Exception e) 
+							        {
+							            lwc.sendLocale(p, "protection.internalerror", "id", "BLOCK_BREAK");
+							            e.printStackTrace();
+							        }
+								}
+							}
+						}
+		    		}
+		    	}
+			}*/
+	    }
 	}
 }

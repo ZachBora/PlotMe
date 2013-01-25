@@ -22,8 +22,10 @@ import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -37,6 +39,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
+import com.griefcraft.model.Protection;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.worldcretornica.plotme.Metrics.Graph;
 import com.worldcretornica.plotme.listener.PlotListener;
@@ -49,37 +52,37 @@ public class PlotMe extends JavaPlugin
 	public static String VERSION;
 	public static String WEBSITE;
 	
-	public static final Logger logger = Logger.getLogger("Minecraft");
+	public static Logger logger = Logger.getLogger("Minecraft");
 		
-	public static boolean usemySQL;
+	public static Boolean usemySQL;
     public static String mySQLuname;
     public static String mySQLpass;
     public static String mySQLconn;
     public static String configpath;
-    public static int AutoPlotLimit;
-    public static boolean globalUseEconomy;
-    public static boolean advancedlogging;
+    public static Boolean globalUseEconomy;
+    public static Boolean advancedlogging;
     public static String language;
-    public static boolean allowWorldTeleport;
-    public static boolean autoUpdate;
+    public static Boolean allowWorldTeleport;
+    public static Boolean autoUpdate;
     
     public static Map<String, PlotMapInfo> plotmaps = null;
     
     public static WorldEditPlugin we = null;
     public static Economy economy = null;
-    public static boolean usinglwc = false;
+    public static Boolean usinglwc = false;
     
     private static HashSet<String> playersignoringwelimit = null;
     private static HashMap<String, String> captions;
     
-    private static boolean update = false;
+    private static Boolean update = false;
     
     public static World worldcurrentlyprocessingexpired;
     public static CommandSender cscurrentlyprocessingexpired;
-    public static int counterexpired;
-    public static int nbperdeletionprocessingexpired;
-    public static boolean defaultWEAnywhere;
-
+    public static Integer counterexpired;
+    public static Integer nbperdeletionprocessingexpired;
+    public static Boolean defaultWEAnywhere;
+    
+    protected static PlotMe self = null;
 	
 	public void onDisable()
 	{	
@@ -87,13 +90,33 @@ public class PlotMe extends JavaPlugin
 		NAME = null;
 		PREFIX = null;
 		VERSION = null;
+		WEBSITE = null;
+		
+		logger = null;
+		
+		usemySQL = null;
 		mySQLuname = null;
 		mySQLpass = null;
 		mySQLconn = null;
+		globalUseEconomy = null;
+		advancedlogging = null;
+		language = null;
+		allowWorldTeleport = null;
+		autoUpdate = null;
 		plotmaps = null;
 		configpath = null;
 		we = null;
 		economy = null;
+		usinglwc = null;
+		playersignoringwelimit = null;
+		captions = null;
+		update = null;
+		worldcurrentlyprocessingexpired = null;
+		cscurrentlyprocessingexpired = null;
+		counterexpired = null;
+		nbperdeletionprocessingexpired = null;
+		defaultWEAnywhere = null;
+		self = null;
 	}
 	
 	public void onEnable()
@@ -125,6 +148,8 @@ public class PlotMe extends JavaPlugin
 		getCommand("plotme").setExecutor(new PMCommand(this));
 				
 		setupUpdater();
+				
+		self = this;
 	}
 	
 	private void setupUpdater()
@@ -157,7 +182,8 @@ public class PlotMe extends JavaPlugin
 		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds")
 		    {
 				@Override
-				public int getValue() {
+				public int getValue() 
+				{
 					return plotmaps.size();
 				}
 			});
@@ -165,7 +191,8 @@ public class PlotMe extends JavaPlugin
 		    graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size")
 		    {
 				@Override
-				public int getValue() {
+				public int getValue() 
+				{
 					
 					if(plotmaps.size() > 0)
 					{
@@ -189,7 +216,8 @@ public class PlotMe extends JavaPlugin
 		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots")
 		    {
 				@Override
-				public int getValue() {
+				public int getValue() 
+				{
 					int nbplot = 0;
 					
 					for(PlotMapInfo p : plotmaps.values())
@@ -202,7 +230,9 @@ public class PlotMe extends JavaPlugin
 			});
 		    		    
 		    metrics.start();
-		} catch (IOException e) {
+		} 
+		catch (IOException e) 
+		{
 		    // Failed to submit the stats :-(
 		}
 	}
@@ -212,7 +242,9 @@ public class PlotMe extends JavaPlugin
 		if(PlotManager.isPlotWorld(worldname))
 		{
 			return new PlotGen(PlotManager.getMap(worldname));
-		}else{
+		}
+		else
+		{
 			logger.warning(PREFIX + "Configuration not found for PlotMe world '" + worldname + "' Using defaults");
 			return new PlotGen();
 		}
@@ -233,21 +265,26 @@ public class PlotMe extends JavaPlugin
 		configpath = getDataFolder().getAbsolutePath();
 		playersignoringwelimit = new HashSet<String>();
 
-		if(!this.getDataFolder().exists()) {
+		if(!this.getDataFolder().exists()) 
+		{
         	this.getDataFolder().mkdirs();
         }
 				
 		File configfile = new File(configpath, "config.yml");
 		FileConfiguration config = new YamlConfiguration();
 		
-		try {
+		try 
+		{
 			config.load(configfile);
-		} catch (FileNotFoundException e) {
-			
-		} catch (IOException e) {
+		} 
+		catch (FileNotFoundException e) {} 
+		catch (IOException e) 
+		{
 			logger.severe(PREFIX + "can't read configuration file");
 			e.printStackTrace();
-		} catch (InvalidConfigurationException e) {
+		} 
+		catch (InvalidConfigurationException e) 
+		{
 			logger.severe(PREFIX + "invalid configuration format");
 			e.printStackTrace();
 		}
@@ -256,7 +293,6 @@ public class PlotMe extends JavaPlugin
 		mySQLconn = config.getString("mySQLconn", "jdbc:mysql://localhost:3306/minecraft");
 		mySQLuname = config.getString("mySQLuname", "root");
 		mySQLpass = config.getString("mySQLpass", "password");
-		AutoPlotLimit = config.getInt("AutoPlotLimit", 100);
 		globalUseEconomy = config.getBoolean("globalUseEconomy", false);
 		advancedlogging = config.getBoolean("AdvancedLogging", false);
 		language = config.getString("Language", "english");
@@ -272,7 +308,7 @@ public class PlotMe extends JavaPlugin
 			
 			ConfigurationSection plotworld = worlds.createSection("plotworld");
 			
-			plotworld.set("PlotAutoLimit", 100);
+			plotworld.set("PlotAutoLimit", 1000);
 			plotworld.set("PathWidth", 7);
 			plotworld.set("PlotSize", 32);
 			
@@ -360,14 +396,18 @@ public class PlotMe extends JavaPlugin
 			if(currworld.contains("ProtectedBlocks"))
 			{
 				tempPlotInfo.ProtectedBlocks = currworld.getIntegerList("ProtectedBlocks");
-			}else{
+			}
+			else
+			{
 				tempPlotInfo.ProtectedBlocks = getDefaultProtectedBlocks();
 			}
 			
 			if(currworld.contains("PreventedItems"))
 			{
 				tempPlotInfo.PreventedItems = currworld.getStringList("PreventedItems");
-			}else{
+			}
+			else
+			{
 				tempPlotInfo.PreventedItems = getDefaultPreventedItems();
 			}
 			
@@ -463,7 +503,6 @@ public class PlotMe extends JavaPlugin
 		config.set("mySQLconn", mySQLconn);
 		config.set("mySQLuname", mySQLuname);
 		config.set("mySQLpass", mySQLpass);
-		config.set("AutoPlotLimit", AutoPlotLimit);
 		config.set("globalUseEconomy", globalUseEconomy);
 		config.set("AdvancedLogging", advancedlogging);
 		config.set("Language", language);
@@ -471,9 +510,12 @@ public class PlotMe extends JavaPlugin
 		config.set("defaultWEAnywhere", defaultWEAnywhere);
 		config.set("auto-update", autoUpdate);
 		
-		try {
+		try 
+		{
 			config.save(configfile);
-		} catch (IOException e) {
+		} 
+		catch (IOException e) 
+		{
 			logger.severe(PREFIX + "error writting configurations");
 			e.printStackTrace();
 		}
@@ -484,7 +526,8 @@ public class PlotMe extends JavaPlugin
 	private void setupEconomy()
     {
         RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
-        if (economyProvider != null) {
+        if (economyProvider != null) 
+        {
             economy = economyProvider.getProvider();
         }
     }
@@ -526,12 +569,15 @@ public class PlotMe extends JavaPlugin
 		if(p.hasPermission("plotme.limit.*"))
 		{
 			max = -1;
-		}else{
+		}
+		else
+		{
 			for(int ctr = 0; ctr < maxlimit; ctr++)
 			{
 				if(p.hasPermission("plotme.limit." + ctr))
 				{
 					max = ctr;
+					return max;
 				}
 			}
 		
@@ -553,7 +599,7 @@ public class PlotMe extends JavaPlugin
 		return getDate(Calendar.getInstance());
 	}
 	
-	public static String getDate(Calendar cal)
+	private static String getDate(Calendar cal)
 	{
 		int imonth = cal.get(Calendar.MONTH) + 1;
         int iday = cal.get(Calendar.DAY_OF_MONTH) + 1;
@@ -578,7 +624,7 @@ public class PlotMe extends JavaPlugin
 		return expireddate.toString();
 	}
 	
-	public List<Integer> getDefaultProtectedBlocks()
+	private List<Integer> getDefaultProtectedBlocks()
 	{
 		List<Integer> protections = new ArrayList<Integer>();
 		
@@ -600,7 +646,7 @@ public class PlotMe extends JavaPlugin
 		return protections;
 	}
 	
-	public List<String> getDefaultPreventedItems()
+	private List<String> getDefaultPreventedItems()
 	{
 		List<String> preventeditems = new ArrayList<String>();
 
@@ -624,7 +670,7 @@ public class PlotMe extends JavaPlugin
 		}
 	}
 	
-	public void loadCaptions()
+	private void loadCaptions()
 	{
 		File filelang = new File(this.getDataFolder(), "caption-english.yml");
 		
@@ -1021,10 +1067,44 @@ public class PlotMe extends JavaPlugin
 	public static String addColor(String string) 
 	{
 		return ChatColor.translateAlternateColorCodes('&', string);
-        //return string.replaceAll("(&([a-fk-or0-9]))", "\u00A7$2");
     }
 	
-	public short getBlockId(ConfigurationSection cs, String section, String def)
+	public void scheduleProtectionRemoval(final Location bottom, final Location top)
+	{
+    	int x1 = bottom.getBlockX();
+    	int y1 = bottom.getBlockY();
+    	int z1 = bottom.getBlockZ();
+    	int x2 = top.getBlockX();
+    	int y2 = top.getBlockY();
+    	int z2 = top.getBlockZ();
+    	World w = bottom.getWorld();
+    	
+    	for(int x = x1; x <= x2; x++)
+    	{
+    		for(int z = z1; z <= z2; z++)
+    		{
+    			for(int y = y1; y <= y2; y++)
+    			{
+    				final Block block = w.getBlockAt(x, y, z);
+		
+					Bukkit.getScheduler().runTask(this, new Runnable() 
+					{
+					    public void run()
+					    {
+					    	Protection protection = com.griefcraft.lwc.LWC.getInstance().findProtection(block);
+							
+							if(protection != null)
+							{
+								protection.remove();
+							}
+					    }
+					});
+	    		}
+	    	}
+	    }
+	}
+	
+	private short getBlockId(ConfigurationSection cs, String section, String def)
 	{
 		String idvalue = cs.getString(section, def.toString());
 		if(idvalue.indexOf(":") > 0)
@@ -1037,7 +1117,7 @@ public class PlotMe extends JavaPlugin
 		}
 	}
 	
-	public byte getBlockValue(ConfigurationSection cs, String section, String def)
+	private byte getBlockValue(ConfigurationSection cs, String section, String def)
 	{
 		String idvalue = cs.getString(section, def.toString());
 		if(idvalue.indexOf(":") > 0)
@@ -1050,7 +1130,7 @@ public class PlotMe extends JavaPlugin
 		}
 	}
 	
-	public String getBlockValueId(Short id, Byte value)
+	private String getBlockValueId(Short id, Byte value)
 	{
 		return (value == 0) ? id.toString() : id.toString() + ":" + value.toString();
 	}

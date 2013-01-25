@@ -677,4 +677,31 @@ public class PlotListener implements Listener {
 			}
 		}
 	}
+	
+/*
+	@EventHandler
+	public void onWorldInit(WorldInitEvent event) 
+	{
+		World w = event.getWorld();
+		
+		if (w.getName().equalsIgnoreCase("TestWorld"))
+		{
+			for (BlockPopulator pop : w.getPopulators()) 
+			{
+				if ((pop instanceof PlotRoadPopulator)) 
+				{
+					return;
+				}
+			}
+			
+			PlotMapInfo pmi = PlotManager.getMap(w);
+			
+			if(pmi == null)
+			{
+				w.getPopulators().add(new PlotRoadPopulator());
+			}else{
+				w.getPopulators().add(new PlotRoadPopulator(pmi));
+			}
+		}
+	}*/
 }

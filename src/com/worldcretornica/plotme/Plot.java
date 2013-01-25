@@ -217,6 +217,15 @@ public class Plot implements Comparable<Plot> {
 		}
 	}
 	
+	public void removeAllAllowed()
+	{
+		for(String n : allowed)
+		{
+			SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), n, world);
+		}
+		allowed = new HashSet<String>();
+	}
+	
 	public boolean isAllowed(String name)
 	{
 		if(owner.equalsIgnoreCase(name) || owner.equals("*")) return true;
@@ -248,7 +257,6 @@ public class Plot implements Comparable<Plot> {
 		return allowed.size();
 	}
 
-	@Override
 	public int compareTo(Plot plot)
 	{
 		if(expireddate.compareTo(plot.expireddate) == 0)

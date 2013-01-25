@@ -254,7 +254,7 @@ public class PMCommand implements CommandExecutor
 									{
 										double balance = PlotMe.economy.getBalance(bidder);
 										
-										if(bid > balance && !currentbidder.equals(bidder) ||
+										if(bid >= balance && !currentbidder.equals(bidder) ||
 											currentbidder.equals(bidder) && bid > (balance + currentbid))
 										{
 											Send(p, RED + C("MsgNotEnoughBid"));
@@ -854,11 +854,8 @@ public class PMCommand implements CommandExecutor
 												plot.auctionned = false;
 												plot.currentbidder = "";
 												plot.currentbid = 0;
-												
-												for(String allowed : plot.allowed())
-												{
-													plot.removeAllowed(allowed);
-												}
+																								
+												plot.removeAllAllowed();
 												
 												PlotManager.setOwnerSign(w, plot);
 												PlotManager.setSellSign(w, plot);
@@ -1901,7 +1898,7 @@ public class PMCommand implements CommandExecutor
 											price = pmi.ClaimPrice;
 											double balance = PlotMe.economy.getBalance(name);
 											
-											if(balance > price)
+											if(balance >= price)
 											{
 												EconomyResponse er = PlotMe.economy.withdrawPlayer(name, price);
 												
@@ -2000,7 +1997,7 @@ public class PMCommand implements CommandExecutor
 							price = pmi.ClaimPrice;
 							double balance = PlotMe.economy.getBalance(playername);
 							
-							if(balance > price)
+							if(balance >= price)
 							{
 								EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
 								
@@ -2143,7 +2140,7 @@ public class PMCommand implements CommandExecutor
 									price = pmi.PlotHomePrice;
 									double balance = PlotMe.economy.getBalance(playername);
 									
-									if(balance > price)
+									if(balance >= price)
 									{
 										EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
 										
@@ -2306,7 +2303,7 @@ public class PMCommand implements CommandExecutor
 								price = pmi.AddCommentPrice;
 								double balance = PlotMe.economy.getBalance(playername);
 								
-								if(balance > price)
+								if(balance >= price)
 								{
 									EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
 									
@@ -2472,7 +2469,7 @@ public class PMCommand implements CommandExecutor
 										price = pmi.BiomeChangePrice;
 										double balance = PlotMe.economy.getBalance(playername);
 										
-										if(balance > price)
+										if(balance >= price)
 										{
 											EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
 											
@@ -2636,11 +2633,11 @@ public class PMCommand implements CommandExecutor
 					else
 					{
 						String id = plot.id;
+						World w = p.getWorld();
 						
-						Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), id);
-						Location top = PlotManager.getPlotTopLoc(p.getWorld(), id);
-						
-						PlotManager.clear(bottom, top);
+						PlotManager.setBiome(w, id, plot, Biome.PLAINS);
+						PlotManager.clear(w, plot);
+						//RemoveLWC(w, plot);
 						
 						if(PlotManager.isEconomyEnabled(p))
 						{
@@ -2702,7 +2699,6 @@ public class PMCommand implements CommandExecutor
 							PlotManager.getPlots(p).remove(id);
 						}
 						
-						World w = p.getWorld();
 						String name = p.getName();
 						
 						PlotManager.removeOwnerSign(w, id);
@@ -2767,7 +2763,7 @@ public class PMCommand implements CommandExecutor
 									price = pmi.ClearPrice;
 									double balance = PlotMe.economy.getBalance(playername);
 									
-									if(balance > price)
+									if(balance >= price)
 									{
 										EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
 										
@@ -2786,6 +2782,8 @@ public class PMCommand implements CommandExecutor
 								}						
 								
 								PlotManager.clear(w, plot);
+								//RemoveLWC(w, plot, p);
+								//PlotManager.regen(w, plot);
 								
 								Send(p, C("MsgPlotCleared") + " " + f(-price));
 								
@@ -2861,7 +2859,7 @@ public class PMCommand implements CommandExecutor
 										price = pmi.AddPlayerPrice;
 										double balance = PlotMe.economy.getBalance(playername);
 										
-										if(balance > price)
+										if(balance >= price)
 										{
 											EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
 											
@@ -2952,7 +2950,7 @@ public class PMCommand implements CommandExecutor
 										price = pmi.RemovePlayerPrice;
 										double balance = PlotMe.economy.getBalance(playername);
 										
-										if(balance > price)
+										if(balance >= price)
 										{
 											EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
 											
@@ -3286,7 +3284,9 @@ public class PMCommand implements CommandExecutor
 			if(biome.equalsIgnoreCase(""))
 			{
 				biome = token;
-			}else{
+			}
+			else
+			{
 				biome = biome + "_" + token;
 			}
 		}

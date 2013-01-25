@@ -91,12 +91,12 @@ public class PlotPopulator extends BlockPopulator {
                 
                 w.setBiome(x + xx, z + zz, Biome.PLAINS);
                 
+                valx = (cx * 16 + x);
+        		valz = (cz * 16 + z);
+                
                 for (int y = 0; y < height; y++)
                 {
-                	valx = (cx * 16 + x);
-            		valz = (cz * 16 + z);
-                	
-            		if(y == 0)
+                	if(y == 0)
                 	{
                 		//result[(x * 16 + z) * 128 + y] = bottom;
             			setBlock(w, x + xx, y, z + zz, bottom);
