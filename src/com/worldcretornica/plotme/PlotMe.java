@@ -562,13 +562,13 @@ public class PlotMe extends JavaPlugin
 		
 	public static int getPlotLimit(Player p)
 	{
-		int max = 0;
+		int max = -2;
 		
 		int maxlimit = 255;
 		
 		if(p.hasPermission("plotme.limit.*"))
 		{
-			max = -1;
+			return -1;
 		}
 		else
 		{
@@ -577,18 +577,19 @@ public class PlotMe extends JavaPlugin
 				if(p.hasPermission("plotme.limit." + ctr))
 				{
 					max = ctr;
-					return max;
 				}
 			}
 		
 		}
 		
-		if(max == 0)
+		if(max == -2)
 		{
-			if(cPerms(p, "PlotMe.admin"))
-				max = -1;
+			if(cPerms(p, "plotme.admin"))
+				return -1;
+			else if(cPerms(p, "plotme.use"))
+				return 1;
 			else
-				max = 1;
+				return 0;
 		}
 		
 		return max;

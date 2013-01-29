@@ -217,32 +217,12 @@ public class PlotListener implements Listener {
 			PlotMapInfo pmi = PlotManager.getMap(b);
 			boolean blocked = false;
 			
-			
-			for(int blockid : pmi.ProtectedBlocks)
+			if(event.isBlockInHand())
 			{
-				if(blockid == b.getTypeId())
-				{
-					blocked = true;
-				}
-			}
-						
-			ItemStack is = event.getItem();
-			
-			if(is != null && event.getAction() == Action.RIGHT_CLICK_BLOCK)
-			{
-				int itemid = is.getType().getId();
-				byte itemdata = is.getData().getData();
+				BlockFace face = event.getBlockFace();
+				Block builtblock = b.getWorld().getBlockAt(b.getX() + face.getModX(), b.getY() + face.getModY(), b.getZ() + face.getModZ());
 				
-				if(pmi.PreventedItems.contains("" + itemid) 
-						|| pmi.PreventedItems.contains("" + itemid + ":" + itemdata))
-				{
-					blocked = true;
-				}
-			}
-			
-			if(blocked)
-			{
-				String id = PlotManager.getPlotId(b.getLocation());
+				String id = PlotManager.getPlotId(builtblock.getLocation());
 				
 				Player p = event.getPlayer();
 				
@@ -250,16 +230,70 @@ public class PlotListener implements Listener {
 				{
 					if(!canbuild)
 					{
-						if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
-						{
-							p.sendMessage(PlotMe.caption("ErrCannotUse"));
-						}
+						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
-				}else{
+				}
+				else
+				{
 					Plot plot = PlotManager.getPlotById(p,id);
 					
 					if (plot == null)
+					{
+						if(!canbuild)
+						{
+							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+							event.setCancelled(true);
+						}
+					}
+					else
+					{
+						if(!plot.isAllowed(p.getName()))
+						{
+							if(!canbuild)
+							{
+								p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+								event.setCancelled(true);
+							}
+						}
+						else
+						{
+							plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
+						}
+					}
+				}
+			}
+			else
+			{
+				for(int blockid : pmi.ProtectedBlocks)
+				{
+					if(blockid == b.getTypeId())
+					{
+						blocked = true;
+					}
+				}
+							
+				ItemStack is = event.getItem();
+				
+				if(is != null && event.getAction() == Action.RIGHT_CLICK_BLOCK)
+				{
+					int itemid = is.getType().getId();
+					byte itemdata = is.getData().getData();
+					
+					if(pmi.PreventedItems.contains("" + itemid) 
+							|| pmi.PreventedItems.contains("" + itemid + ":" + itemdata))
+					{
+						blocked = true;
+					}
+				}
+				
+				if(blocked)
+				{
+					String id = PlotManager.getPlotId(b.getLocation());
+					
+					Player p = event.getPlayer();
+					
+					if(id.equalsIgnoreCase(""))
 					{
 						if(!canbuild)
 						{
@@ -269,8 +303,12 @@ public class PlotListener implements Listener {
 							}
 							event.setCancelled(true);
 						}
-					}else{
-						if(!plot.isAllowed(p.getName()))
+					}
+					else
+					{
+						Plot plot = PlotManager.getPlotById(p,id);
+						
+						if (plot == null)
 						{
 							if(!canbuild)
 							{
@@ -279,6 +317,20 @@ public class PlotListener implements Listener {
 									p.sendMessage(PlotMe.caption("ErrCannotUse"));
 								}
 								event.setCancelled(true);
+							}
+						}
+						else
+						{
+							if(!plot.isAllowed(p.getName()))
+							{
+								if(!canbuild)
+								{
+									if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
+									{
+										p.sendMessage(PlotMe.caption("ErrCannotUse"));
+									}
+									event.setCancelled(true);
+								}
 							}
 						}
 					}
@@ -291,6 +343,7 @@ public class PlotListener implements Listener {
 	public void onBlockSpread(final BlockSpreadEvent event)
 	{
 		Block b = event.getBlock();
+
 		if(PlotManager.isPlotWorld(b))
 		{
 			String id = PlotManager.getPlotId(b.getLocation());

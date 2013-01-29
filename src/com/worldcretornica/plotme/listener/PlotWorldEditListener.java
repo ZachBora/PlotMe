@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -23,6 +24,41 @@ public class PlotWorldEditListener implements Listener {
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void onPlayerMove(final PlayerMoveEvent event)
 	{	
+		Location from = event.getFrom();
+		Location to = event.getTo();
+		boolean changemask = false;
+		
+		if(!from.getWorld().getName().equalsIgnoreCase(to.getWorld().getName()))
+		{
+			changemask = true;
+		}
+		else if(from.getBlockX() != to.getBlockX() || from.getBlockZ() != to.getBlockZ())
+		{
+			String idFrom = PlotManager.getPlotId(from);
+			String idTo = PlotManager.getPlotId(to);
+			
+			if(!idFrom.equalsIgnoreCase(idTo))
+			{
+				changemask = true;
+			}
+		}
+		
+		if(changemask)
+		{
+			Player p = event.getPlayer();
+			if(PlotManager.isPlotWorld(p))
+			{
+				if(!PlotMe.isIgnoringWELimit(p))
+					PlotWorldEdit.setMask(p);
+				else
+					PlotWorldEdit.removeMask(p);
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onPlayerJoin(final PlayerJoinEvent event)
+	{
 		Player p = event.getPlayer();
 		if(PlotManager.isPlotWorld(p))
 		{
@@ -34,7 +70,7 @@ public class PlotWorldEditListener implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-	public void onPlayerWorldChange(final PlayerTeleportEvent event)
+	public void onPlayerTeleport(final PlayerTeleportEvent event)
 	{
 		Player p = event.getPlayer();
 		Location from = event.getFrom();
