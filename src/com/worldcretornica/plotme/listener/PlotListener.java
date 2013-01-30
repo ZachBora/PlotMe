@@ -441,12 +441,13 @@ public class PlotListener implements Listener {
 			if(found || PlotManager.isPlotWorld(b))
 			{
 				found = true;
-				String id = PlotManager.getPlotId(b.getLocation().add(event.getDirection().getModX(), event.getDirection().getModY(), event.getDirection().getModZ()));
+				BlockFace face = event.getDirection();
+				String id = PlotManager.getPlotId(b.getLocation().add(face.getModX(), face.getModY(), face.getModZ()));
 										
 				if(id.equalsIgnoreCase(""))
 				{
 					event.setCancelled(true);
-					break;
+					return;
 				}
 			}
 		}
