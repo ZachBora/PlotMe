@@ -111,9 +111,10 @@ public class PlotWorldEditListener implements Listener {
 	{
 		Player p = event.getPlayer();
 
-		if(!PlotMe.cPerms(p, "PlotMe.admin") && PlotManager.isPlotWorld(p) && !PlotMe.isIgnoringWELimit(p))
+		if(!PlotMe.cPerms(p, "plotme.admin.buildanywhere") && PlotManager.isPlotWorld(p) && !PlotMe.isIgnoringWELimit(p))
 		{
-			if(event.getAction() == Action.LEFT_CLICK_BLOCK && p.getItemInHand() != null && p.getItemInHand().getType() != Material.AIR)
+			if((event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK) 
+					&& p.getItemInHand() != null && p.getItemInHand().getType() != Material.AIR)
 			{
 				Block b = event.getClickedBlock();
 				Plot plot = PlotManager.getPlotById(b);

@@ -42,6 +42,7 @@ import org.yaml.snakeyaml.Yaml;
 import com.griefcraft.model.Protection;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.worldcretornica.plotme.Metrics.Graph;
+import com.worldcretornica.plotme.listener.PlotDenyListener;
 import com.worldcretornica.plotme.listener.PlotListener;
 import com.worldcretornica.plotme.listener.PlotWorldEditListener;
 
@@ -64,6 +65,7 @@ public class PlotMe extends JavaPlugin
     public static String language;
     public static Boolean allowWorldTeleport;
     public static Boolean autoUpdate;
+    public static Boolean allowToDeny;
     
     public static Map<String, PlotMapInfo> plotmaps = null;
     
@@ -117,6 +119,7 @@ public class PlotMe extends JavaPlugin
 		nbperdeletionprocessingexpired = null;
 		defaultWEAnywhere = null;
 		self = null;
+		allowToDeny = null;
 	}
 	
 	public void onEnable()
@@ -143,6 +146,11 @@ public class PlotMe extends JavaPlugin
 		if(pm.getPlugin("LWC") != null)
 		{
 			usinglwc = true;
+		}
+		
+		if(allowToDeny)
+		{
+			pm.registerEvents(new PlotDenyListener(), this);
 		}
 				
 		getCommand("plotme").setExecutor(new PMCommand(this));
@@ -299,6 +307,7 @@ public class PlotMe extends JavaPlugin
 		allowWorldTeleport = config.getBoolean("allowWorldTeleport", true);
 		defaultWEAnywhere = config.getBoolean("defaultWEAnywhere", false);
 		autoUpdate = config.getBoolean("auto-update", false);
+		allowToDeny = config.getBoolean("allowToDeny", true);
 
 		ConfigurationSection worlds;
 		
@@ -340,7 +349,9 @@ public class PlotMe extends JavaPlugin
 			economysection.set("ClaimPrice", 0);
 			economysection.set("ClearPrice", 0);
 			economysection.set("AddPlayerPrice", 0);
+			economysection.set("DenyPlayerPrice", 0);
 			economysection.set("RemovePlayerPrice", 0);
+			economysection.set("UndenyPlayerPrice", 0);
 			economysection.set("PlotHomePrice", 0);
 			economysection.set("CanCustomizeSellPrice", false);
 			economysection.set("SellToPlayerPrice", 0);
@@ -433,7 +444,9 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.ClaimPrice = economysection.getDouble("ClaimPrice", 0);
 			tempPlotInfo.ClearPrice = economysection.getDouble("ClearPrice", 0);
 			tempPlotInfo.AddPlayerPrice = economysection.getDouble("AddPlayerPrice", 0);
+			tempPlotInfo.DenyPlayerPrice = economysection.getDouble("DenyPlayerPrice", 0);
 			tempPlotInfo.RemovePlayerPrice = economysection.getDouble("RemovePlayerPrice", 0);
+			tempPlotInfo.UndenyPlayerPrice = economysection.getDouble("UndenyPlayerPrice", 0);
 			tempPlotInfo.PlotHomePrice = economysection.getDouble("PlotHomePrice", 0);
 			tempPlotInfo.CanCustomizeSellPrice = economysection.getBoolean("CanCustomizeSellPrice", false);
 			tempPlotInfo.SellToPlayerPrice = economysection.getDouble("SellToPlayerPrice", 0);
@@ -479,7 +492,9 @@ public class PlotMe extends JavaPlugin
 			economysection.set("ClaimPrice", tempPlotInfo.ClaimPrice);
 			economysection.set("ClearPrice", tempPlotInfo.ClearPrice);
 			economysection.set("AddPlayerPrice", tempPlotInfo.AddPlayerPrice);
+			economysection.set("DenyPlayerPrice", tempPlotInfo.DenyPlayerPrice);
 			economysection.set("RemovePlayerPrice", tempPlotInfo.RemovePlayerPrice);
+			economysection.set("UndenyPlayerPrice", tempPlotInfo.UndenyPlayerPrice);
 			economysection.set("PlotHomePrice", tempPlotInfo.PlotHomePrice);
 			economysection.set("CanCustomizeSellPrice", tempPlotInfo.CanCustomizeSellPrice);
 			economysection.set("SellToPlayerPrice", tempPlotInfo.SellToPlayerPrice);
@@ -509,6 +524,7 @@ public class PlotMe extends JavaPlugin
 		config.set("allowWorldTeleport", allowWorldTeleport);
 		config.set("defaultWEAnywhere", defaultWEAnywhere);
 		config.set("auto-update", autoUpdate);
+		config.set("allowToDeny", allowToDeny);
 		
 		try 
 		{
@@ -711,7 +727,9 @@ public class PlotMe extends JavaPlugin
 		properties.put("MsgNotEnoughProtectPlot", "You do not have enough to protect this plot.");
 		properties.put("MsgNotEnoughTp","You do not have enough to teleport home.");
 		properties.put("MsgNotEnoughAdd","You do not have enough to add a player.");
+		properties.put("MsgNotEnoughDeny","You do not have enough to deny a player.");
 		properties.put("MsgNotEnoughRemove","You do not have enough to remove a player.");
+		properties.put("MsgNotEnoughUndeny","You do not have enough to undeny a player.");
 		properties.put("MsgSoldTo", "sold to");
 		properties.put("MsgPlotBought", "Plot bought.");
 		properties.put("MsgBoughtPlot", "bought plot");
@@ -782,14 +800,21 @@ public class PlotMe extends JavaPlugin
 		properties.put("MsgClearedPlot","cleared plot");
 		properties.put("MsgNotYoursNotAllowedClear","is not yours. You are not allowed to clear it.");
 		properties.put("MsgAlreadyAllowed","was already allowed");
+		properties.put("MsgAlreadyDenied","was already denied");
 		properties.put("MsgWasNotAllowed","was not allowed");
-		properties.put("MsgNowAllowed","now allowed.");
+		properties.put("MsgWasNotDenied","was not denied");
+		properties.put("MsgNowUndenied","now undenied.");
+		properties.put("MsgNowDenied","now denied.");
 		properties.put("MsgAddedPlayer","added player");
+		properties.put("MsgDeniedPlayer","denied player");
 		properties.put("MsgRemovedPlayer","removed player");
+		properties.put("MsgUndeniedPlayer","undenied player");
 		properties.put("MsgToPlot","to plot");
 		properties.put("MsgFromPlot","from plot");
 		properties.put("MsgNotYoursNotAllowedAdd","is not yours. You are not allowed to add someone to it.");
+		properties.put("MsgNotYoursNotAllowedDeny","is not yours. You are not allowed to deny someone from it.");
 		properties.put("MsgNotYoursNotAllowedRemove","is not yours. You are not allowed to remove someone from it.");
+		properties.put("MsgNotYoursNotAllowedUndeny","is not yours. You are not allowed to undeny someone to it.");
 		properties.put("MsgNowOwnedBy","is now owned by");
 		properties.put("MsgChangedOwnerFrom","changed owner from");
 		properties.put("MsgChangedOwnerOf","changed owner of");
@@ -827,7 +852,9 @@ public class PlotMe extends JavaPlugin
 		properties.put("HelpClear", "Clears the plot to its original flat state.");
 		properties.put("HelpReset", "Resets the plot to its original flat state AND remove its owner.");
 		properties.put("HelpAdd", "Allows a player to have full access to the plot(This is your responsibility!)");
+		properties.put("HelpDeny", "Prevents a player from moving onto your plot.");
 		properties.put("HelpRemove", "Revokes a players access to the plot.");
+		properties.put("HelpUndeny", "Allows a previously denied player to move onto your plot.");
 		properties.put("HelpSetowner", "Sets the player provided as the owner of the plot your currently on.");
 		properties.put("HelpMove", "Swaps the plots blocks(highly experimental for now, use at your own risk).");
 		properties.put("HelpWEAnywhere", "Toggles using worldedit anywhere.");
@@ -881,6 +908,7 @@ public class PlotMe extends JavaPlugin
 		properties.put("WordBottom", "Bottom");
 		properties.put("WordTop", "Top");
 		properties.put("WordPossessive", "'s");
+		properties.put("WordRemoved", "removed");
 		
 		properties.put("SignOwner", "Owner:");
 		properties.put("SignId", "ID:");
@@ -899,6 +927,7 @@ public class PlotMe extends JavaPlugin
 		properties.put("InfoFinished", "Finished");
 		properties.put("InfoProtected", "Protected");
 		properties.put("InfoHelpers", "Helpers");
+		properties.put("InfoDenied", "Denied");
 		properties.put("InfoAuctionned", "Auctionned");
 		properties.put("InfoBidder", "Bidder");
 		properties.put("InfoBid", "Bid");
@@ -920,7 +949,9 @@ public class PlotMe extends JavaPlugin
 		properties.put("CommandClear", "clear");
 		properties.put("CommandReset", "reset");
 		properties.put("CommandAdd", "add");
+		properties.put("CommandDeny", "deny");
 		properties.put("CommandRemove", "remove");
+		properties.put("CommandUndeny", "undeny");
 		properties.put("CommandSetowner", "setowner");
 		properties.put("CommandMove", "move");
 		properties.put("CommandWEAnywhere", "weanywhere");

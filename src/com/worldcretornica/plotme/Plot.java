@@ -17,6 +17,7 @@ public class Plot implements Comparable<Plot> {
 	public String owner;
 	public String world;
 	private HashSet<String> allowed;
+	private HashSet<String> denied;
 	public Biome biome;
 	public Date expireddate;
 	public boolean finished;
@@ -36,6 +37,7 @@ public class Plot implements Comparable<Plot> {
 		world = "";
 		id = "";
 		allowed = new HashSet<String>();
+		denied = new HashSet<String>();
 		biome = Biome.PLAINS;
 		
 		Calendar cal = Calendar.getInstance();
@@ -58,6 +60,7 @@ public class Plot implements Comparable<Plot> {
 		owner = o;
 		world = t.getWorld().getName();
 		allowed = new HashSet<String>();
+		denied = new HashSet<String>();
 		biome = Biome.PLAINS;
 		id = tid;
 		
@@ -82,7 +85,8 @@ public class Plot implements Comparable<Plot> {
 	}
 	
 	public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al,
-			List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, Double bid, boolean isauctionned)
+			List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, 
+			Double bid, boolean isauctionned, HashSet<String> den)
 	{
 		owner = o;
 		world = w;
@@ -99,6 +103,7 @@ public class Plot implements Comparable<Plot> {
 		auctionned = isauctionned;
 		currentbidder = "";
 		currentbid = 0;
+		denied = den;
 	}
 			
 	public void setExpire(Date date)
@@ -178,6 +183,21 @@ public class Plot implements Comparable<Plot> {
 		return list;
 	}
 	
+	public String getDenied()
+	{
+		String list = "";
+		
+		for(String s : denied)
+		{
+			list = list + s + ", ";
+		}
+		if(list.length() > 1)
+		{
+			list = list.substring(0, list.length()-2);
+		}
+		return list;
+	}
+	
 	public int getCommentsCount()
 	{
 		return comments.size();
@@ -197,6 +217,15 @@ public class Plot implements Comparable<Plot> {
 		}
 	}
 	
+	public void addDenied(String name)
+	{
+		if(!isDenied(name))
+		{
+			denied.add(name);
+			SqlManager.addPlotDenied(name, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
+		}
+	}
+	
 	public void removeAllowed(String name)
 	{
 		String found = "";
@@ -210,10 +239,30 @@ public class Plot implements Comparable<Plot> {
 			}
 		}
 		
-		if(found != "")
+		if(!found.equals(""))
 		{
 			allowed.remove(found);
 			SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), found, world);
+		}
+	}
+	
+	public void removeDenied(String name)
+	{
+		String found = "";
+		
+		for(String n : denied)
+		{
+			if(n.equalsIgnoreCase(name))
+			{
+				found = n;
+				break;
+			}
+		}
+		
+		if(!found.equals(""))
+		{
+			denied.remove(found);
+			SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), found, world);
 		}
 	}
 	
@@ -226,15 +275,46 @@ public class Plot implements Comparable<Plot> {
 		allowed = new HashSet<String>();
 	}
 	
+	public void removeAllDenied()
+	{
+		for(String n : denied)
+		{
+			SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), n, world);
+		}
+		denied = new HashSet<String>();
+	}
+	
 	public boolean isAllowed(String name)
 	{
-		if(owner.equalsIgnoreCase(name) || owner.equals("*")) return true;
+		return isAllowed(name, true, true);
+	}
+	
+	public boolean isAllowed(String name, boolean IncludeStar, boolean IncludeGroup)
+	{
+		if(owner.equalsIgnoreCase(name) || (IncludeStar && owner.equals("*"))) return true;
 		
-		if(owner.toLowerCase().startsWith("group:") && Bukkit.getServer().getPlayerExact(name) != null)
+		if(IncludeGroup && owner.toLowerCase().startsWith("group:") && Bukkit.getServer().getPlayerExact(name) != null)
 			if(Bukkit.getServer().getPlayerExact(name).hasPermission("plotme.group." + owner.replace("Group:", "")))
 				return true;
 		
 		for(String str : allowed)
+		{
+			if(str.equalsIgnoreCase(name) || (IncludeStar && str.equals("*")))
+				return true;
+			
+			if(IncludeGroup && str.toLowerCase().startsWith("group:") && Bukkit.getServer().getPlayerExact(name) != null)
+				if(Bukkit.getServer().getPlayerExact(name).hasPermission("plotme.group." + str.replace("Group:", "")))
+					return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean isDenied(String name)
+	{
+		if(isAllowed(name, false, false)) return false;
+				
+		for(String str : denied)
 		{
 			if(str.equalsIgnoreCase(name) || str.equals("*"))
 				return true;
@@ -252,9 +332,19 @@ public class Plot implements Comparable<Plot> {
 		return allowed;
 	}
 	
+	public HashSet<String> denied()
+	{
+		return denied;
+	}
+	
 	public int allowedcount()
 	{
 		return allowed.size();
+	}
+	
+	public int deniedcount()
+	{
+		return denied.size();
 	}
 
 	public int compareTo(Plot plot)

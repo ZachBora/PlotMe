@@ -43,7 +43,9 @@ public class PlotMapInfo {
 	public double ClaimPrice;
 	public double ClearPrice;
 	public double AddPlayerPrice;
+	public double DenyPlayerPrice;
 	public double RemovePlayerPrice;
+	public double UndenyPlayerPrice;
 	public double PlotHomePrice;
 	public boolean CanCustomizeSellPrice;
 	public double SellToPlayerPrice;

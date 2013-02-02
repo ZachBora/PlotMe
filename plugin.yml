@@ -1,6 +1,6 @@
 name: PlotMe
 main: com.worldcretornica.plotme.PlotMe
-version: '0.12e'
+version: '0.13'
 author: ZachBora
 load: startup
 website: http://dev.bukkit.org/server-mods/plotme/
@@ -32,6 +32,9 @@ permissions:
         plotme.use.bid: true
         plotme.use.dispose: true
         plotme.use.done: true
+        plotme.use.deny: true
+        plotme.use.undeny: true
+        plotme.limit.1: true
     plotme.admin:
       description: Gives default administrator commands
       children:
@@ -56,6 +59,10 @@ permissions:
         plotme.admin.addtime: true
         plotme.admin.expired: true
         plotme.admin.resetexpired: true
+        plotme.admin.deny: true
+        plotme.admin.undeny: true
+        plotme.admin.bypassdeny: true
+        plotme.admin.buildanywhere: true
     plotme.use.buy:
       description: Gives the buy command
     plotme.use.sell:
@@ -88,12 +95,28 @@ permissions:
       description: Gives the list command
     plotme.use.add:
       description: Gives the add command for plots owned
+    plotme.use.deny:
+      description: Gives the deny command for plots owned
     plotme.use.remove:
       description: Gives the remove command for plots owned
+    plotme.use.undeny:
+      description: Gives the undeny command for plots owned
     plotme.use.protect:
       description: Gives the protect command
     plotme.limit.*:
       description: Gives unlimited plots
+    plotme.limit.1:
+      description: Gives 1 plot
+    plotme.limit.2:
+      description: Gives 2 plots
+    plotme.limit.3:
+      description: Gives 3 plots
+    plotme.limit.4:
+      description: Gives 4 plots
+    plotme.limit.5:
+      description: Gives 5 plots
+    plotme.limit.10:
+      description: Gives 10 plots
     plotme.admin.claim.other:
       description: Gives the claim command for any player
     plotme.admin.home.other:
@@ -108,8 +131,14 @@ permissions:
       description: Gives the reset command
     plotme.admin.add:
       description: Gives the add command for any plots
+    plotme.admin.deny:
+      description: Gives the deny command for any plots
     plotme.admin.remove:
       description: Gives the remove command for any plots
+    plotme.admin.undeny:
+      description: Gives the undeny command for any plots
+    plotme.admin.bypassdeny:
+      description: Allows to enter denied plots
     plotme.admin.setowner:
       description: Gives the setowner command
     plotme.admin.move:
@@ -136,3 +165,5 @@ permissions:
       description: Gives the expired command
     plotme.admin.resetexpired:
       description: Resets expired plots
+    plotme.admin.buildanywhere:
+      description: Allows to build anywhere in the plot world

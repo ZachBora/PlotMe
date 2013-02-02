@@ -122,10 +122,11 @@ public class PlotManager
 		return getPlotId(player.getLocation());
 	}
 
-	public static List<Player> getPlayersInPlot(String id) 
+	public static List<Player> getPlayersInPlot(World w, String id) 
 	{
 		List<Player> playersInPlot = new ArrayList<Player>();
-		for (Player p : Bukkit.getOnlinePlayers()) 
+		
+		for (Player p : w.getPlayers()) 
 		{
 		    if (getPlotId(p).equals(id)) 
 		    {
@@ -1538,6 +1539,21 @@ public class PlotManager
 		}
 		
 		//refreshPlotChunks(w, plot);
+	}
+	
+	public static Location getPlotHome(World w, Plot plot)
+	{
+		PlotMapInfo pmi = getMap(w);
+		
+		if(pmi != null)
+		{
+			return new Location(w, bottomX(plot.id, w) + (topX(plot.id, w) - 
+					PlotManager.bottomX(plot.id, w))/2, pmi.RoadHeight + 2, bottomZ(plot.id, w) - 2);
+		}
+		else
+		{
+			return w.getSpawnLocation();
+		}
 	}
 	
 	public static void RemoveLWC(World w, Plot plot)

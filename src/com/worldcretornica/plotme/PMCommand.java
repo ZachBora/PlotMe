@@ -129,6 +129,11 @@ public class PMCommand implements CommandExecutor
 						if (a0.equalsIgnoreCase(C("CommandClear"))) { return clear(p, args);}
 						if (a0.equalsIgnoreCase(C("CommandReset"))) { return reset(p, args);}
 						if (a0.equalsIgnoreCase(C("CommandAdd")) || a0.equalsIgnoreCase("+")) { return add(p, args);}
+						if(PlotMe.allowToDeny)
+						{
+							if (a0.equalsIgnoreCase(C("CommandDeny"))) { return deny(p, args);}
+							if (a0.equalsIgnoreCase(C("CommandUndeny"))) { return undeny(p, args);}
+						}
 						if (a0.equalsIgnoreCase(C("CommandRemove")) || a0.equalsIgnoreCase("-")) { return remove(p, args);}
 						if (a0.equalsIgnoreCase(C("CommandSetowner")) || a0.equalsIgnoreCase("o")) { return setowner(p, args);}
 						if (a0.equalsIgnoreCase(C("CommandMove")) || a0.equalsIgnoreCase("m")) { return move(p, args);}
@@ -147,7 +152,6 @@ public class PMCommand implements CommandExecutor
 						if (a0.equalsIgnoreCase(C("CommandBuy"))) { return buy(p, args);}
 						if (a0.equalsIgnoreCase(C("CommandBid"))) { return bid(p, args);}
 						if (a0.startsWith(C("CommandHome")) || a0.startsWith("h")) { return home(p, args);}
-						
 						if (a0.equalsIgnoreCase(C("CommandResetExpired"))) { return resetexpired(p, args); }
 					}
 				}
@@ -1427,7 +1431,6 @@ public class PMCommand implements CommandExecutor
 		return true;
 	}
 	
-	
 	private boolean showhelp(Player p, int page)
 	{
 		int max = 4;
@@ -1455,15 +1458,27 @@ public class PMCommand implements CommandExecutor
 			allowed_commands.add("biome");
 			allowed_commands.add("biomelist");
 		}
-		if(PlotMe.cPerms(p, "PlotMe.use.done") || PlotMe.cPerms(p, "PlotMe.admin.done")) allowed_commands.add("done");
+		if(PlotMe.cPerms(p, "PlotMe.use.done") || 
+				PlotMe.cPerms(p, "PlotMe.admin.done")) allowed_commands.add("done");
 		if(PlotMe.cPerms(p, "PlotMe.admin.done")) allowed_commands.add("donelist");
 		if(PlotMe.cPerms(p, "PlotMe.admin.tp")) allowed_commands.add("tp");
 		if(PlotMe.cPerms(p, "PlotMe.admin.id")) allowed_commands.add("id");
-		if(PlotMe.cPerms(p, "PlotMe.use.clear") || PlotMe.cPerms(p, "PlotMe.admin.clear")) allowed_commands.add("clear");
-		if(PlotMe.cPerms(p, "PlotMe.admin.dispose") || PlotMe.cPerms(p, "PlotMe.use.dispose")) allowed_commands.add("dispose");
+		if(PlotMe.cPerms(p, "PlotMe.use.clear") || 
+				PlotMe.cPerms(p, "PlotMe.admin.clear")) allowed_commands.add("clear");
+		if(PlotMe.cPerms(p, "PlotMe.admin.dispose") || 
+				PlotMe.cPerms(p, "PlotMe.use.dispose")) allowed_commands.add("dispose");
 		if(PlotMe.cPerms(p, "PlotMe.admin.reset")) allowed_commands.add("reset");
-		if(PlotMe.cPerms(p, "PlotMe.use.add") || PlotMe.cPerms(p, "PlotMe.admin.add")) allowed_commands.add("add");
-		if(PlotMe.cPerms(p, "PlotMe.use.remove") || PlotMe.cPerms(p, "PlotMe.admin.remove")) allowed_commands.add("remove");
+		if(PlotMe.cPerms(p, "PlotMe.use.add") || 
+				PlotMe.cPerms(p, "PlotMe.admin.add")) allowed_commands.add("add");
+		if(PlotMe.cPerms(p, "PlotMe.use.remove") || 
+				PlotMe.cPerms(p, "PlotMe.admin.remove")) allowed_commands.add("remove");
+		if(PlotMe.allowToDeny)
+		{
+			if(PlotMe.cPerms(p, "PlotMe.use.deny") || 
+					PlotMe.cPerms(p, "PlotMe.admin.deny")) allowed_commands.add("deny");
+			if(PlotMe.cPerms(p, "PlotMe.use.undeny") || 
+					PlotMe.cPerms(p, "PlotMe.admin.undeny")) allowed_commands.add("undeny");
+		}
 		if(PlotMe.cPerms(p, "PlotMe.admin.setowner")) allowed_commands.add("setowner");
 		if(PlotMe.cPerms(p, "PlotMe.admin.move")) allowed_commands.add("move");
 		if(PlotMe.cPerms(p, "PlotMe.admin.weanywhere")) allowed_commands.add("weanywhere");
@@ -1669,12 +1684,27 @@ public class PMCommand implements CommandExecutor
 				else
 					p.sendMessage(AQUA + " " + C("HelpAdd"));
 			}
+			else if(allowedcmd.equalsIgnoreCase("deny"))
+			{
+				p.sendMessage(GREEN + " /plotme " + C("CommandDeny") + " <" + C("WordPlayer") + ">");
+				if(ecoon && pmi != null && pmi.DenyPlayerPrice != 0)
+					p.sendMessage(AQUA + " " + C("HelpDeny") + " " + C("WordPrice") + " : " + RESET + round(pmi.DenyPlayerPrice));
+				else
+					p.sendMessage(AQUA + " " + C("HelpDeny"));
+			}
 			else if(allowedcmd.equalsIgnoreCase("remove")){
 				p.sendMessage(GREEN + " /plotme " + C("CommandRemove") + " <" + C("WordPlayer") + ">");
 				if(ecoon && pmi != null && pmi.RemovePlayerPrice != 0)
 					p.sendMessage(AQUA + " " + C("HelpRemove") + " " + C("WordPrice") + " : " + RESET + round(pmi.RemovePlayerPrice));
 				else
 					p.sendMessage(AQUA + " " + C("HelpRemove"));
+			}
+			else if(allowedcmd.equalsIgnoreCase("undeny")){
+				p.sendMessage(GREEN + " /plotme " + C("CommandUndeny") + " <" + C("WordPlayer") + ">");
+				if(ecoon && pmi != null && pmi.UndenyPlayerPrice != 0)
+					p.sendMessage(AQUA + " " + C("HelpUndeny") + " " + C("WordPrice") + " : " + RESET + round(pmi.UndenyPlayerPrice));
+				else
+					p.sendMessage(AQUA + " " + C("HelpUndeny"));
 			}
 			else if(allowedcmd.equalsIgnoreCase("setowner"))
 			{
@@ -2157,8 +2187,7 @@ public class PMCommand implements CommandExecutor
 									}
 								}
 								
-								p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) - 
-										PlotManager.bottomX(plot.id, w))/2, pmi.RoadHeight + 2, PlotManager.bottomZ(plot.id, w) - 2));
+								p.teleport(PlotManager.getPlotHome(w, plot));
 								
 								if(price != 0)
 									Send(p, f(-price));
@@ -2233,6 +2262,11 @@ public class PMCommand implements CommandExecutor
 						if(plot.allowedcount() > 0)
 						{
 							p.sendMessage(GREEN + C("InfoHelpers") + ": " + AQUA + plot.getAllowed());
+						}
+						
+						if(PlotMe.allowToDeny && plot.deniedcount() > 0)
+						{
+							p.sendMessage(GREEN + C("InfoDenied") + ": " + AQUA + plot.getDenied());
 						}
 						
 						if(PlotManager.isEconomyEnabled(p))
@@ -2905,6 +2939,129 @@ public class PMCommand implements CommandExecutor
 		return true;
 	}
 	
+	private boolean deny(Player p, String[] args)
+	{
+		if (PlotMe.cPerms(p, "PlotMe.admin.deny") || PlotMe.cPerms(p, "PlotMe.use.deny"))
+		{
+			if(!PlotManager.isPlotWorld(p))
+			{
+				Send(p, RED + C("MsgNotPlotWorld"));
+			}
+			else
+			{
+				String id = PlotManager.getPlotId(p.getLocation());
+				if(id.equals(""))
+				{
+					Send(p, RED + C("MsgNoPlotFound"));
+				}
+				else
+				{
+					if(!PlotManager.isPlotAvailable(id, p))
+					{
+						if(args.length < 2 || args[1].equalsIgnoreCase(""))
+						{
+							Send(p, C("WordUsage") + " " + RED + "/plotme " + C("CommandDeny") + " <" + C("WordPlayer") + ">");
+						}
+						else
+						{
+						
+							Plot plot = PlotManager.getPlotById(p,id);
+							String playername = p.getName();
+							String denied = args[1];
+							
+							if(plot.owner.equalsIgnoreCase(playername) || PlotMe.cPerms(p, "PlotMe.admin.deny"))
+							{
+								if(plot.isDenied(denied))
+								{
+									Send(p, C("WordPlayer") + " " + RED + args[1] + RESET + " " + C("MsgAlreadyDenied"));
+								}
+								else
+								{
+									World w = p.getWorld();
+									
+									PlotMapInfo pmi = PlotManager.getMap(w);
+									
+									double price = 0;
+									
+									if(PlotManager.isEconomyEnabled(w))
+									{
+										price = pmi.DenyPlayerPrice;
+										double balance = PlotMe.economy.getBalance(playername);
+										
+										if(balance >= price)
+										{
+											EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+											
+											if(!er.transactionSuccess())
+											{
+												Send(p, RED + er.errorMessage);
+												warn(er.errorMessage);
+												return true;
+											}
+										}
+										else
+										{
+											Send(p, RED + C("MsgNotEnoughDeny") + " " + C("WordMissing") + " " + RESET + f(price - balance, false));
+											return true;
+										}
+									}
+									
+									plot.addDenied(args[1]);
+									
+									if(denied.equals("*"))
+									{
+										List<Player> deniedplayers = PlotManager.getPlayersInPlot(w, id);
+										
+										for(Player deniedplayer : deniedplayers)
+										{
+											if(!plot.isAllowed(deniedplayer.getName()))
+												deniedplayer.teleport(PlotManager.getPlotHome(w, plot));
+										}
+									}
+									else
+									{
+										Player deniedplayer = Bukkit.getServer().getPlayer(denied);
+										
+										if(deniedplayer != null)
+										{
+											if(deniedplayer.getWorld().equals(w))
+											{
+												String deniedid = PlotManager.getPlotId(deniedplayer);
+												
+												if(deniedid.equalsIgnoreCase(id))
+												{
+													deniedplayer.teleport(PlotManager.getPlotHome(w, plot));
+												}
+											}
+										}
+									}
+									
+									Send(p, C("WordPlayer") + " " + RED + denied + RESET + " " + C("MsgNowDenied") + " " + f(-price));
+									
+									if(isAdv)
+										PlotMe.logger.info(LOG + playername + " " + C("MsgDeniedPlayer") + " " + denied + " " + C("MsgToPlot") + " " + id + ((price != 0) ? " " + C("WordFor") + " " + price : ""));
+								}
+							}
+							else
+							{
+								Send(p, RED + C("MsgThisPlot") + "(" + id + ") " + C("MsgNotYoursNotAllowedDeny"));
+							}
+						}
+					}
+					else
+					{
+						Send(p, RED + C("MsgThisPlot") + "(" + id + ") " + C("MsgHasNoOwner"));
+					}
+				}
+			}
+		}
+		else
+		{
+			Send(p, RED + C("MsgPermissionDenied"));
+		}
+		return true;
+	}
+	
 	private boolean remove(Player p, String[] args)
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.remove") || PlotMe.cPerms(p, "PlotMe.use.remove"))
@@ -2970,7 +3127,7 @@ public class PMCommand implements CommandExecutor
 									
 									plot.removeAllowed(allowed);
 																	
-									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " removed. " + f(-price));
+									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " " + C("WorldRemoved") + ". " + f(-price));
 									
 									if(isAdv)
 										PlotMe.logger.info(LOG + playername + " " + C("MsgRemovedPlayer") + " " + allowed + " " + C("MsgFromPlot") + " " + id + ((price != 0) ? " " + C("WordFor") + " " + price : ""));
@@ -2983,6 +3140,101 @@ public class PMCommand implements CommandExecutor
 							else
 							{
 								Send(p, RED + C("MsgThisPlot") + "(" + id + ") " + C("MsgNotYoursNotAllowedRemove"));
+							}
+						}
+					}
+					else
+					{
+						Send(p, RED + C("MsgThisPlot") + "(" + id + ") " + C("MsgHasNoOwner"));
+					}
+				}
+			}
+		}
+		else
+		{
+			Send(p, RED + C("MsgPermissionDenied"));
+		}
+		return true;
+	}
+	
+	private boolean undeny(Player p, String[] args)
+	{
+		if (PlotMe.cPerms(p, "PlotMe.admin.undeny") || PlotMe.cPerms(p, "PlotMe.use.undeny"))
+		{
+			if(!PlotManager.isPlotWorld(p))
+			{
+				Send(p, RED + C("MsgNotPlotWorld"));
+			}
+			else
+			{
+				String id = PlotManager.getPlotId(p.getLocation());
+				if(id.equals(""))
+				{
+					Send(p, RED + C("MsgNoPlotFound"));
+				}
+				else
+				{
+					if(!PlotManager.isPlotAvailable(id, p))
+					{
+						if(args.length < 2 || args[1].equalsIgnoreCase(""))
+						{
+							Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandUndeny") + " <" + C("WordPlayer") + ">");
+						}
+						else
+						{
+							Plot plot = PlotManager.getPlotById(p,id);
+							String playername = p.getName();
+							String denied = args[1];
+							
+							if(plot.owner.equalsIgnoreCase(playername) || PlotMe.cPerms(p, "PlotMe.admin.undeny"))
+							{
+								if(plot.isDenied(denied))
+								{
+									
+									World w = p.getWorld();
+									
+									PlotMapInfo pmi = PlotManager.getMap(w);
+									
+									double price = 0;
+									
+									if(PlotManager.isEconomyEnabled(w))
+									{
+										price = pmi.UndenyPlayerPrice;
+										double balance = PlotMe.economy.getBalance(playername);
+										
+										if(balance >= price)
+										{
+											EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+											
+											if(!er.transactionSuccess())
+											{
+												Send(p, RED + er.errorMessage);
+												warn(er.errorMessage);
+												return true;
+											}
+										}
+										else
+										{
+											Send(p, RED + C("MsgNotEnoughUndeny") + " " + C("WordMissing") + " " + RESET + f(price - balance, false));
+											return true;
+										}
+									}
+									
+									plot.removeDenied(denied);
+																	
+									Send(p, C("WordPlayer") + " " + RED + denied + RESET + " " + C("MsgNowUndenied") + " " + f(-price));
+									
+									if(isAdv)
+										PlotMe.logger.info(LOG + playername + " " + C("MsgUndeniedPlayer") + " " + denied + " " + C("MsgFromPlot") + " " + id + ((price != 0) ? " " + C("WordFor") + " " + price : ""));
+								}
+								else
+								{
+									Send(p, C("WordPlayer") + " " + RED + args[1] + RESET + " " + C("MsgWasNotDenied"));
+								}
+							}
+							else
+							{
+								Send(p, RED + C("MsgThisPlot") + "(" + id + ") " + C("MsgNotYoursNotAllowedUndeny"));
 							}
 						}
 					}
