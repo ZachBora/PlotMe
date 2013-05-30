@@ -805,6 +805,7 @@ public class PlotMe extends JavaPlugin
 		properties.put("MsgWasNotDenied","was not denied");
 		properties.put("MsgNowUndenied","now undenied.");
 		properties.put("MsgNowDenied","now denied.");
+		properties.put("MsgNowAllowed", "now allowed.");
 		properties.put("MsgAddedPlayer","added player");
 		properties.put("MsgDeniedPlayer","denied player");
 		properties.put("MsgRemovedPlayer","removed player");
@@ -932,6 +933,7 @@ public class PlotMe extends JavaPlugin
 		properties.put("InfoBidder", "Bidder");
 		properties.put("InfoBid", "Bid");
 		properties.put("InfoForSale", "For sale");
+		properties.put("InfoMinimumBid", "Minimum bid");
 		
 		properties.put("CommandBuy", "buy");
 		properties.put("CommandBid", "bid");

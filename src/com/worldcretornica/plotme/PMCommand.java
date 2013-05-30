@@ -2149,7 +2149,7 @@ public class PMCommand implements CommandExecutor
 				
 				if(!PlotManager.isPlotWorld(w))
 				{
-					Send(p, RED + args[2] + C("MsgWorldNotPlot"));
+					Send(p, RED + w.getName() + C("MsgWorldNotPlot"));
 				}
 				else
 				{
@@ -2273,9 +2273,9 @@ public class PMCommand implements CommandExecutor
 						{
 							if(plot.currentbidder.equalsIgnoreCase(""))
 							{
-								p.sendMessage(GREEN + "Auctionned: " + AQUA + ((plot.auctionned) ? C("WordYes") + 
-										GREEN + " Minimum bid: " + AQUA + round(plot.currentbid) : C("WordNo")) +
-										GREEN + " For sale: " + AQUA + ((plot.forsale) ? AQUA + round(plot.customprice) : C("WordNo")));
+								p.sendMessage(GREEN + C("InfoAuctionned") + ": " + AQUA + ((plot.auctionned) ? C("WordYes") + 
+										GREEN + " " + C("InfoMinimumBid") + ": " + AQUA + round(plot.currentbid) : C("WordNo")) +
+										GREEN + " " + C("InfoForSale") + ": " + AQUA + ((plot.forsale) ? AQUA + round(plot.customprice) : C("WordNo")));
 							}
 							else
 							{

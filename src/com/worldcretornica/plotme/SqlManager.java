@@ -508,7 +508,7 @@ public class SqlManager {
     			
     			File sqlitefile = new File(PlotMe.configpath + sqlitedb);
     			if (!sqlitefile.exists()) {
-    				PlotMe.logger.info(PlotMe.PREFIX + " Could not find old " + sqlitedb);
+    				//PlotMe.logger.info(PlotMe.PREFIX + " Could not find old " + sqlitedb);
     				return;
     			} 
     			else 
@@ -519,14 +519,16 @@ public class SqlManager {
 	        		sqliteconn.setAutoCommit(false);
 	        		Statement slstatement = sqliteconn.createStatement();
 	        		ResultSet setPlots = slstatement.executeQuery("SELECT * FROM plotmePlots");
+	        		Statement slAllowed = sqliteconn.createStatement();
 	        		ResultSet setAllowed = null;
+	        		Statement slDenied = sqliteconn.createStatement();
 	        		ResultSet setDenied = null;
+	        		Statement slComments = sqliteconn.createStatement();
 	        		ResultSet setComments = null;
 	        		
 	        		int size = 0;
 	        		while (setPlots.next()) 
 	        		{
-	        			size++;
 	        			int idX = setPlots.getInt("idX");
 	        			int idZ = setPlots.getInt("idZ");
 	        			String owner = setPlots.getString("owner");
@@ -549,8 +551,8 @@ public class SqlManager {
 	        			String currentbidder = setPlots.getString("currentbidder");
 	        			double currentbid = setPlots.getDouble("currentbid");
 	        			
-	        			setAllowed = slstatement.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
-	        			
+	        			setAllowed = slAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
+
 	        			while (setAllowed.next()) 
 	        			{
 	        				allowed.add(setAllowed.getString("player"));
@@ -561,8 +563,8 @@ public class SqlManager {
 	        				setAllowed.close();
 	        			}
 	        			
-	        			setDenied = slstatement.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
-	        			
+	        			setDenied = slDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
+
 	        			while (setDenied.next()) 
 	        			{
 	        				denied.add(setDenied.getString("player"));
@@ -573,8 +575,8 @@ public class SqlManager {
 	        				setDenied.close();
 	        			}
 	        			
-	        			setComments = slstatement.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
-	        			
+	        			setComments = slComments.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
+
 	        			while (setComments.next()) 
 	        			{
 	        				String[] comment = new String[2];
@@ -587,15 +589,18 @@ public class SqlManager {
 	        					 comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, 
 	        					 protect, currentbidder, currentbid, auctionned, denied);
 	        			addPlot(plot, idX, idZ, topX, bottomX, topZ, bottomZ);
+	        			
+	        			size++;
 	        		}
 	        		PlotMe.logger.info(PlotMe.PREFIX + " Imported " + size + " plots from " + sqlitedb);
-	        		PlotMe.logger.info(PlotMe.PREFIX + " Renaming " + sqlitedb + " to " + sqlitedb + ".old");
-	        		if (!sqlitefile.renameTo(new File(PlotMe.configpath, sqlitedb + ".old"))) 
-	        		{
-	        			PlotMe.logger.warning(PlotMe.PREFIX + " Failed to rename " + sqlitedb + "! Please rename this manually!");
-	    			}
 	        		if (slstatement != null)
         				slstatement.close();
+	        		if (slAllowed != null)
+	        			slAllowed.close();
+	        		if (slComments != null)
+	        			slComments.close();
+	        		if (slDenied != null)
+	        			slDenied.close();
         			if (setPlots != null)
         				setPlots.close();
         			if (setComments != null)
@@ -604,6 +609,12 @@ public class SqlManager {
                     	setAllowed.close();
     				if (sqliteconn != null)
         				sqliteconn.close();
+    				
+	        		PlotMe.logger.info(PlotMe.PREFIX + " Renaming " + sqlitedb + " to " + sqlitedb + ".old");
+	        		if (!sqlitefile.renameTo(new File(PlotMe.configpath, sqlitedb + ".old"))) 
+	        		{
+	        			PlotMe.logger.warning(PlotMe.PREFIX + " Failed to rename " + sqlitedb + "! Please rename this manually!");
+	    			}
     			}
     		}
     	} 
