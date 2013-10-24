@@ -975,12 +975,12 @@ public class PlotMe extends JavaPlugin
 		properties.put("ErrCreatingPlotAt", "An error occured while creating the plot at");
 		properties.put("ErrMovingPlot", "Error moving plot");
 		
-		CreateConfig(filelang, properties, "PlotMe Caption configuration αω");
+		createConfig(filelang, properties, "PlotMe Caption configuration αω");
 		
 		if (language != "english")
 		{
 			filelang = new File(this.getDataFolder(), "caption-" + language + ".yml");
-			CreateConfig(filelang, properties, "PlotMe Caption configuration");
+			createConfig(filelang, properties, "PlotMe Caption configuration");
 		}
 		
 		InputStream input = null;
@@ -1015,7 +1015,7 @@ public class PlotMe extends JavaPlugin
 		}
 	}
 	
-	private void CreateConfig(File file, TreeMap<String, String> properties, String Title)
+	private void createConfig(File file, TreeMap<String, String> properties, String Title)
 	{
 		if(!file.exists())
 		{
