@@ -929,6 +929,7 @@ public class SqlManager {
             ps.setString(3,	world);
             ps.executeUpdate();
             conn.commit();
+            ps.close();
             
             ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
@@ -936,6 +937,7 @@ public class SqlManager {
             ps.setString(3, world);
             ps.executeUpdate();
             conn.commit();
+            ps.close();
             
             ps = conn.prepareStatement("DELETE FROM plotmePlots WHERE idX = ? and idZ = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
@@ -943,6 +945,7 @@ public class SqlManager {
             ps.setString(3, world);
             ps.executeUpdate();
             conn.commit();
+            ps.close();
             
         } 
         catch (SQLException ex) 

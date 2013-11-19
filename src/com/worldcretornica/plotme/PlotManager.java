@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -216,7 +217,8 @@ public class PlotManager
 		}
 	}
 	
-	private static void fillroad(Plot plot1, Plot plot2, World w)
+	@SuppressWarnings("deprecation")
+    private static void fillroad(Plot plot1, Plot plot2, World w)
 	{
 		Location bottomPlot1 = getPlotBottomLoc(w, plot1.id);
 		Location topPlot1 = getPlotTopLoc(w, plot1.id);
@@ -300,7 +302,8 @@ public class PlotManager
 		}
 	}
 	
-	private static void fillmiddleroad(Plot plot1, Plot plot2, World w)
+	@SuppressWarnings("deprecation")
+    private static void fillmiddleroad(Plot plot1, Plot plot2, World w)
 	{
 		Location bottomPlot1 = getPlotBottomLoc(w, plot1.id);
 		Location topPlot1 = getPlotTopLoc(w, plot1.id);
@@ -382,7 +385,8 @@ public class PlotManager
 		}
 	}
 	
-	public static void setOwnerSign(World world, Plot plot)
+	@SuppressWarnings("deprecation")
+    public static void setOwnerSign(World world, Plot plot)
 	{	
 		Location pillar = new Location(world, bottomX(plot.id, world) - 1, getMap(world).RoadHeight + 1, bottomZ(plot.id, world) - 1);
 						
@@ -427,7 +431,8 @@ public class PlotManager
 		sign.update(true);
 	}
 	
-	public static void setSellSign(World world, Plot plot)
+	@SuppressWarnings("deprecation")
+    public static void setSellSign(World world, Plot plot)
 	{
 		removeSellSign(world, plot.id);
 		
@@ -602,7 +607,8 @@ public class PlotManager
 		//regen(w, plot);
 	}
 	
-	public static void clear(Location bottom, Location top)
+	@SuppressWarnings("deprecation")
+    public static void clear(Location bottom, Location top)
 	{
 		PlotMapInfo pmi = getMap(bottom);
 		
@@ -763,7 +769,8 @@ public class PlotManager
 	}
 	
 	
-	private static void setWall(Block block, String currentblockid)
+	@SuppressWarnings("deprecation")
+    private static void setWall(Block block, String currentblockid)
 	{
 		
 		int blockId;
@@ -811,7 +818,8 @@ public class PlotManager
 				&& blocklocation.getBlockZ() >= lowestZ && blocklocation.getBlockZ() <= highestZ;
 	}
 	
-	public static boolean movePlot(World w, String idFrom, String idTo)
+	@SuppressWarnings("deprecation")
+    public static boolean movePlot(World w, String idFrom, String idTo)
 	{
 		Location plot1Bottom = getPlotBottomLoc(w, idFrom);
 		Location plot2Bottom = getPlotBottomLoc(w, idTo);
@@ -1426,7 +1434,8 @@ public class PlotManager
 		}
 	}
 	
-	public static void regen(World w, Plot plot, CommandSender sender)
+	@SuppressWarnings("deprecation")
+    public static void regen(World w, Plot plot, CommandSender sender)
 	{
 		int bottomX = PlotManager.bottomX(plot.id, w);
 		int topX = PlotManager.topX(plot.id, w);
@@ -1465,9 +1474,9 @@ public class PlotManager
 							if(PlotMe.usinglwc)
 							{
 								LWC lwc = com.griefcraft.lwc.LWC.getInstance();
-								Material material = block.getType();
+								//Material material = block.getType();
 								
-								boolean ignoreBlockDestruction = Boolean.parseBoolean(lwc.resolveProtectionConfiguration(material, "ignoreBlockDestruction"));
+								boolean ignoreBlockDestruction = Boolean.parseBoolean(lwc.resolveProtectionConfiguration(block, "ignoreBlockDestruction"));
 								
 								if (!ignoreBlockDestruction)
 								{

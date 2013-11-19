@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
+
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.Bukkit;
@@ -641,7 +642,8 @@ public class PlotMe extends JavaPlugin
 		return expireddate.toString();
 	}
 	
-	private List<Integer> getDefaultProtectedBlocks()
+	@SuppressWarnings("deprecation")
+    private List<Integer> getDefaultProtectedBlocks()
 	{
 		List<Integer> protections = new ArrayList<Integer>();
 		
@@ -663,7 +665,8 @@ public class PlotMe extends JavaPlugin
 		return protections;
 	}
 	
-	private List<String> getDefaultPreventedItems()
+	@SuppressWarnings("deprecation")
+    private List<String> getDefaultPreventedItems()
 	{
 		List<String> preventeditems = new ArrayList<String>();
 

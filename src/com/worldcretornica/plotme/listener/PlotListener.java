@@ -212,7 +212,8 @@ public class PlotListener implements Listener
 	}
 	
 	
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	@SuppressWarnings("deprecation")
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerInteract(final PlayerInteractEvent event)
 	{
 		Block b = event.getClickedBlock();

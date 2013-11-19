@@ -285,7 +285,8 @@ public class PlotPopulator extends BlockPopulator {
 	}
 
 	
-	private void setBlock(World w, int x, int y, int z, byte val)
+	@SuppressWarnings("deprecation")
+    private void setBlock(World w, int x, int y, int z, byte val)
 	{
 		if(val != 0)
 		{

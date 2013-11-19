@@ -68,7 +68,8 @@ public class PlotRoadPopulator extends BlockPopulator
 		pillarid = 17;
 	}
 
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public void populate(World w, Random rand, Chunk chunk) 
 	{
 		int cx = chunk.getX();
@@ -268,7 +269,8 @@ public class PlotRoadPopulator extends BlockPopulator
         }
 	}
 
-	private void setBlock(World w, int x, int y, int z, byte val, short id)
+	@SuppressWarnings("deprecation")
+    private void setBlock(World w, int x, int y, int z, byte val, short id)
 	{
 		if(val != 0)
 		{
