@@ -1901,7 +1901,7 @@ public class PMCommand implements CommandExecutor
 				}
 				else
 				{
-					if(PlotManager.getNbOwnedPlot(p, w) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin"))
+					if(PlotManager.getNbOwnedPlot(p, w) >= PlotMe.getPlotLimit(p) && PlotMe.getPlotLimit(p) != -1 && !PlotMe.cPerms(p, "PlotMe.admin"))
 						Send(p, RED + C("MsgAlreadyReachedMaxPlots") + " (" + 
 								PlotManager.getNbOwnedPlot(p, w) + "/" + PlotMe.getPlotLimit(p) + "). " + C("WordUse") + " " + RED + "/plotme " + C("CommandHome") + RESET + " " + C("MsgToGetToIt"));
 					else
