@@ -31,7 +31,7 @@ public class PlotDenyListener implements Listener
 			{
 				Plot plot = PlotManager.getPlotById(p, idTo);
 				
-				if(plot != null && plot.isDenied(p.getName()))
+				if(plot != null && plot.isDenied(p.getUniqueId()))
 				{
 					event.setCancelled(true);
 				}
@@ -54,7 +54,7 @@ public class PlotDenyListener implements Listener
 			{
 				Plot plot = PlotManager.getPlotById(p, idTo);
 				
-				if(plot != null && plot.isDenied(p.getName()))
+				if(plot != null && plot.isDenied(p.getUniqueId()))
 				{
 					event.setTo(PlotManager.getPlotHome(p.getWorld(), plot));
 				}
@@ -75,7 +75,7 @@ public class PlotDenyListener implements Listener
 			{
 				Plot plot = PlotManager.getPlotById(p, id);
 				
-				if(plot != null && plot.isDenied(p.getName()))
+				if(plot != null && plot.isDenied(p.getUniqueId()))
 				{
 					p.teleport(PlotManager.getPlotHome(p.getWorld(), plot));
 				}

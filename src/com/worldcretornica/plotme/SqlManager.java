@@ -1,6 +1,7 @@
 package com.worldcretornica.plotme;
 
 import java.io.File;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
@@ -12,7 +13,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+
+import javax.xml.bind.DatatypeConverter;
 
 public class SqlManager {
 
@@ -42,8 +49,8 @@ public class SqlManager {
             "`auctionenddate` varchar(16) NULL," + 
             "`currentbid` double NOT NULL DEFAULT '0'," + 
             "`currentbidder` varchar(32) NULL," + 
-            "`currentbidderId` varchar(36) NULL," + 
-            "`ownerId` varchar(36) NULL," + 
+            "`currentbidderId` blob(16) NULL," + 
+            "`ownerId` blob(16) NULL," + 
             "PRIMARY KEY (idX, idZ, world));";
 
     private final static String COMMENT_TABLE = "CREATE TABLE `plotmeComments` (" + 
@@ -52,8 +59,8 @@ public class SqlManager {
             "`world` varchar(32) NOT NULL," + 
             "`commentid` INTEGER," + 
             "`player` varchar(32) NOT NULL," +
-            "`playerid` varchar(36) NOT NULL," + 
             "`comment` text," + 
+            "`playerid` blob(16) NOT NULL," + 
             "PRIMARY KEY (idX, idZ, world, commentid));";
 
     private final static String ALLOWED_TABLE = "CREATE TABLE `plotmeAllowed` (" + 
@@ -61,7 +68,7 @@ public class SqlManager {
             "`idZ` INTEGER," + 
             "`world` varchar(32) NOT NULL," + 
             "`player` varchar(32) NOT NULL," +
-            "`playerid` varchar(36) NOT NULL," +
+            "`playerid` blob(16) NOT NULL," +
             "PRIMARY KEY (idX, idZ, world, player));";
 
     private final static String DENIED_TABLE = "CREATE TABLE `plotmeDenied` (" + 
@@ -69,7 +76,7 @@ public class SqlManager {
             "`idZ` INTEGER," + 
             "`world` varchar(32) NOT NULL," + 
             "`player` varchar(32) NOT NULL," +
-            "`playerid` varchar(36) NOT NULL," +
+            "`playerid` blob(16) NOT NULL," +
             "PRIMARY KEY (idX, idZ, world, player));";
 
     public static Connection initialize() {
@@ -190,7 +197,7 @@ public class SqlManager {
                 // OwnerId
                 set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='ownerid'");
                 if (!set.next()) {
-                    statement.execute("ALTER TABLE plotmePlots ADD ownerid varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmePlots ADD ownerid blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -198,7 +205,7 @@ public class SqlManager {
                 // Allowed playerid
                 set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmeAllowed' AND column_name='playerid'");
                 if (!set.next()) {
-                    statement.execute("ALTER TABLE plotmeAllowed ADD playerid varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmeAllowed ADD playerid blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -206,7 +213,7 @@ public class SqlManager {
                 // Denied playerid
                 set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmeDenied' AND column_name='playerid'");
                 if (!set.next()) {
-                    statement.execute("ALTER TABLE plotmeDenied ADD playerid varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmeDenied ADD playerid blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -214,7 +221,7 @@ public class SqlManager {
                 // Commenter playerid
                 set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmeComments' AND column_name='playerid'");
                 if (!set.next()) {
-                    statement.execute("ALTER TABLE plotmeComments ADD playerid varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmeComments ADD playerid blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -222,7 +229,7 @@ public class SqlManager {
                 // CurrentBidderId
                 set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='currentbidderId'");
                 if (!set.next()) {
-                    statement.execute("ALTER TABLE plotmePlots ADD currentbidderId varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmePlots ADD currentbidderId blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -373,7 +380,7 @@ public class SqlManager {
                 }
 
                 if (!found) {
-                    statement.execute("ALTER TABLE plotmePlots ADD ownerid varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmePlots ADD ownerid blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -389,7 +396,7 @@ public class SqlManager {
                 }
 
                 if (!found) {
-                    statement.execute("ALTER TABLE plotmeAllowed ADD playerid varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmeAllowed ADD playerid blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -405,7 +412,7 @@ public class SqlManager {
                 }
 
                 if (!found) {
-                    statement.execute("ALTER TABLE plotmeDenied ADD playerid varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmeDenied ADD playerid blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -421,7 +428,7 @@ public class SqlManager {
                 }
 
                 if (!found) {
-                    statement.execute("ALTER TABLE plotmeComments ADD playerid varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmeComments ADD playerid blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -437,7 +444,7 @@ public class SqlManager {
                 }
 
                 if (!found) {
-                    statement.execute("ALTER TABLE plotmePlots ADD currentbidderId varchar(36) NULL;");
+                    statement.execute("ALTER TABLE plotmePlots ADD currentbidderId blob(16) NULL;");
                     conn.commit();
                 }
                 set.close();
@@ -595,11 +602,32 @@ public class SqlManager {
                         boolean auctionned = setPlots.getBoolean("auctionned");
                         String currentbidder = setPlots.getString("currentbidder");
                         double currentbid = setPlots.getDouble("currentbid");
-
+                        
+                        Blob blobOwner = setPlots.getBlob("ownerId");
+                        Blob blobBidder = setPlots.getBlob("currentbidderid");
+                        
+                        UUID ownerId = null;
+                        UUID currentbidderid = null;
+                        
+                        if(blobOwner != null) {
+                            ownerId = fromBlobToUUID(blobOwner);
+                            blobOwner.free();
+                        }
+                        if(blobBidder != null) {
+                            currentbidderid = fromBlobToUUID(blobBidder);
+                            blobBidder.free();
+                        }
+                        
                         setAllowed = slAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
 
                         while (setAllowed.next()) {
-                            allowed.add(setAllowed.getString("player"));
+                            Blob blobPlayerId = setAllowed.getBlob("playerid");
+                            if (blobPlayerId == null) {
+                                allowed.add(setAllowed.getString("player"));
+                            } else {
+                                allowed.add(fromBlobToString(blobPlayerId));
+                                blobPlayerId.free();
+                            }
                         }
 
                         if (setAllowed != null) {
@@ -609,7 +637,13 @@ public class SqlManager {
                         setDenied = slDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
 
                         while (setDenied.next()) {
-                            denied.add(setDenied.getString("player"));
+                            Blob blobPlayerId = setDenied.getBlob("playerid");
+                            if (blobPlayerId == null) {
+                                denied.add(setDenied.getString("player"));
+                            } else {
+                                denied.add(fromBlobToString(blobPlayerId));
+                                blobPlayerId.free();
+                            }
                         }
 
                         if (setDenied != null) {
@@ -619,13 +653,23 @@ public class SqlManager {
                         setComments = slComments.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
 
                         while (setComments.next()) {
-                            String[] comment = new String[2];
+                            String[] comment = new String[3];
+                            
+                            Blob blobPlayerId = setDenied.getBlob("playerid");
+                            if (blobPlayerId != null) {
+                                comment[2] = fromBlobToString(blobPlayerId);
+                                blobPlayerId.free();
+                            } else {
+                                comment[2] = null;
+                            }
+                            
                             comment[0] = setComments.getString("player");
                             comment[1] = setComments.getString("comment");
                             comments.add(comment);
                         }
 
-                        Plot plot = new Plot(owner, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbid, auctionned, denied);
+                        Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, 
+                                "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
                         addPlot(plot, idX, idZ, topX, bottomX, topZ, bottomZ);
 
                         size++;
@@ -679,12 +723,18 @@ public class SqlManager {
     public static void addPlot(Plot plot, int idX, int idZ, int topX, int bottomX, int topZ, int bottomZ) {
         PreparedStatement ps = null;
         Connection conn;
-
+        StringBuilder strSql = new StringBuilder();
+        
         // Plots
         try {
             conn = getConnection();
 
-            ps = conn.prepareStatement("INSERT INTO plotmePlots (idX, idZ, owner, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+            strSql.append("INSERT INTO plotmePlots (idX, idZ, owner, world, topX, bottomX, topZ, bottomZ, ");
+            strSql.append("biome, expireddate, finished, customprice, forsale, finisheddate, protected,");
+            strSql.append("auctionned, auctionenddate, currentbid, currentbidder, currentbidderId, ownerId) ");
+            strSql.append("VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            
+            ps = conn.prepareStatement(strSql.toString());
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3, plot.owner);
@@ -696,6 +746,15 @@ public class SqlManager {
             ps.setString(9, plot.biome.name());
             ps.setDate(10, plot.expireddate);
             ps.setBoolean(11, plot.finished);
+            ps.setDouble(12, plot.customprice);
+            ps.setBoolean(13, plot.forsale);
+            ps.setString(14, plot.finisheddate);
+            ps.setBoolean(15, plot.protect);
+            ps.setBoolean(16, plot.auctionned);
+            ps.setDouble(17, plot.currentbid);
+            ps.setString(18, plot.currentbidder);
+            ps.setBlob(19, fromUUIDToBlob(plot.currentbidderId));
+            ps.setBlob(20, fromUUIDToBlob(plot.ownerId));
 
             ps.executeUpdate();
             conn.commit();
@@ -725,7 +784,11 @@ public class SqlManager {
 
             ps = conn.prepareStatement("UPDATE plotmePlots SET " + field + " = ? " + "WHERE idX = ? AND idZ = ? AND world = ?");
 
-            ps.setObject(1, value);
+            if(value instanceof UUID) {
+                ps.setBlob(1, fromUUIDToBlob((UUID) value));
+            } else {
+                ps.setObject(1, value);
+            }
             ps.setInt(2, idX);
             ps.setInt(3, idZ);
             ps.setString(4, world.toLowerCase());
@@ -748,7 +811,17 @@ public class SqlManager {
         }
     }
 
+    @Deprecated
     public static void addPlotAllowed(String player, int idX, int idZ, String world) {
+        OfflinePlayer op = Bukkit.getOfflinePlayer(player);
+        if (op == null) {
+            addPlotAllowed(player, null, idX, idZ, world);
+        } else {
+            addPlotAllowed(player, op.getUniqueId(), idX, idZ, world);
+        }
+    }
+    
+    public static void addPlotAllowed(String player, UUID playerid, int idX, int idZ, String world) {
         PreparedStatement ps = null;
         Connection conn;
 
@@ -756,12 +829,13 @@ public class SqlManager {
         try {
             conn = getConnection();
 
-            ps = conn.prepareStatement("INSERT INTO plotmeAllowed (idX, idZ, player, world) " + "VALUES (?,?,?,?)");
+            ps = conn.prepareStatement("INSERT INTO plotmeAllowed (idX, idZ, player, world, playerid) " + "VALUES (?,?,?,?,?)");
 
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3, player);
             ps.setString(4, world.toLowerCase());
+            ps.setBlob(5, fromUUIDToBlob(playerid));
 
             ps.executeUpdate();
             conn.commit();
@@ -781,7 +855,17 @@ public class SqlManager {
         }
     }
 
+    @Deprecated
     public static void addPlotDenied(String player, int idX, int idZ, String world) {
+        OfflinePlayer op = Bukkit.getOfflinePlayer(player);
+        if (op == null) {
+            addPlotDenied(player, null, idX, idZ, world);
+        } else {
+            addPlotDenied(player, op.getUniqueId(), idX, idZ, world);
+        }
+    }
+    
+    public static void addPlotDenied(String player, UUID playerid, int idX, int idZ, String world) {
         PreparedStatement ps = null;
         Connection conn;
 
@@ -789,12 +873,13 @@ public class SqlManager {
         try {
             conn = getConnection();
 
-            ps = conn.prepareStatement("INSERT INTO plotmeDenied (idX, idZ, player, world) " + "VALUES (?,?,?,?)");
+            ps = conn.prepareStatement("INSERT INTO plotmeDenied (idX, idZ, player, world, playerid) " + "VALUES (?,?,?,?,?)");
 
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
             ps.setString(3, player);
             ps.setString(4, world.toLowerCase());
+            ps.setBlob(5, fromUUIDToBlob(playerid));
 
             ps.executeUpdate();
             conn.commit();
@@ -814,7 +899,18 @@ public class SqlManager {
         }
     }
 
+    /*
+    @Deprecated
     public static void addPlotBid(String player, double bid, int idX, int idZ, String world) {
+        OfflinePlayer op = Bukkit.getOfflinePlayer(player);
+        if (op == null) {
+            addPlotBid(player, null, bid, idX, idZ, world);
+        } else {
+            addPlotBid(player, op.getUniqueId(), bid, idX, idZ, world);
+        }
+    }
+    
+    public static void addPlotBid(String player, UUID playerid, double bid, int idX, int idZ, String world) {
         PreparedStatement ps = null;
         Connection conn;
 
@@ -847,6 +943,7 @@ public class SqlManager {
             }
         }
     }
+*/
 
     public static void addPlotComment(String[] comment, int commentid, int idX, int idZ, String world) {
         PreparedStatement ps = null;
@@ -856,7 +953,7 @@ public class SqlManager {
         try {
             conn = getConnection();
 
-            ps = conn.prepareStatement("INSERT INTO plotmeComments (idX, idZ, commentid, player, comment, world) " + "VALUES (?,?,?,?,?,?)");
+            ps = conn.prepareStatement("INSERT INTO plotmeComments (idX, idZ, commentid, player, comment, world, playerid) " + "VALUES (?,?,?,?,?,?,?)");
 
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
@@ -864,6 +961,7 @@ public class SqlManager {
             ps.setString(4, comment[0]);
             ps.setString(5, comment[1]);
             ps.setString(6, world.toLowerCase());
+            ps.setBlob(7, fromStringToBlob(comment[2]));
 
             ps.executeUpdate();
             conn.commit();
@@ -963,17 +1061,32 @@ public class SqlManager {
         }
     }
 
+    @Deprecated
     public static void deletePlotAllowed(int idX, int idZ, String player, String world) {
+        OfflinePlayer op = Bukkit.getOfflinePlayer(player);
+        if (op == null) {
+            deletePlotAllowed(idX, idZ, player, null, world);
+        } else {
+            deletePlotAllowed(idX, idZ, player, op.getUniqueId(), world);
+        }
+    }
+    
+    public static void deletePlotAllowed(int idX, int idZ, String player, UUID playerid, String world) {
         PreparedStatement ps = null;
         ResultSet set = null;
 
         try {
             Connection conn = getConnection();
 
-            ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and player = ? and LOWER(world) = ?");
+            if(playerid == null) {
+                ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and player = ? and LOWER(world) = ?");
+                ps.setString(3, player);
+            } else {
+                ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and playerid = ? and LOWER(world) = ?");
+                ps.setBlob(3, fromUUIDToBlob(playerid));
+            }
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
-            ps.setString(3, player);
             ps.setString(4, world);
             ps.executeUpdate();
             conn.commit();
@@ -996,17 +1109,32 @@ public class SqlManager {
         }
     }
 
+    @Deprecated
     public static void deletePlotDenied(int idX, int idZ, String player, String world) {
+        OfflinePlayer op = Bukkit.getOfflinePlayer(player);
+        if (op == null) {
+            deletePlotDenied(idX, idZ, player, null, world);
+        } else {
+            deletePlotDenied(idX, idZ, player, op.getUniqueId(), world);
+        }
+    }
+    
+    public static void deletePlotDenied(int idX, int idZ, String player, UUID playerid, String world) {
         PreparedStatement ps = null;
         ResultSet set = null;
 
         try {
             Connection conn = getConnection();
 
-            ps = conn.prepareStatement("DELETE FROM plotmeDenied WHERE idX = ? and idZ = ? and player = ? and LOWER(world) = ?");
+            if(playerid == null) {
+                ps = conn.prepareStatement("DELETE FROM plotmeDenied WHERE idX = ? and idZ = ? and player = ? and LOWER(world) = ?");
+                ps.setString(3, player);
+            } else {
+                ps = conn.prepareStatement("DELETE FROM plotmeDenied WHERE idX = ? and idZ = ? and playerid = ? and LOWER(world) = ?");
+                ps.setBlob(3, fromUUIDToBlob(playerid));
+            }
             ps.setInt(1, idX);
             ps.setInt(2, idZ);
-            ps.setString(3, player);
             ps.setString(4, world);
             ps.executeUpdate();
             conn.commit();
@@ -1029,6 +1157,7 @@ public class SqlManager {
         }
     }
 
+    /*
     public static void deletePlotBid(int idX, int idZ, String player, String world) {
         PreparedStatement ps = null;
         ResultSet set = null;
@@ -1093,6 +1222,7 @@ public class SqlManager {
             }
         }
     }
+    */
 
     public static HashMap<String, Plot> getPlots(String world) {
         HashMap<String, Plot> ret = new HashMap<String, Plot>();
@@ -1134,11 +1264,33 @@ public class SqlManager {
                 double currentbid = setPlots.getDouble("currentbid");
                 boolean auctionned = setPlots.getBoolean("auctionned");
 
+                Blob blobOwner = setPlots.getBlob("ownerId");
+                Blob blobBidder = setPlots.getBlob("currentbidderid");
+                
+                UUID ownerId = null;
+                UUID currentbidderid = null;
+                
+                if(blobOwner != null) {
+                    ownerId = fromBlobToUUID(blobOwner);
+                    blobOwner.free();
+                }
+                if(blobBidder != null) {
+                    currentbidderid = fromBlobToUUID(blobBidder);
+                    blobBidder.free();
+                }
+                
+                
                 statementAllowed = conn.createStatement();
                 setAllowed = statementAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
 
-                while (setAllowed.next()) {
-                    allowed.add(setAllowed.getString("player"));
+                while (setAllowed.next()) {                    
+                    Blob blobPlayerId = setAllowed.getBlob("playerid");
+                    if (blobPlayerId == null) {
+                        allowed.add(setAllowed.getString("player"));
+                    } else {
+                        allowed.add(fromBlobToString(blobPlayerId));
+                        blobPlayerId.free();
+                    }
                 }
 
                 if (setAllowed != null)
@@ -1148,7 +1300,13 @@ public class SqlManager {
                 setDenied = statementDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
 
                 while (setDenied.next()) {
-                    denied.add(setDenied.getString("player"));
+                    Blob blobPlayerId = setAllowed.getBlob("playerid");
+                    if (blobPlayerId == null) {
+                        denied.add(setDenied.getString("player"));
+                    } else {
+                        denied.add(fromBlobToString(blobPlayerId));
+                        blobPlayerId.free();
+                    }
                 }
 
                 if (setDenied != null)
@@ -1161,10 +1319,12 @@ public class SqlManager {
                     String[] comment = new String[2];
                     comment[0] = setComments.getString("player");
                     comment[1] = setComments.getString("comment");
+                    comment[2] = fromBlobToString(setComments.getBlob("playerid"));
                     comments.add(comment);
                 }
 
-                Plot plot = new Plot(owner, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbid, auctionned, denied);
+                Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, 
+                        customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
                 ret.put("" + idX + ";" + idZ, plot);
             }
             PlotMe.logger.info(PlotMe.PREFIX + " " + size + " plots loaded");
@@ -1191,5 +1351,70 @@ public class SqlManager {
             }
         }
         return ret;
+    }
+    
+    private static String toHexString(byte[] array) {
+        if(array == null)
+            return null;
+        else
+            return DatatypeConverter.printHexBinary(array);
+    }
+
+    private static byte[] toByteArray(String s) {
+        if(s.equals(""))
+            return null;
+        else
+            return DatatypeConverter.parseHexBinary(s);
+    }
+    
+    private static UUID toUUID(String s) {
+        try {
+            UUID uuid = UUID.fromString(s);
+            return uuid;
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+    
+    private static String fromUUID(UUID uuid) {
+        return uuid.toString();
+    }
+    
+    private static UUID fromBlobToUUID(Blob blob) {
+        try {
+            int size = (int) blob.length();
+            return toUUID(toHexString(blob.getBytes(1, size)));
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+    
+    private static String fromBlobToString(Blob blob) {
+        try {
+            int size = (int) blob.length();
+            return toHexString(blob.getBytes(1, size));
+        } catch (SQLException e) {
+            return null;
+        }
+    }
+    
+    private static Blob fromStringToBlob(String s) {
+        Blob blob = null;
+        try {
+            blob = new javax.sql.rowset.serial.SerialBlob(toByteArray(s));
+        } catch (SQLException e) {
+            return null;
+        }
+        return blob;
+    }
+    
+    private static Blob fromUUIDToBlob(UUID uuid) {
+        Blob blob = null;
+        try {
+            blob = new javax.sql.rowset.serial.SerialBlob(toByteArray(fromUUID(uuid)));
+        } catch (SQLException e) {
+            return null;
+        }
+        return blob;
     }
 }

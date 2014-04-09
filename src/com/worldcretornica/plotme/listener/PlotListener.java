@@ -74,7 +74,7 @@ public class PlotListener implements Listener
 						event.setCancelled(true);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{
@@ -122,7 +122,7 @@ public class PlotListener implements Listener
 						event.setCancelled(true);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{
@@ -166,7 +166,7 @@ public class PlotListener implements Listener
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
-					else if(!plot.isAllowed(p.getName()))
+					else if(!plot.isAllowed(p.getUniqueId()))
 					{
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
@@ -201,7 +201,7 @@ public class PlotListener implements Listener
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
-					else if(!plot.isAllowed(p.getName()))
+					else if(!plot.isAllowed(p.getUniqueId()))
 					{
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
@@ -555,7 +555,7 @@ public class PlotListener implements Listener
 						{
 							event.setCancelled(true);
 						}
-						else if(!plot.isAllowed(p.getName()))
+						else if(!plot.isAllowed(p.getUniqueId()))
 						{
 							event.setCancelled(true);
 						}
@@ -596,7 +596,7 @@ public class PlotListener implements Listener
 						event.setCancelled(true);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{
@@ -649,7 +649,7 @@ public class PlotListener implements Listener
 							event.setCancelled(true);
 						}
 					}
-					else if(!plot.isAllowed(p.getName()))
+					else if(!plot.isAllowed(p.getUniqueId()))
 					{
 						if(!canbuild)
 						{
@@ -697,7 +697,7 @@ public class PlotListener implements Listener
 						event.setCancelled(true);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{
@@ -744,7 +744,7 @@ public class PlotListener implements Listener
 						event.setHatching(false);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{

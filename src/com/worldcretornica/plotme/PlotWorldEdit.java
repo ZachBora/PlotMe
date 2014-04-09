@@ -33,7 +33,7 @@ public class PlotWorldEdit {
 		{		
 			Plot plot = PlotManager.getPlotById(p, id);
 			
-			if(plot != null && plot.isAllowed(p.getName()))
+			if(plot != null && plot.isAllowed(p.getUniqueId()))
 			{			
 				bottom = PlotManager.getPlotBottomLoc(w, id);
 				top = PlotManager.getPlotTopLoc(w, id);
