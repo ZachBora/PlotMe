@@ -159,6 +159,8 @@ public class PlotMe extends JavaPlugin
 		setupUpdater();
 				
 		self = this;
+		
+		SqlManager.plotConvertToUUIDAsynchronously();
 	}
 	
 	private void setupUpdater()

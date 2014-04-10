@@ -810,6 +810,43 @@ public class SqlManager {
             }
         }
     }
+    
+    public static void updateTable(String tablename, int idX, int idZ, String world, String field, Object value) {
+        PreparedStatement ps = null;
+        Connection conn;
+
+        // Plots
+        try {
+            conn = getConnection();
+
+            ps = conn.prepareStatement("UPDATE " + tablename + " SET " + field + " = ? " + "WHERE idX = ? AND idZ = ? AND world = ?");
+
+            if(value instanceof UUID) {
+                ps.setBlob(1, fromUUIDToBlob((UUID) value));
+            } else {
+                ps.setObject(1, value);
+            }
+            ps.setInt(2, idX);
+            ps.setInt(3, idZ);
+            ps.setString(4, world.toLowerCase());
+
+            ps.executeUpdate();
+            conn.commit();
+
+        } catch (SQLException ex) {
+            PlotMe.logger.severe(PlotMe.PREFIX + " Insert Exception :");
+            PlotMe.logger.severe("  " + ex.getMessage());
+        } finally {
+            try {
+                if (ps != null) {
+                    ps.close();
+                }
+            } catch (SQLException ex) {
+                PlotMe.logger.severe(PlotMe.PREFIX + " Insert Exception (on close) :");
+                PlotMe.logger.severe("  " + ex.getMessage());
+            }
+        }
+    }
 
     @Deprecated
     public static void addPlotAllowed(String player, int idX, int idZ, String world) {
@@ -1353,6 +1390,252 @@ public class SqlManager {
         return ret;
     }
     
+    
+    
+    
+    public static void plotConvertToUUIDAsynchronously() {
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() {
+            @SuppressWarnings("deprecation")
+            @Override
+            public void run() {
+                PlotMe.logger.info("Checking if conversion to UUID needed...");
+
+                boolean boConversion = false;
+                boolean missinguuid = false;
+                Statement statementPlot = null;
+                Statement statementAllowed = null;
+                Statement statementDenied = null;
+                Statement statementComment = null;
+                ResultSet setPlots = null;
+                ResultSet setAllowed = null;
+                ResultSet setDenied = null;
+                ResultSet setComments = null;
+                int nbConverted = 0;
+
+                try {
+                    Connection conn = getConnection();
+
+                    // Converting plots
+                    statementPlot = conn.createStatement();
+                    setPlots = statementPlot.executeQuery("SELECT idX, idZ, world, owner, currentbidder, ownerid, currentbidderid FROM plotmePlots WHERE ownerid IS NULL or currentbidder != null AND currentbidderid IS NULL");
+
+                    if (setPlots.next()) {
+                        PlotMe.logger.info("Starting to convert plots to UUID");
+                            
+                        do {
+                            int idX = setPlots.getInt("idX");
+                            int idZ = setPlots.getInt("idZ");
+                            String world = setPlots.getString("world");
+                            String owner = setPlots.getString("owner");
+                            String currentbidder = setPlots.getString("currentbidder");
+                            byte[] byOwnerid = setPlots.getBytes("ownerid"); //TODO doesn't seem to work, either loading or saving
+                            byte[] byCurrentbidderid = setPlots.getBytes("currentbidderid");
+                            
+                            if (byOwnerid == null && !owner.contains("*") && !owner.startsWith("group:")) {
+                                OfflinePlayer op = Bukkit.getOfflinePlayer(owner);
+                                if (op != null) {
+                                    if(op.getUniqueId() == null) {
+                                        //lotMe.logger.info("No uuid found for : " + op.getName());
+                                        missinguuid = true;
+                                    } else {
+                                        Blob ownerid = fromUUIDToBlob(op.getUniqueId());
+                                        updatePlot(idX, idZ, world, "ownerid", ownerid);
+                                    }
+                                }
+                            }
+
+                            if (byCurrentbidderid == null && currentbidder != null && !currentbidder.equals("")) {
+                                OfflinePlayer op = Bukkit.getOfflinePlayer(currentbidder);
+                                if (op != null) {
+                                    if(op.getUniqueId() == null) {
+                                        //PlotMe.logger.info("No uuid found for : " + op.getName());
+                                        missinguuid = true;
+                                    } else {
+                                        Blob currentbidderid = fromUUIDToBlob(op.getUniqueId());
+                                        updatePlot(idX, idZ, world, "currentbidderid", currentbidderid);
+                                    }
+                                }
+                            }
+
+                            nbConverted++;
+                        } while (setPlots.next());
+
+                        boConversion = true;
+                        PlotMe.logger.info(nbConverted + " plots converted");
+                    }
+                    setPlots.close();
+                    statementPlot.close();
+
+                    // Converting allowed players
+                    statementAllowed = conn.createStatement();
+                    setAllowed = statementAllowed.executeQuery("SELECT idX, idZ, world, player, playerid FROM plotmeAllowed WHERE playerid IS NULL");
+
+                    nbConverted = 0;
+
+                    if (setAllowed.next()) {
+                        PlotMe.logger.info("Starting to convert allowed players on plots to UUID");
+
+                        do {
+                            int idX = setAllowed.getInt("idX");
+                            int idZ = setAllowed.getInt("idZ");
+                            String world = setAllowed.getString("world");
+                            String player = setAllowed.getString("player");
+                            byte[] byPlayerid = setAllowed.getBytes("playerid");
+
+                            if (byPlayerid == null && !player.contains("*") && !player.startsWith("group:")) {
+                                OfflinePlayer op = Bukkit.getOfflinePlayer(player);
+                                if (op != null) {
+                                    if(op.getUniqueId() == null) {
+                                        //PlotMe.logger.info("No uuid found for : " + op.getName());
+                                        missinguuid = true;
+                                    } else {
+                                        Blob playerid = fromUUIDToBlob(op.getUniqueId());
+                                        updateTable("plotmeAllowed", idX, idZ, world, "playerid", playerid);
+                                    }
+                                }
+                            }
+
+                            nbConverted++;
+                        } while (setPlots.next());
+
+                        boConversion = true;
+                        PlotMe.logger.info(nbConverted + " players allowed on plots converted");
+                    }
+                    setAllowed.close();
+                    statementAllowed.close();
+
+                    // Converting denied players
+                    statementDenied = conn.createStatement();
+                    setDenied = statementDenied.executeQuery("SELECT idX, idZ, world, player, playerid FROM plotmeDenied WHERE playerid IS NULL");
+
+                    nbConverted = 0;
+
+                    if (setDenied.next()) {
+                        PlotMe.logger.info("Starting to convert allowed players on plots to UUID");
+
+                        do {
+                            int idX = setDenied.getInt("idX");
+                            int idZ = setDenied.getInt("idZ");
+                            String world = setDenied.getString("world");
+                            String player = setDenied.getString("player");
+                            byte[] byPlayerid = setDenied.getBytes("playerid");
+
+                            if (byPlayerid == null && !player.contains("*") && !player.startsWith("group:")) {
+                                OfflinePlayer op = Bukkit.getOfflinePlayer(player);
+                                if (op != null) {
+                                    if(op.getUniqueId() == null) {
+                                        //PlotMe.logger.info("No uuid found for : " + op.getName());
+                                        missinguuid = true;
+                                    } else {
+                                        Blob playerid = fromUUIDToBlob(op.getUniqueId());
+                                        updateTable("plotmeDenied", idX, idZ, world, "playerid", playerid);
+                                    }
+                                }
+                            }
+
+                            nbConverted++;
+                        } while (setPlots.next());
+
+                        boConversion = true;
+                        PlotMe.logger.info(nbConverted + " players denied on plots converted");
+                    }
+                    setDenied.close();
+                    statementDenied.close();
+
+                    // Converting comment players
+                    statementComment = conn.createStatement();
+                    setComments = statementComment.executeQuery("SELECT idX, idZ, world, player, playerid FROM plotmeComments WHERE playerid IS NULL");
+
+                    nbConverted = 0;
+
+                    if (setComments.next()) {
+                        PlotMe.logger.info("Starting to convert allowed players on plots to UUID");
+
+                        do {
+                            int idX = setComments.getInt("idX");
+                            int idZ = setComments.getInt("idZ");
+                            String world = setComments.getString("world");
+                            String player = setComments.getString("player");
+                            byte[] byPlayerid = setComments.getBytes("playerid");
+
+                            if (byPlayerid == null) {
+                                OfflinePlayer op = Bukkit.getOfflinePlayer(player);
+                                if (op != null) {
+                                    if(op.getUniqueId() == null) {
+                                        //PlotMe.logger.info("No uuid found for : " + op.getName());
+                                        missinguuid = true;
+                                    } else {
+                                        Blob playerid = fromUUIDToBlob(op.getUniqueId());
+                                        updateTable("plotmeComments", idX, idZ, world, "playerid", playerid);
+                                    }
+                                }
+                            }
+
+                            nbConverted++;
+                        } while (setPlots.next());
+
+                        boConversion = true;
+                        PlotMe.logger.info(nbConverted + " plot player comments converted");
+                    }
+                    setComments.close();
+                    statementComment.close();
+
+                    if(boConversion) {
+                        PlotMe.logger.info("Plot conversion finished");
+                    }
+                    
+                    if (missinguuid) {
+                        PlotMe.logger.warning("During the conversion the UUID of some players could not be found, most-likely they have not been on the server recently");
+                    } else if (!boConversion) {
+                        PlotMe.logger.info("No plot conversion needed");
+                    }
+                    
+                } catch (SQLException ex) {
+                    PlotMe.logger.severe("Conversion to UUID failed :");
+                    PlotMe.logger.severe("  " + ex.getMessage());
+                    for(StackTraceElement e : ex.getStackTrace()) {
+                        PlotMe.logger.severe("  " + e.toString());
+                    }
+                } finally {
+                    try {
+                        if (statementPlot != null) {
+                            statementPlot.close();
+                        }
+                        if (statementAllowed != null) {
+                            statementAllowed.close();
+                        }
+                        if (statementComment != null) {
+                            statementComment.close();
+                        }
+                        if (statementDenied != null) {
+                            statementDenied.close();
+                        }
+                        if (setPlots != null) {
+                            setPlots.close();
+                        }
+                        if (setComments != null) {
+                            setComments.close();
+                        }
+                        if (setDenied != null) {
+                            setDenied.close();
+                        }
+                        if (setAllowed != null) {
+                            setAllowed.close();
+                        }
+                    } catch (SQLException ex) {
+                        PlotMe.logger.severe("Conversion to UUID failed (on close) :");
+                        PlotMe.logger.severe("  " + ex.getMessage());
+                        for(StackTraceElement e : ex.getStackTrace()) {
+                            PlotMe.logger.severe("  " + e.toString());
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    
+    
     private static String toHexString(byte[] array) {
         if(array == null)
             return null;
@@ -1364,7 +1647,7 @@ public class SqlManager {
         if(s.equals(""))
             return null;
         else
-            return DatatypeConverter.parseHexBinary(s);
+            return DatatypeConverter.parseHexBinary(s.replace("-", ""));
     }
     
     private static UUID toUUID(String s) {
