@@ -34,7 +34,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
-
 import com.worldcretornica.plotme.Plot;
 import com.worldcretornica.plotme.PlotManager;
 import com.worldcretornica.plotme.PlotMapInfo;
@@ -227,63 +226,63 @@ public class PlotListener implements Listener
 			
 			if(event.isBlockInHand() && event.getAction() == Action.RIGHT_CLICK_BLOCK)
 			{
-				BlockFace face = event.getBlockFace();
-				Block builtblock = b.getWorld().getBlockAt(b.getX() + face.getModX(), b.getY() + face.getModY(), b.getZ() + face.getModZ());
-				
-				String id = PlotManager.getPlotId(builtblock.getLocation());
-				
-				Player p = event.getPlayer();
-				
-				if(id.equalsIgnoreCase(""))
-				{
-					if(!canbuild)
-					{
-						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-						event.setCancelled(true);
-					}
-				}
-				else
-				{
-					Plot plot = PlotManager.getPlotById(p,id);
-					
-					if (plot == null)
-					{
-						if(!canbuild)
-						{
-							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-							event.setCancelled(true);
-						}
-					}
-					else
-					{
-						if(!plot.isAllowed(p.getName()))
-						{
-							if(!canbuild)
-							{
-								p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-								event.setCancelled(true);
-							}
-						}
-						else
-						{
-							plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
-						}
-					}
-				}
+			    ItemStack is = player.getItemInHand();
+			    
+			    if(event.getClickedBlock() != null && is != null) 
+			    {
+			        Material matClicked = event.getClickedBlock().getType();
+			        Material matHeld = is.getType();
+			        
+			        if(matClicked == matHeld) 
+			        {
+        				BlockFace face = event.getBlockFace();
+        				Block builtblock = b.getWorld().getBlockAt(b.getX() + face.getModX(), b.getY() + face.getModY(), b.getZ() + face.getModZ());
+        				
+        				String id = PlotManager.getPlotId(builtblock.getLocation());
+        				
+        				Player p = event.getPlayer();
+        				
+        				if(id.equalsIgnoreCase(""))
+        				{
+        					if(!canbuild)
+        					{
+        						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+        						event.setCancelled(true);
+        					}
+        				}
+        				else
+        				{
+        					Plot plot = PlotManager.getPlotById(p,id);
+        					
+        					if (plot == null)
+        					{
+        						if(!canbuild)
+        						{
+        							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+        							event.setCancelled(true);
+        						}
+        					}
+        					else
+        					{
+        						if(!plot.isAllowed(p.getName()))
+        						{
+        							if(!canbuild)
+        							{
+        								p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+        								event.setCancelled(true);
+        							}
+        						}
+        						else
+        						{
+        							plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
+        						}
+        					}
+        				}
+    				}
+			    }
 			}
 			else
-			{
-				/*for(int blockid : pmi.ProtectedBlocks)
-				{
-					if(blockid == b.getTypeId())
-					{
-						if(!PlotMe.cPerms(player, "plotme.unblock." + blockid))
-							blocked = true;
-						
-						break;
-					}
-				}*/
-				
+			{				
 				if(pmi.ProtectedBlocks.contains(b.getTypeId()))
 				{
 					if(!PlotMe.cPerms(player, "plotme.unblock." + b.getTypeId()))
