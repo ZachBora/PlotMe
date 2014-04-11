@@ -13,11 +13,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+
+import com.evilmidget38.UUIDFetcher;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -1390,206 +1393,120 @@ public class SqlManager {
         return ret;
     }
     
-    
+
     
     
     public static void plotConvertToUUIDAsynchronously() {
         Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() {
-            @SuppressWarnings("deprecation")
             @Override
             public void run() {
                 PlotMe.logger.info("Checking if conversion to UUID needed...");
 
                 boolean boConversion = false;
-                boolean missinguuid = false;
-                Statement statementPlot = null;
-                Statement statementAllowed = null;
-                Statement statementDenied = null;
-                Statement statementComment = null;
-                ResultSet setPlots = null;
-                ResultSet setAllowed = null;
-                ResultSet setDenied = null;
-                ResultSet setComments = null;
+                Statement statementPlayers = null;
+                PreparedStatement psOwnerId = null;
+                PreparedStatement psCurrentBidderId = null;
+                PreparedStatement psAllowedPlayerId = null;
+                PreparedStatement psDeniedPlayerId = null;
+                PreparedStatement psCommentsPlayerId = null;
+                ResultSet setPlayers = null;
                 int nbConverted = 0;
+                String sql = "";
+                int count = 0;
 
                 try {
                     Connection conn = getConnection();
 
-                    // Converting plots
-                    statementPlot = conn.createStatement();
-                    setPlots = statementPlot.executeQuery("SELECT idX, idZ, world, owner, currentbidder, ownerid, currentbidderid FROM plotmePlots WHERE ownerid IS NULL or currentbidder != null AND currentbidderid IS NULL");
+                    // Get all the players
+                    statementPlayers = conn.createStatement();
+                    // Exclude groups and names with * or missing
+                    sql = "SELECT owner as Name FROM plotmePlots WHERE NOT owner IS NULL AND Not owner LIKE 'group:%' AND Not owner LIKE '%*%' AND ownerid IS NULL GROUP BY owner ";
+                    sql = sql + "UNION SELECT currentbidder as Name FROM plotmePlots WHERE NOT currentbidder IS NULL AND currentbidderid IS NULL GROUP BY currentbidder ";
+                    sql = sql + "UNION SELECT player as Name FROM plotmeAllowed WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY player ";
+                    sql = sql + "UNION SELECT player as Name FROM plotmeDenied WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY player ";
+                    sql = sql + "UNION SELECT player as Name FROM plotmeComments WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY player";
 
-                    if (setPlots.next()) {
-                        PlotMe.logger.info("Starting to convert plots to UUID");
-                            
-                        do {
-                            int idX = setPlots.getInt("idX");
-                            int idZ = setPlots.getInt("idZ");
-                            String world = setPlots.getString("world");
-                            String owner = setPlots.getString("owner");
-                            String currentbidder = setPlots.getString("currentbidder");
-                            byte[] byOwnerid = setPlots.getBytes("ownerid"); //TODO doesn't seem to work, either loading or saving
-                            byte[] byCurrentbidderid = setPlots.getBytes("currentbidderid");
-                            
-                            if (byOwnerid == null && !owner.contains("*") && !owner.startsWith("group:")) {
-                                OfflinePlayer op = Bukkit.getOfflinePlayer(owner);
-                                if (op != null) {
-                                    if(op.getUniqueId() == null) {
-                                        //lotMe.logger.info("No uuid found for : " + op.getName());
-                                        missinguuid = true;
-                                    } else {
-                                        Blob ownerid = fromUUIDToBlob(op.getUniqueId());
-                                        updatePlot(idX, idZ, world, "ownerid", ownerid);
-                                    }
-                                }
-                            }
-
-                            if (byCurrentbidderid == null && currentbidder != null && !currentbidder.equals("")) {
-                                OfflinePlayer op = Bukkit.getOfflinePlayer(currentbidder);
-                                if (op != null) {
-                                    if(op.getUniqueId() == null) {
-                                        //PlotMe.logger.info("No uuid found for : " + op.getName());
-                                        missinguuid = true;
-                                    } else {
-                                        Blob currentbidderid = fromUUIDToBlob(op.getUniqueId());
-                                        updatePlot(idX, idZ, world, "currentbidderid", currentbidderid);
-                                    }
-                                }
-                            }
-
-                            nbConverted++;
-                        } while (setPlots.next());
-
-                        boConversion = true;
-                        PlotMe.logger.info(nbConverted + " plots converted");
-                    }
-                    setPlots.close();
-                    statementPlot.close();
-
-                    // Converting allowed players
-                    statementAllowed = conn.createStatement();
-                    setAllowed = statementAllowed.executeQuery("SELECT idX, idZ, world, player, playerid FROM plotmeAllowed WHERE playerid IS NULL");
-
-                    nbConverted = 0;
-
-                    if (setAllowed.next()) {
-                        PlotMe.logger.info("Starting to convert allowed players on plots to UUID");
-
-                        do {
-                            int idX = setAllowed.getInt("idX");
-                            int idZ = setAllowed.getInt("idZ");
-                            String world = setAllowed.getString("world");
-                            String player = setAllowed.getString("player");
-                            byte[] byPlayerid = setAllowed.getBytes("playerid");
-
-                            if (byPlayerid == null && !player.contains("*") && !player.startsWith("group:")) {
-                                OfflinePlayer op = Bukkit.getOfflinePlayer(player);
-                                if (op != null) {
-                                    if(op.getUniqueId() == null) {
-                                        //PlotMe.logger.info("No uuid found for : " + op.getName());
-                                        missinguuid = true;
-                                    } else {
-                                        Blob playerid = fromUUIDToBlob(op.getUniqueId());
-                                        updateTable("plotmeAllowed", idX, idZ, world, "playerid", playerid);
-                                    }
-                                }
-                            }
-
-                            nbConverted++;
-                        } while (setPlots.next());
-
-                        boConversion = true;
-                        PlotMe.logger.info(nbConverted + " players allowed on plots converted");
-                    }
-                    setAllowed.close();
-                    statementAllowed.close();
-
-                    // Converting denied players
-                    statementDenied = conn.createStatement();
-                    setDenied = statementDenied.executeQuery("SELECT idX, idZ, world, player, playerid FROM plotmeDenied WHERE playerid IS NULL");
-
-                    nbConverted = 0;
-
-                    if (setDenied.next()) {
-                        PlotMe.logger.info("Starting to convert allowed players on plots to UUID");
-
-                        do {
-                            int idX = setDenied.getInt("idX");
-                            int idZ = setDenied.getInt("idZ");
-                            String world = setDenied.getString("world");
-                            String player = setDenied.getString("player");
-                            byte[] byPlayerid = setDenied.getBytes("playerid");
-
-                            if (byPlayerid == null && !player.contains("*") && !player.startsWith("group:")) {
-                                OfflinePlayer op = Bukkit.getOfflinePlayer(player);
-                                if (op != null) {
-                                    if(op.getUniqueId() == null) {
-                                        //PlotMe.logger.info("No uuid found for : " + op.getName());
-                                        missinguuid = true;
-                                    } else {
-                                        Blob playerid = fromUUIDToBlob(op.getUniqueId());
-                                        updateTable("plotmeDenied", idX, idZ, world, "playerid", playerid);
-                                    }
-                                }
-                            }
-
-                            nbConverted++;
-                        } while (setPlots.next());
-
-                        boConversion = true;
-                        PlotMe.logger.info(nbConverted + " players denied on plots converted");
-                    }
-                    setDenied.close();
-                    statementDenied.close();
-
-                    // Converting comment players
-                    statementComment = conn.createStatement();
-                    setComments = statementComment.executeQuery("SELECT idX, idZ, world, player, playerid FROM plotmeComments WHERE playerid IS NULL");
-
-                    nbConverted = 0;
-
-                    if (setComments.next()) {
-                        PlotMe.logger.info("Starting to convert allowed players on plots to UUID");
-
-                        do {
-                            int idX = setComments.getInt("idX");
-                            int idZ = setComments.getInt("idZ");
-                            String world = setComments.getString("world");
-                            String player = setComments.getString("player");
-                            byte[] byPlayerid = setComments.getBytes("playerid");
-
-                            if (byPlayerid == null) {
-                                OfflinePlayer op = Bukkit.getOfflinePlayer(player);
-                                if (op != null) {
-                                    if(op.getUniqueId() == null) {
-                                        //PlotMe.logger.info("No uuid found for : " + op.getName());
-                                        missinguuid = true;
-                                    } else {
-                                        Blob playerid = fromUUIDToBlob(op.getUniqueId());
-                                        updateTable("plotmeComments", idX, idZ, world, "playerid", playerid);
-                                    }
-                                }
-                            }
-
-                            nbConverted++;
-                        } while (setPlots.next());
-
-                        boConversion = true;
-                        PlotMe.logger.info(nbConverted + " plot player comments converted");
-                    }
-                    setComments.close();
-                    statementComment.close();
-
-                    if(boConversion) {
-                        PlotMe.logger.info("Plot conversion finished");
-                    }
+                    PlotMe.logger.info("Verifying if database needs conversion");
                     
-                    if (missinguuid) {
-                        PlotMe.logger.warning("During the conversion the UUID of some players could not be found, most-likely they have not been on the server recently");
-                    } else if (!boConversion) {
+                    setPlayers = statementPlayers.executeQuery(sql);
+
+                    if (setPlayers.next()) {
+                        
+                        List<String> names = new ArrayList<String>();
+
+                        PlotMe.logger.info("Starting to convert plots to UUID");
+                        do {
+                            names.add(setPlayers.getString("Name"));
+                        } while (setPlayers.next());
+
+                        UUIDFetcher fetcher = new UUIDFetcher(names);
+
+                        Map<String, UUID> response = null;
+
+                        try {
+                            PlotMe.logger.info("Fetching " + names.size() + " UUIDs from Mojang servers...");
+                            response = fetcher.call();
+                            PlotMe.logger.info("Finished fetching UUIDs. Starting database update.");
+                        } catch (Exception e) {
+                            PlotMe.logger.warning("Exception while running UUIDFetcher");
+                            e.printStackTrace();
+                        }
+
+                        if (response.size() > 0) {
+                            psOwnerId = conn.prepareStatement("UPDATE plotmePlots SET ownerid = ? WHERE owner = ? AND ownerid IS NULL");
+                            psCurrentBidderId = conn.prepareStatement("UPDATE plotmePlots SET currentbidderid = ? WHERE currentbidder = ? AND currentbidderid IS NULL");
+                            psAllowedPlayerId = conn.prepareStatement("UPDATE plotmeAllowed SET playerid = ? WHERE player = ? AND playerid IS NULL");
+                            psDeniedPlayerId = conn.prepareStatement("UPDATE plotmeDenied SET playerid = ? WHERE player = ? AND playerid IS NULL");
+                            psCommentsPlayerId = conn.prepareStatement("UPDATE plotmeComments SET playerid = ? WHERE player = ? AND playerid IS NULL");
+                            
+                            for(String key : response.keySet()) {
+                                count = 0;
+                                //Owner
+                                psOwnerId.setBytes(1, toByteArray(fromUUID(response.get(key))));
+                                psOwnerId.setString(2, key);
+                                count += psOwnerId.executeUpdate();
+                                //Bidder
+                                psCurrentBidderId.setBytes(1, toByteArray(fromUUID(response.get(key))));
+                                psCurrentBidderId.setString(2, key);
+                                count += psCurrentBidderId.executeUpdate();
+                                //Allowed
+                                psAllowedPlayerId.setBytes(1, toByteArray(fromUUID(response.get(key))));
+                                psAllowedPlayerId.setString(2, key);
+                                count += psAllowedPlayerId.executeUpdate();
+                                //Denied
+                                psDeniedPlayerId.setBytes(1, toByteArray(fromUUID(response.get(key))));
+                                psDeniedPlayerId.setString(2, key);
+                                count += psDeniedPlayerId.executeUpdate();
+                                //Commenter
+                                psCommentsPlayerId.setBytes(1, toByteArray(fromUUID(response.get(key))));
+                                psCommentsPlayerId.setString(2, key);
+                                psCommentsPlayerId.executeUpdate();
+                                conn.commit();
+                                if(count > 0) {
+                                    nbConverted++;
+                                } else {
+                                    PlotMe.logger.warning("Unable to update player '" + key + "'");
+                                }
+                            }
+                            
+                            psOwnerId.close();
+                            psCurrentBidderId.close();
+                            psAllowedPlayerId.close();
+                            psDeniedPlayerId.close();
+                            psCommentsPlayerId.close();
+                        }
+
+                        boConversion = true;
+                        PlotMe.logger.info(nbConverted + " players converted");
+                    }
+                    setPlayers.close();
+                    statementPlayers.close();
+
+                    if (boConversion) {
+                        PlotMe.logger.info("Plot conversion finished");
+                    } else {
                         PlotMe.logger.info("No plot conversion needed");
                     }
-                    
                 } catch (SQLException ex) {
                     PlotMe.logger.severe("Conversion to UUID failed :");
                     PlotMe.logger.severe("  " + ex.getMessage());
@@ -1598,29 +1515,26 @@ public class SqlManager {
                     }
                 } finally {
                     try {
-                        if (statementPlot != null) {
-                            statementPlot.close();
+                        if (statementPlayers != null) {
+                            statementPlayers.close();
                         }
-                        if (statementAllowed != null) {
-                            statementAllowed.close();
+                        if (psOwnerId != null) {
+                            psOwnerId.close();
                         }
-                        if (statementComment != null) {
-                            statementComment.close();
+                        if (psCurrentBidderId != null) {
+                            psCurrentBidderId.close();
                         }
-                        if (statementDenied != null) {
-                            statementDenied.close();
+                        if (psAllowedPlayerId != null) {
+                            psAllowedPlayerId.close();
                         }
-                        if (setPlots != null) {
-                            setPlots.close();
+                        if (psDeniedPlayerId != null) {
+                            psDeniedPlayerId.close();
                         }
-                        if (setComments != null) {
-                            setComments.close();
+                        if (psCommentsPlayerId != null) {
+                            psCommentsPlayerId.close();
                         }
-                        if (setDenied != null) {
-                            setDenied.close();
-                        }
-                        if (setAllowed != null) {
-                            setAllowed.close();
+                        if (setPlayers != null) {
+                            setPlayers.close();
                         }
                     } catch (SQLException ex) {
                         PlotMe.logger.severe("Conversion to UUID failed (on close) :");

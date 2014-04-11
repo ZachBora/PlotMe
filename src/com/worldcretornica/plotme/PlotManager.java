@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -367,6 +368,7 @@ public class PlotManager
 		}
 	}
 	
+	@Deprecated
 	public static Plot createPlot(World world, String id, String owner)
 	{
 		if(isPlotAvailable(id, world) && id != "")
@@ -384,6 +386,42 @@ public class PlotManager
 			return null;
 		}
 	}
+	
+	public static Plot createPlot(World world, String id, UUID owner)
+    {
+        if(isPlotAvailable(id, world) && id != "")
+        {
+            Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration);
+            
+            setOwnerSign(world, plot);
+            
+            getPlots(world).put(id, plot);
+            SqlManager.addPlot(plot, getIdX(id), getIdZ(id), world);
+            return plot;
+        }
+        else
+        {
+            return null;
+        }
+    }
+	
+	public static Plot createGroupPlot(World world, String id, String owner)
+    {
+        if(isPlotAvailable(id, world) && id != "")
+        {
+            Plot plot = new Plot(getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration, owner);
+            
+            setOwnerSign(world, plot);
+            
+            getPlots(world).put(id, plot);
+            SqlManager.addPlot(plot, getIdX(id), getIdZ(id), world);
+            return plot;
+        }
+        else
+        {
+            return null;
+        }
+    }
 	
 	@SuppressWarnings("deprecation")
     public static void setOwnerSign(World world, Plot plot)

@@ -1959,7 +1959,7 @@ public class PMCommand implements CommandExecutor
 											}
 										}
 										
-										Plot plot = PlotManager.createPlot(w, id, name);
+										Plot plot = PlotManager.createPlot(w, id, p.getUniqueId());
 										
 										//PlotManager.adjustLinkedPlots(id, w);
 										
@@ -2012,12 +2012,14 @@ public class PMCommand implements CommandExecutor
 				else
 				{
 					String playername = p.getName();
+					UUID playerid = p.getUniqueId();
 					
 					if(args.length == 2)
 					{
 						if(PlotMe.cPerms(p, "PlotMe.admin.claim.other"))
 						{
 							playername = args[1];
+							//TODO get the playerid
 						}
 					}
 					
@@ -2058,7 +2060,13 @@ public class PMCommand implements CommandExecutor
 							}
 						}
 						
-						Plot plot = PlotManager.createPlot(w, id, playername);
+						Plot plot = null;
+						
+						if(playerid != null) {
+						    plot = PlotManager.createPlot(w, id, playerid);
+						} else {
+						    plot = PlotManager.createGroupPlot(w, id, playername);
+						}
 						
 						//PlotManager.adjustLinkedPlots(id, w);
 		
@@ -3327,6 +3335,7 @@ public class PMCommand implements CommandExecutor
 					else
 					{
 						String newowner = args[1];
+						UUID newownerid = null; //TODO get the new ownerid
 						String oldowner = "<" + C("WordNotApplicable") + ">";
 						String playername = p.getName();
 						
@@ -3405,7 +3414,7 @@ public class PMCommand implements CommandExecutor
 						}
 						else
 						{
-							PlotManager.createPlot(p.getWorld(), id,newowner);
+							PlotManager.createPlot(p.getWorld(), id, newownerid);
 						}
 						
 						Send(p, C("MsgOwnerChangedTo") + " " + RED + newowner);

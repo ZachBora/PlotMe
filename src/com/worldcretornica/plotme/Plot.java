@@ -60,9 +60,37 @@ public class Plot implements Comparable<Plot> {
         currentbidderId = null;
     }
 
+    @Deprecated
     public Plot(String o, Location t, Location b, String tid, int days) {
-        ownerId = getUUID(o);
         owner = o;
+        world = t.getWorld().getName();
+        allowed = new HashSet<>();
+        denied = new HashSet<>();
+        biome = Biome.PLAINS;
+        id = tid;
+
+        if (days == 0) {
+            expireddate = null;
+        } else {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR, days);
+            java.util.Date utlDate = cal.getTime();
+            expireddate = new java.sql.Date(utlDate.getTime());
+        }
+
+        comments = new ArrayList<>();
+        customprice = 0;
+        forsale = false;
+        finisheddate = "";
+        protect = false;
+        auctionned = false;
+        currentbidder = "";
+        currentbid = 0;
+        currentbidderId = null;
+    }
+    
+    public Plot(Location t, Location b, String tid, int days, String group) {
+        owner = group;
         world = t.getWorld().getName();
         allowed = new HashSet<>();
         denied = new HashSet<>();
@@ -120,7 +148,6 @@ public class Plot implements Comparable<Plot> {
 
     @Deprecated
     public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, Double bid, boolean isauctionned, HashSet<String> den) {
-        ownerId = getUUID(o);
         owner = o;
         world = w;
         biome = Biome.valueOf(bio);
@@ -137,7 +164,6 @@ public class Plot implements Comparable<Plot> {
         currentbidder = bidder;
         currentbid = bid;
         denied = den;
-        currentbidderId = getUUID(bidder);
     }
 
     public Plot(String o, UUID uuid, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, UUID bidderId, Double bid, boolean isauctionned, HashSet<String> den) {
