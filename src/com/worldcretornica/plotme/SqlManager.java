@@ -1420,11 +1420,11 @@ public class SqlManager {
                     // Get all the players
                     statementPlayers = conn.createStatement();
                     // Exclude groups and names with * or missing
-                    sql = "SELECT owner as Name FROM plotmePlots WHERE NOT owner IS NULL AND Not owner LIKE 'group:%' AND Not owner LIKE '%*%' AND ownerid IS NULL GROUP BY owner ";
-                    sql = sql + "UNION SELECT currentbidder as Name FROM plotmePlots WHERE NOT currentbidder IS NULL AND currentbidderid IS NULL GROUP BY currentbidder ";
-                    sql = sql + "UNION SELECT player as Name FROM plotmeAllowed WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY player ";
-                    sql = sql + "UNION SELECT player as Name FROM plotmeDenied WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY player ";
-                    sql = sql + "UNION SELECT player as Name FROM plotmeComments WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY player";
+                    sql = "SELECT LOWER(owner) as Name FROM plotmePlots WHERE NOT owner IS NULL AND Not owner LIKE 'group:%' AND Not owner LIKE '%*%' AND ownerid IS NULL GROUP BY LOWER(owner) ";
+                    sql = sql + "UNION SELECT LOWER(currentbidder) as Name FROM plotmePlots WHERE NOT currentbidder IS NULL AND currentbidderid IS NULL GROUP BY LOWER(currentbidder) ";
+                    sql = sql + "UNION SELECT LOWER(player) as Name FROM plotmeAllowed WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY LOWER(player) ";
+                    sql = sql + "UNION SELECT LOWER(player) as Name FROM plotmeDenied WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY LOWER(player) ";
+                    sql = sql + "UNION SELECT LOWER(player) as Name FROM plotmeComments WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY LOWER(player)";
 
                     PlotMe.logger.info("Verifying if database needs conversion");
                     
@@ -1437,6 +1437,7 @@ public class SqlManager {
                         PlotMe.logger.info("Starting to convert plots to UUID");
                         do {
                             names.add(setPlayers.getString("Name"));
+                            //PlotMe.logger.info("Name: " + setPlayers.getString("Name"));
                         } while (setPlayers.next());
 
                         UUIDFetcher fetcher = new UUIDFetcher(names);
@@ -1446,40 +1447,40 @@ public class SqlManager {
                         try {
                             PlotMe.logger.info("Fetching " + names.size() + " UUIDs from Mojang servers...");
                             response = fetcher.call();
-                            PlotMe.logger.info("Finished fetching UUIDs. Starting database update.");
+                            PlotMe.logger.info("Finished fetching " + response.size() + " UUIDs. Starting database update.");
                         } catch (Exception e) {
                             PlotMe.logger.warning("Exception while running UUIDFetcher");
                             e.printStackTrace();
                         }
 
                         if (response.size() > 0) {
-                            psOwnerId = conn.prepareStatement("UPDATE plotmePlots SET ownerid = ? WHERE owner = ? AND ownerid IS NULL");
-                            psCurrentBidderId = conn.prepareStatement("UPDATE plotmePlots SET currentbidderid = ? WHERE currentbidder = ? AND currentbidderid IS NULL");
-                            psAllowedPlayerId = conn.prepareStatement("UPDATE plotmeAllowed SET playerid = ? WHERE player = ? AND playerid IS NULL");
-                            psDeniedPlayerId = conn.prepareStatement("UPDATE plotmeDenied SET playerid = ? WHERE player = ? AND playerid IS NULL");
-                            psCommentsPlayerId = conn.prepareStatement("UPDATE plotmeComments SET playerid = ? WHERE player = ? AND playerid IS NULL");
+                            psOwnerId = conn.prepareStatement("UPDATE plotmePlots SET ownerid = ? WHERE LOWER(owner) = ? AND ownerid IS NULL");
+                            psCurrentBidderId = conn.prepareStatement("UPDATE plotmePlots SET currentbidderid = ? WHERE LOWER(currentbidder) = ? AND currentbidderid IS NULL");
+                            psAllowedPlayerId = conn.prepareStatement("UPDATE plotmeAllowed SET playerid = ? WHERE LOWER(player) = ? AND playerid IS NULL");
+                            psDeniedPlayerId = conn.prepareStatement("UPDATE plotmeDenied SET playerid = ? WHERE LOWER(player) = ? AND playerid IS NULL");
+                            psCommentsPlayerId = conn.prepareStatement("UPDATE plotmeComments SET playerid = ? WHERE LOWER(player) = ? AND playerid IS NULL");
                             
                             for(String key : response.keySet()) {
                                 count = 0;
                                 //Owner
                                 psOwnerId.setBytes(1, toByteArray(fromUUID(response.get(key))));
-                                psOwnerId.setString(2, key);
+                                psOwnerId.setString(2, key.toLowerCase());
                                 count += psOwnerId.executeUpdate();
                                 //Bidder
                                 psCurrentBidderId.setBytes(1, toByteArray(fromUUID(response.get(key))));
-                                psCurrentBidderId.setString(2, key);
+                                psCurrentBidderId.setString(2, key.toLowerCase());
                                 count += psCurrentBidderId.executeUpdate();
                                 //Allowed
                                 psAllowedPlayerId.setBytes(1, toByteArray(fromUUID(response.get(key))));
-                                psAllowedPlayerId.setString(2, key);
+                                psAllowedPlayerId.setString(2, key.toLowerCase());
                                 count += psAllowedPlayerId.executeUpdate();
                                 //Denied
                                 psDeniedPlayerId.setBytes(1, toByteArray(fromUUID(response.get(key))));
-                                psDeniedPlayerId.setString(2, key);
+                                psDeniedPlayerId.setString(2, key.toLowerCase());
                                 count += psDeniedPlayerId.executeUpdate();
                                 //Commenter
                                 psCommentsPlayerId.setBytes(1, toByteArray(fromUUID(response.get(key))));
-                                psCommentsPlayerId.setString(2, key);
+                                psCommentsPlayerId.setString(2, key.toLowerCase());
                                 psCommentsPlayerId.executeUpdate();
                                 conn.commit();
                                 if(count > 0) {
