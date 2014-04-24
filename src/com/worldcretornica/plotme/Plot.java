@@ -5,8 +5,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -19,8 +20,8 @@ public class Plot implements Comparable<Plot> {
     public String owner;
     public UUID ownerId;
     public String world;
-    private HashSet<String> allowed;
-    private HashSet<String> denied;
+    private PlayerList allowed;
+    private PlayerList denied;
     public Biome biome;
     public Date expireddate;
     public boolean finished;
@@ -40,8 +41,8 @@ public class Plot implements Comparable<Plot> {
         ownerId = null;
         world = "";
         id = "";
-        allowed = new HashSet<>();
-        denied = new HashSet<>();
+        allowed = new PlayerList();
+        denied = new PlayerList();
         biome = Biome.PLAINS;
 
         Calendar cal = Calendar.getInstance();
@@ -60,12 +61,12 @@ public class Plot implements Comparable<Plot> {
         currentbidderId = null;
     }
 
-    @Deprecated
     public Plot(String o, Location t, Location b, String tid, int days) {
         owner = o;
+        ownerId = null;
         world = t.getWorld().getName();
-        allowed = new HashSet<>();
-        denied = new HashSet<>();
+        allowed = new PlayerList();
+        denied = new PlayerList();
         biome = Biome.PLAINS;
         id = tid;
 
@@ -89,40 +90,17 @@ public class Plot implements Comparable<Plot> {
         currentbidderId = null;
     }
     
-    public Plot(Location t, Location b, String tid, int days, String group) {
-        owner = group;
-        world = t.getWorld().getName();
-        allowed = new HashSet<>();
-        denied = new HashSet<>();
-        biome = Biome.PLAINS;
-        id = tid;
-
-        if (days == 0) {
-            expireddate = null;
-        } else {
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, days);
-            java.util.Date utlDate = cal.getTime();
-            expireddate = new java.sql.Date(utlDate.getTime());
-        }
-
-        comments = new ArrayList<>();
-        customprice = 0;
-        forsale = false;
-        finisheddate = "";
-        protect = false;
-        auctionned = false;
-        currentbidder = "";
-        currentbid = 0;
-        currentbidderId = null;
-    }
-
     public Plot(UUID o, Location t, Location b, String tid, int days) {
         ownerId = o;
-        owner = Bukkit.getPlayer(o).getName();
+        Player p = Bukkit.getPlayer(o);
+        if(p != null) {
+            owner = p.getName();
+        } else {
+            owner = "";
+        }
         world = t.getWorld().getName();
-        allowed = new HashSet<>();
-        denied = new HashSet<>();
+        allowed = new PlayerList();
+        denied = new PlayerList();
         biome = Biome.PLAINS;
         id = tid;
 
@@ -145,10 +123,10 @@ public class Plot implements Comparable<Plot> {
         currentbid = 0;
         currentbidderId = null;
     }
-
-    @Deprecated
-    public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, Double bid, boolean isauctionned, HashSet<String> den) {
+    
+    public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, Double bid, boolean isauctionned, PlayerList den) {
         owner = o;
+        ownerId = null;
         world = w;
         biome = Biome.valueOf(bio);
         expireddate = exp;
@@ -166,12 +144,9 @@ public class Plot implements Comparable<Plot> {
         denied = den;
     }
 
-    public Plot(String o, UUID uuid, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, HashSet<String> al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, UUID bidderId, Double bid, boolean isauctionned, HashSet<String> den) {
+    Plot(String o, UUID uuid, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, UUID bidderId, Double bid, boolean isauctionned, PlayerList den) {
         ownerId = uuid;
-        if(uuid == null)
-            owner = o;
-        else
-            owner = Bukkit.getPlayer(uuid).getName();
+        owner = o;
         world = w;
         biome = Biome.valueOf(bio);
         expireddate = exp;
@@ -249,28 +224,11 @@ public class Plot implements Comparable<Plot> {
     }
 
     public String getAllowed() {
-        return getAllowedOrDenied(allowed);
+        return allowed.getPlayerList();
     }
 
     public String getDenied() {
-        return getAllowedOrDenied(denied);
-    }
-
-    private String getAllowedOrDenied(HashSet<String> listAllowedOrDenied) {
-        String list = "";
-
-        for (String s : listAllowedOrDenied) {
-            UUID uuid = getUUID(s);
-            if (uuid != null) {
-                list = list + Bukkit.getPlayer(UUID.fromString(s)) + ", ";
-            } else {
-                list = list + s + ", ";
-            }
-        }
-        if (list.length() > 1) {
-            list = list.substring(0, list.length() - 2);
-        }
-        return list;
+        return denied.getPlayerList();
     }
 
     public int getCommentsCount() {
@@ -281,70 +239,38 @@ public class Plot implements Comparable<Plot> {
         return comments.get(i);
     }
 
-    @Deprecated
     public void addAllowed(String name) {
-        if (!isAllowed(name)) {
-            UUID uuid = getUUID(name);
-            if(uuid == null) {
-                allowed.add(name);
-            } else {
-                allowed.add(uuid.toString());
-            }
-            SqlManager.addPlotAllowed(name, uuid, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
-        }
-    }
-    
-    public void addAllowedGroup(String name) {
-        if (!isGroupAllowed(name)) {
-            allowed.add(name);
+        if (!isAllowedConsulting(name)) {
+            allowed.put(name);
             SqlManager.addPlotAllowed(name, null, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void addAllowed(UUID uuid) {
         if (!isAllowed(uuid)) {
-            allowed.add(uuid.toString());
-            String name = Bukkit.getOfflinePlayer(uuid).getName();
+            String name = allowed.put(uuid);
             SqlManager.addPlotAllowed(name, uuid, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
         }
     }
 
-    @Deprecated
     public void addDenied(String name) {
-        if (!isDenied(name)) {
-            UUID uuid = getUUID(name);
-            if(uuid == null) {
-                denied.add(name);
-            } else {
-                denied.add(uuid.toString());
-            }
-            SqlManager.addPlotDenied(name, uuid, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
-        }
-    }
-    
-    public void addDeniedGroup(String name) {
-        if (!isGroupDenied(name)) {
-            denied.add(name);
+        if (!isDeniedConsulting(name)) {
+            denied.put(name);
             SqlManager.addPlotDenied(name, null, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void addDenied(UUID uuid) {
         if (!isDenied(uuid)) {
-            denied.add(uuid.toString());
-            String name = Bukkit.getOfflinePlayer(uuid).getName();
+            String name = denied.put(uuid);
             SqlManager.addPlotDenied(name, uuid, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
         }
     }
 
-    @Deprecated
     public void removeAllowed(String name) {
         if (allowed.contains(name)) {
             allowed.remove(name);
-            UUID uuid = getUUID(name);
-            SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
+            SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, null, world);
         }
     }
     
@@ -355,7 +281,6 @@ public class Plot implements Comparable<Plot> {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void removeAllowed(UUID uuid) {
         if (allowed.contains(uuid.toString())) {
             allowed.remove(uuid.toString());
@@ -364,11 +289,10 @@ public class Plot implements Comparable<Plot> {
         }
     }
 
-    @Deprecated
     public void removeDenied(String name) {
         if (denied.contains(name)) {
             denied.remove(name);
-            SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, world);
+            SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, null, world);
         }
     }
     
@@ -379,67 +303,167 @@ public class Plot implements Comparable<Plot> {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void removeDenied(UUID uuid) {
-        if (denied.contains(uuid.toString())) {
-            denied.remove(uuid.toString());
-            String name = Bukkit.getOfflinePlayer(uuid).getName();
+        if (denied.contains(uuid)) {
+            String name = denied.remove(uuid);
             SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
         }
     }
 
     public void removeAllAllowed() {
-        for (String n : allowed) {
-            UUID uuid = getUUID(n);
+        HashMap<String, UUID> list = allowed.getAllPlayers();
+        for (String n : list.keySet()) {
+            UUID uuid = list.get(n);
             SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), n, uuid, world);
         }
-        allowed = new HashSet<>();
+        allowed.clear();
     }
 
     public void removeAllDenied() {
-        for (String n : denied) {
-            UUID uuid = getUUID(n);
+        HashMap<String, UUID> list = denied.getAllPlayers();
+        for (String n : list.keySet()) {
+            UUID uuid = list.get(n);
             SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), n, uuid, world);
         }
-        denied = new HashSet<>();
+        denied.clear();
     }
 
     @Deprecated
     public boolean isAllowed(String name) {
-        return isAllowedInternal(name, true, true);
+        Player p = Bukkit.getServer().getPlayerExact(name);
+        if(p == null) {
+            return false;
+        } else {
+            return isAllowedInternal(p.getName(), p.getUniqueId(), true, true);
+        }
+    }
+    
+    public boolean isAllowedConsulting(String name) {
+        @SuppressWarnings("deprecation")
+        Player p = Bukkit.getServer().getPlayerExact(name);
+        if(p != null) {
+            return isAllowedInternal(name, p.getUniqueId(), true, true);
+        } else {
+            return isAllowedInternal(name, null, true, true);
+        }
     }
     
     public boolean isGroupAllowed(String name) {
-        return isAllowedInternal(name, true, true);
+        return isAllowedInternal(name, null, true, true);
     }
-
-    public boolean isAllowed(UUID id) {
-        return isAllowedInternal(id.toString(), true, true);
+    
+    public boolean isAllowed(String name, UUID uuid) {
+        return isAllowedInternal(name, uuid, true, true);
+    }
+    
+    public boolean isAllowed(UUID uuid) {
+        return isAllowedInternal("", uuid, true, true);
     }
 
     @Deprecated
     public boolean isAllowed(String name, boolean IncludeStar, boolean IncludeGroup) {
-        return isAllowedInternal(name, IncludeStar, IncludeGroup);
+        Player p = Bukkit.getServer().getPlayerExact(name);
+        if(p == null) {
+            return false;
+        } else {
+            return isAllowedInternal(p.getName(), p.getUniqueId(), IncludeStar, IncludeGroup);
+        }
     }
     
-    private boolean isAllowedInternal(String name, boolean IncludeStar, boolean IncludeGroup) {
-        UUID uuid = getUUID(name);
+    private boolean isAllowedInternal(String name, UUID uuid, boolean IncludeStar, boolean IncludeGroup) {
+        
+        if(IncludeStar && owner.equals("*")) {
+            return true;
+        }
+        
+        Player p = null;
+
+        if (uuid != null) {
+            p = Bukkit.getServer().getPlayer(uuid);
+        }
+        
+        if (uuid != null && ownerId.equals(uuid)) {
+            return true;
+        } else if(uuid == null && owner.equalsIgnoreCase(name)) {
+            return true;
+        }
+
+        if (IncludeGroup && owner.toLowerCase().startsWith("group:") && p != null) {
+            if (p.hasPermission("plotme.group." + owner.replace("Group:", ""))) {
+                return true;
+            }
+        }
+
+        HashMap<String, UUID> list = allowed.getAllPlayers();
+        for (String str : list.keySet()) {
+            if(IncludeStar && str.equals("*")) {
+                return true;
+            }
+            
+            UUID u = list.get(str);
+            if (u != null && uuid != null && u.equals(uuid)) {
+                return true;
+            } else if(uuid == null && str.equalsIgnoreCase(name)) {
+                return true;
+            }
+
+            if (IncludeGroup && str.toLowerCase().startsWith("group:") && p != null)
+                if (p.hasPermission("plotme.group." + str.replace("Group:", "")))
+                    return true;
+        }
+        return false;
+    }
+
+    @Deprecated
+    public boolean isDenied(String name) {
+        Player p = Bukkit.getServer().getPlayerExact(name);
+        if(p == null) {
+            return false;
+        } else {
+            return isDeniedInternal(name, null, true, true);
+        }
+    }
+    
+    public boolean isDeniedConsulting(String name) {
+        @SuppressWarnings("deprecation")
+        Player p = Bukkit.getServer().getPlayerExact(name);
+        if(p != null) {
+            return isDeniedInternal(name, p.getUniqueId(), true, true);
+        } else {
+            return isDeniedInternal(name, null, true, true);
+        }
+    }
+    
+    public boolean isGroupDenied(String name) {
+        return isDeniedInternal(name, null, true, true);
+    }
+
+    public boolean isDenied(UUID uuid) {
+        return isDeniedInternal("", uuid, true, true);
+    }
+    
+    private boolean isDeniedInternal(String name, UUID uuid, boolean IncludeStar, boolean IncludeGroup) {
         Player p = null;
 
         if (uuid != null) {
             p = Bukkit.getServer().getPlayer(uuid);
         }
 
-        if (uuid != null && ownerId.equals(uuid) || (IncludeStar && owner.equals("*")))
-            return true;
+        if (isAllowedInternal(name, uuid, false, false))
+            return false;
 
-        if (IncludeGroup && owner.toLowerCase().startsWith("group:") && p != null)
-            if (p.hasPermission("plotme.group." + owner.replace("Group:", "")))
+        HashMap<String, UUID> list = denied.getAllPlayers();
+        for (String str : list.keySet()) {
+            if(str.equals("*")) {
                 return true;
-
-        for (String str : allowed) {
-            if (uuid != null && str.equals(uuid.toString()) || (IncludeStar && str.equals("*")))
+            }
+            
+            UUID u = list.get(str);
+            if (u != null && uuid != null && u.equals(uuid)) {
                 return true;
+            } else if(uuid == null && str.equalsIgnoreCase(name)) {
+                return true;
+            }
 
             if (IncludeGroup && str.toLowerCase().startsWith("group:") && p != null)
                 if (p.hasPermission("plotme.group." + str.replace("Group:", "")))
@@ -449,72 +473,12 @@ public class Plot implements Comparable<Plot> {
         return false;
     }
 
-    @Deprecated
-    public boolean isDenied(String name) {
-        return isDeniedInternal(name, true, true);
-    }
-    
-    public boolean isGroupDenied(String name) {
-        return isDeniedInternal(name, true, true);
+    public Set<String> allowed() {
+        return allowed.getPlayers();
     }
 
-    public boolean isDenied(UUID id) {
-        return isDeniedInternal(id.toString(), true, true);
-    }
-    
-    private boolean isDeniedInternal(String name, boolean IncludeStar, boolean IncludeGroup) {
-        UUID uuid = getUUID(name);
-        Player p = null;
-
-        if (uuid != null) {
-            p = Bukkit.getServer().getPlayer(uuid);
-        }
-
-        if (isAllowedInternal(name, false, false))
-            return false;
-
-        for (String str : denied) {
-            if (uuid != null && str.equals(uuid.toString()) || str.equals("*"))
-                return true;
-
-            if (str.toLowerCase().startsWith("group:") && p != null)
-                if (p.hasPermission("plotme.group." + str.replace("Group:", "")))
-                    return true;
-        }
-
-        return false;
-    }
-
-    @SuppressWarnings("deprecation")
-    public HashSet<String> allowed() {
-        HashSet<String> newlist = new HashSet<>();
-        
-        for(String s : allowed) {
-            UUID uuid = getUUID(s);
-            if(uuid == null) {
-                newlist.add(s);
-            } else {
-                newlist.add(Bukkit.getOfflinePlayer(uuid).getName());
-            }
-        }
-        
-        return newlist;
-    }
-
-    @SuppressWarnings("deprecation")
-    public HashSet<String> denied() {
-        HashSet<String> newlist = new HashSet<>();
-        
-        for(String s : denied) {
-            UUID uuid = getUUID(s);
-            if(uuid == null) {
-                newlist.add(s);
-            } else {
-                newlist.add(Bukkit.getOfflinePlayer(uuid).getName());
-            }
-        }
-        
-        return newlist;
+    public Set<String> denied() {
+        return denied.getPlayers();
     }
 
     public int allowedcount() {
@@ -539,14 +503,5 @@ public class Plot implements Comparable<Plot> {
 
     public void updateField(String field, Object value) {
         SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, field, value);
-    }
-
-    private UUID getUUID(String name) {
-        try {
-            UUID uuid = UUID.fromString(name);
-            return uuid;
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
     }
 }

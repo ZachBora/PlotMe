@@ -77,8 +77,6 @@ public class PlotMe extends JavaPlugin
     private static HashSet<String> playersignoringwelimit = null;
     private static HashMap<String, String> captions;
     
-    private static Boolean update = false;
-    
     public static World worldcurrentlyprocessingexpired;
     public static CommandSender cscurrentlyprocessingexpired;
     public static Integer counterexpired;
@@ -113,7 +111,6 @@ public class PlotMe extends JavaPlugin
 		usinglwc = null;
 		playersignoringwelimit = null;
 		captions = null;
-		update = null;
 		worldcurrentlyprocessingexpired = null;
 		cscurrentlyprocessingexpired = null;
 		counterexpired = null;
@@ -156,31 +153,11 @@ public class PlotMe extends JavaPlugin
 				
 		getCommand("plotme").setExecutor(new PMCommand(this));
 				
-		setupUpdater();
-				
 		self = this;
 		
 		SqlManager.plotConvertToUUIDAsynchronously();
 	}
-	
-	private void setupUpdater()
-	{
-		if (autoUpdate)
-		{
-			if (advancedlogging)
-			{
-				logger.info("Checking for a new update...");
-			}
-			
-			Updater updater = new Updater(this, NAME, this.getFile(), Updater.UpdateType.DEFAULT, false);
-			update = updater.getResult() != Updater.UpdateResult.NO_UPDATE;
-			
-			if (advancedlogging)
-			{
-				logger.info("Update available: " + update);
-			}
-		}
-	}	
+
 	
 	private void doMetric()
 	{

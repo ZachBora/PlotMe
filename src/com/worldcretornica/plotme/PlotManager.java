@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -368,7 +367,6 @@ public class PlotManager
 		}
 	}
 	
-	@Deprecated
 	public static Plot createPlot(World world, String id, String owner)
 	{
 		if(isPlotAvailable(id, world) && id != "")
@@ -386,42 +384,6 @@ public class PlotManager
 			return null;
 		}
 	}
-	
-	public static Plot createPlot(World world, String id, UUID owner)
-    {
-        if(isPlotAvailable(id, world) && id != "")
-        {
-            Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration);
-            
-            setOwnerSign(world, plot);
-            
-            getPlots(world).put(id, plot);
-            SqlManager.addPlot(plot, getIdX(id), getIdZ(id), world);
-            return plot;
-        }
-        else
-        {
-            return null;
-        }
-    }
-	
-	public static Plot createGroupPlot(World world, String id, String owner)
-    {
-        if(isPlotAvailable(id, world) && id != "")
-        {
-            Plot plot = new Plot(getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration, owner);
-            
-            setOwnerSign(world, plot);
-            
-            getPlots(world).put(id, plot);
-            SqlManager.addPlot(plot, getIdX(id), getIdZ(id), world);
-            return plot;
-        }
-        else
-        {
-            return null;
-        }
-    }
 	
 	@SuppressWarnings("deprecation")
     public static void setOwnerSign(World world, Plot plot)
@@ -856,7 +818,7 @@ public class PlotManager
 				&& blocklocation.getBlockZ() >= lowestZ && blocklocation.getBlockZ() <= highestZ;
 	}
 	
-	@SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
     public static boolean movePlot(World w, String idFrom, String idTo)
 	{
 		Location plot1Bottom = getPlotBottomLoc(w, idFrom);
@@ -882,12 +844,13 @@ public class PlotManager
 				for(int y = 0; y < w.getMaxHeight() ; y++)
 				{
 					plot1Block = w.getBlockAt(new Location(w, x, y, z));
-					int plot1Type = plot1Block.getTypeId();
-					byte plot1Data = plot1Block.getData();
+                    int plot1Type = plot1Block.getTypeId();
+                    byte plot1Data = plot1Block.getData();
 					
 					plot2Block = w.getBlockAt(new Location(w, x - distanceX, y, z - distanceZ));
-					int plot2Type = plot2Block.getTypeId();
-					byte plot2Data = plot2Block.getData();
+					
+                    int plot2Type = plot2Block.getTypeId();
+                    byte plot2Data = plot2Block.getData();
 					
 					//plot1Block.setTypeId(plot2Type);
 					plot1Block.setTypeIdAndData(plot2Type, plot2Data, false);

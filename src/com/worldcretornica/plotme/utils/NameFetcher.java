@@ -1,4 +1,4 @@
-package com.evilmidget38;
+package com.worldcretornica.plotme.utils;
  
 import com.google.common.collect.ImmutableList;
 import org.json.simple.JSONObject;
