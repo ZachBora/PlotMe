@@ -20,8 +20,8 @@ public class Plot implements Comparable<Plot> {
     public String owner;
     public UUID ownerId;
     public String world;
-    private PlayerList allowed;
-    private PlayerList denied;
+    PlayerList allowed;
+    PlayerList denied;
     public Biome biome;
     public Date expireddate;
     public boolean finished;
@@ -64,6 +64,35 @@ public class Plot implements Comparable<Plot> {
     public Plot(String o, Location t, Location b, String tid, int days) {
         owner = o;
         ownerId = null;
+        world = t.getWorld().getName();
+        allowed = new PlayerList();
+        denied = new PlayerList();
+        biome = Biome.PLAINS;
+        id = tid;
+
+        if (days == 0) {
+            expireddate = null;
+        } else {
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DAY_OF_YEAR, days);
+            java.util.Date utlDate = cal.getTime();
+            expireddate = new java.sql.Date(utlDate.getTime());
+        }
+
+        comments = new ArrayList<>();
+        customprice = 0;
+        forsale = false;
+        finisheddate = "";
+        protect = false;
+        auctionned = false;
+        currentbidder = "";
+        currentbid = 0;
+        currentbidderId = null;
+    }
+    
+    public Plot(String o, UUID uuid, Location t, Location b, String tid, int days) {
+        owner = o;
+        ownerId = uuid;
         world = t.getWorld().getName();
         allowed = new PlayerList();
         denied = new PlayerList();
@@ -269,8 +298,8 @@ public class Plot implements Comparable<Plot> {
 
     public void removeAllowed(String name) {
         if (allowed.contains(name)) {
-            allowed.remove(name);
-            SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, null, world);
+            UUID uuid = allowed.remove(name);
+            SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
         }
     }
     
@@ -282,17 +311,16 @@ public class Plot implements Comparable<Plot> {
     }
 
     public void removeAllowed(UUID uuid) {
-        if (allowed.contains(uuid.toString())) {
-            allowed.remove(uuid.toString());
-            String name = Bukkit.getOfflinePlayer(uuid).getName();
+        if (allowed.contains(uuid)) {
+            String name = allowed.remove(uuid);
             SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
         }
     }
 
     public void removeDenied(String name) {
         if (denied.contains(name)) {
-            denied.remove(name);
-            SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, null, world);
+            UUID uuid = denied.remove(name);
+            SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
         }
     }
     
@@ -382,7 +410,7 @@ public class Plot implements Comparable<Plot> {
             p = Bukkit.getServer().getPlayer(uuid);
         }
         
-        if (uuid != null && ownerId.equals(uuid)) {
+        if (uuid != null && ownerId != null && ownerId.equals(uuid)) {
             return true;
         } else if(uuid == null && owner.equalsIgnoreCase(name)) {
             return true;

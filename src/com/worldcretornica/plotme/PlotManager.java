@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -367,6 +368,7 @@ public class PlotManager
 		}
 	}
 	
+	@Deprecated
 	public static Plot createPlot(World world, String id, String owner)
 	{
 		if(isPlotAvailable(id, world) && id != "")
@@ -384,6 +386,24 @@ public class PlotManager
 			return null;
 		}
 	}
+	
+	public static Plot createPlot(World world, String id, String owner, UUID uuid)
+    {
+        if(isPlotAvailable(id, world) && id != "")
+        {
+            Plot plot = new Plot(owner, uuid, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration);
+            
+            setOwnerSign(world, plot);
+            
+            getPlots(world).put(id, plot);
+            SqlManager.addPlot(plot, getIdX(id), getIdZ(id), world);
+            return plot;
+        }
+        else
+        {
+            return null;
+        }
+    }
 	
 	@SuppressWarnings("deprecation")
     public static void setOwnerSign(World world, Plot plot)
@@ -891,26 +911,45 @@ public class PlotManager
 				SqlManager.addPlot(plot2, idX, idZ, w);
 				plots.put(idFrom, plot2);
 				
-				for(int i = 0 ; i < plot2.comments.size() ; i++)
-				{
-					SqlManager.addPlotComment(plot2.comments.get(i), i, idX, idZ, plot2.world);
-				}
+                for (int i = 0; i < plot2.comments.size(); i++) {
+                    String strUUID = plot2.comments.get(i)[2];
+                    UUID uuid = null;
+
+                    if (plot2.comments.get(i).length >= 3) {
+                        strUUID = plot2.comments.get(i)[2];
+                        try {
+                            uuid = UUID.fromString(strUUID);
+                        } catch (Exception e) {
+                        }
+                    }
+                    SqlManager.addPlotComment(plot2.comments.get(i), i, idX, idZ, plot2.world, uuid);
+                }
 				
 				for(String player : plot2.allowed())
 				{
 					SqlManager.addPlotAllowed(player, idX, idZ, plot2.world);
 				}
 				
-				idX = getIdX(idTo);
-				idZ = getIdZ(idTo);
-				plot1.id = "" + idX + ";" + idZ;
-				SqlManager.addPlot(plot1, idX, idZ, w);
-				plots.put(idTo, plot1);
-				
-				for(int i = 0 ; i < plot1.comments.size() ; i++)
-				{
-					SqlManager.addPlotComment(plot1.comments.get(i), i, idX, idZ, plot1.world);
-				}
+                idX = getIdX(idTo);
+                idZ = getIdZ(idTo);
+                plot1.id = "" + idX + ";" + idZ;
+                SqlManager.addPlot(plot1, idX, idZ, w);
+                plots.put(idTo, plot1);
+
+                for (int i = 0; i < plot1.comments.size(); i++) {
+                    String strUUID = "";
+                    UUID uuid = null;
+
+                    if (plot1.comments.get(i).length >= 3) {
+                        strUUID = plot1.comments.get(i)[2];
+                        try {
+                            uuid = UUID.fromString(strUUID);
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    SqlManager.addPlotComment(plot1.comments.get(i), i, idX, idZ, plot1.world, uuid);
+                }
 				
 				for(String player : plot1.allowed())
 				{
@@ -939,7 +978,17 @@ public class PlotManager
 				
 				for(int i = 0 ; i < plot.comments.size() ; i++)
 				{
-					SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world);
+				    String strUUID = plot.comments.get(i)[2];
+                    UUID uuid = null;
+
+                    if (plot.comments.get(i).length >= 3) {
+                        strUUID = plot.comments.get(i)[2];
+                        try {
+                            uuid = UUID.fromString(strUUID);
+                        } catch (Exception e) {
+                        }
+                    }
+                    SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world, uuid);
 				}
 				
 				for(String player : plot.allowed())
@@ -971,7 +1020,17 @@ public class PlotManager
 				
 				for(int i = 0 ; i < plot.comments.size() ; i++)
 				{
-					SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world);
+				    String strUUID = plot.comments.get(i)[2];
+                    UUID uuid = null;
+
+                    if (plot.comments.get(i).length >= 3) {
+                        strUUID = plot.comments.get(i)[2];
+                        try {
+                            uuid = UUID.fromString(strUUID);
+                        } catch (Exception e) {
+                        }
+                    }
+                    SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world, uuid);
 				}
 				
 				for(String player : plot.allowed())

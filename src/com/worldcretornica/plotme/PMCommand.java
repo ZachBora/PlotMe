@@ -1924,6 +1924,7 @@ public class PMCommand implements CommandExecutor
 									if(PlotManager.isPlotAvailable(id, w))
 									{									
 										String name = p.getName();
+										UUID uuid = p.getUniqueId();
 										
 										double price = 0;
 										
@@ -1950,7 +1951,7 @@ public class PMCommand implements CommandExecutor
 											}
 										}
 										
-										Plot plot = PlotManager.createPlot(w, id, name);
+										Plot plot = PlotManager.createPlot(w, id, name, uuid);
 										
 										//PlotManager.adjustLinkedPlots(id, w);
 										
@@ -2003,12 +2004,14 @@ public class PMCommand implements CommandExecutor
 				else
 				{
 					String playername = p.getName();
+					UUID uuid = p.getUniqueId();
 					
 					if(args.length == 2)
 					{
 						if(PlotMe.cPerms(p, "PlotMe.admin.claim.other"))
 						{
 							playername = args[1];
+							uuid = null;
 						}
 					}
 					
@@ -2049,7 +2052,7 @@ public class PMCommand implements CommandExecutor
 							}
 						}
 						
-						Plot plot = PlotManager.createPlot(w, id, playername);
+						Plot plot = PlotManager.createPlot(w, id, playername, uuid);
 						
 						//PlotManager.adjustLinkedPlots(id, w);
 		
@@ -2333,6 +2336,7 @@ public class PMCommand implements CommandExecutor
 							World w = p.getWorld();
 							PlotMapInfo pmi = PlotManager.getMap(w);
 							String playername = p.getName();
+							UUID uuid = p.getUniqueId();
 							
 							double price = 0;
 							
@@ -2364,12 +2368,13 @@ public class PMCommand implements CommandExecutor
 							String text = StringUtils.join(args," ");
 							text = text.substring(text.indexOf(" "));
 							
-							String[] comment = new String[2];
+							String[] comment = new String[3];
 							comment[0] = playername;
 							comment[1] = text;
+							comment[2] = uuid.toString();
 							
 							plot.comments.add(comment);
-							SqlManager.addPlotComment(comment, plot.comments.size(), PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world);
+							SqlManager.addPlotComment(comment, plot.comments.size(), PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world, uuid);
 							
 							Send(p, C("MsgCommentAdded") + " " + f(-price));
 							
@@ -3025,7 +3030,7 @@ public class PMCommand implements CommandExecutor
 									else
 									{
 										@SuppressWarnings("deprecation")
-                                        Player deniedplayer = Bukkit.getPlayer(denied);
+                                        Player deniedplayer = Bukkit.getPlayerExact(denied);
 										
 										if(deniedplayer != null)
 										{
@@ -3137,7 +3142,7 @@ public class PMCommand implements CommandExecutor
 
                                     }
 																	
-									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " " + C("WorldRemoved") + ". " + f(-price));
+									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " " + C("WordRemoved") + ". " + f(-price));
 									
 									if(isAdv)
 										PlotMe.logger.info(LOG + p.getName() + " " + C("MsgRemovedPlayer") + " " + allowed + " " + C("MsgFromPlot") + " " + id + ((price != 0) ? " " + C("WordFor") + " " + price : ""));
@@ -3370,7 +3375,7 @@ public class PMCommand implements CommandExecutor
 						}
 						else
 						{
-							PlotManager.createPlot(p.getWorld(), id, playername);
+							PlotManager.createPlot(p.getWorld(), id, newowner, null);
 						}
 						
 						Send(p, C("MsgOwnerChangedTo") + " " + RED + newowner);

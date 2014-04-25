@@ -24,10 +24,6 @@ public class PlayerList {
     
     public void put(String name, UUID uuid) {
         playerlist.put(name, uuid);
-        
-        if(uuid == null) {
-            //TODO add async get and feed it
-        }
     }
     
     public String put(UUID uuid) {
@@ -36,8 +32,21 @@ public class PlayerList {
         return name;
     }
         
-    public void remove(String name) {
-        playerlist.remove(name);
+    public UUID remove(String name) {
+        String found = "";
+        UUID uuid = null;
+        for(String key : playerlist.keySet())
+        {
+            if(key.equalsIgnoreCase(name)) {
+                found = key;
+                continue;
+            }
+        }
+        if(!found.equals("")) {
+            uuid = playerlist.get(found);
+            playerlist.remove(found);
+        }
+        return uuid;
     }
     
     public String remove(UUID uuid) {
@@ -61,13 +70,18 @@ public class PlayerList {
                 list = list.append(s + ", ");
         }
         if (list.length() > 1) {
-            list = list.delete(list.length() - 2, 2);
+            list = list.delete(list.length() - 2, list.length());
         }
         return list.toString();
     }
     
     public boolean contains(String name) {
-        return playerlist.containsKey(name);
+        for(String key : playerlist.keySet()) {
+            if(key.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     public boolean contains(UUID uuid) {
