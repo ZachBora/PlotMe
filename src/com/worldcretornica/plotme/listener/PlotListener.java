@@ -24,7 +24,9 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
@@ -74,7 +76,7 @@ public class PlotListener implements Listener
 						event.setCancelled(true);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{
@@ -122,7 +124,7 @@ public class PlotListener implements Listener
 						event.setCancelled(true);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{
@@ -139,6 +141,54 @@ public class PlotListener implements Listener
 	}
 	
 	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityChangeBlock(final EntityChangeBlockEvent event)
+    {
+	    Block b = event.getBlock();
+	    Entity e = event.getEntity();
+        
+        if(PlotManager.isPlotWorld(b))
+        {
+            if(!(e instanceof Player)) {
+                event.setCancelled(true);
+            } else {
+                Player p = (Player) e;
+                boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
+                String id = PlotManager.getPlotId(b.getLocation());
+                
+                if(id.equalsIgnoreCase(""))
+                {
+                    if(!canbuild)
+                    {
+                        event.setCancelled(true);
+                    }
+                }
+                else
+                {
+                    Plot plot = PlotManager.getPlotById(p,id);
+                    
+                    if (plot == null)
+                    {
+                        if(!canbuild)
+                        {
+                            event.setCancelled(true);
+                        }
+                    }
+                    else if(!plot.isAllowed(p.getUniqueId()))
+                    {
+                        if(!canbuild)
+                        {
+                            event.setCancelled(true);
+                        }
+                    }
+                    else
+                    {
+                        plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
+                    }
+                }
+            }
+        }
+    }
 	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerBucketEmpty(final PlayerBucketEmptyEvent event)
@@ -166,7 +216,7 @@ public class PlotListener implements Listener
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
-					else if(!plot.isAllowed(p.getName()))
+					else if(!plot.isAllowed(p.getUniqueId()))
 					{
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
@@ -201,7 +251,7 @@ public class PlotListener implements Listener
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
-					else if(!plot.isAllowed(p.getName()))
+					else if(!plot.isAllowed(p.getUniqueId()))
 					{
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
@@ -227,63 +277,63 @@ public class PlotListener implements Listener
 			
 			if(event.isBlockInHand() && event.getAction() == Action.RIGHT_CLICK_BLOCK)
 			{
-				BlockFace face = event.getBlockFace();
-				Block builtblock = b.getWorld().getBlockAt(b.getX() + face.getModX(), b.getY() + face.getModY(), b.getZ() + face.getModZ());
-				
-				String id = PlotManager.getPlotId(builtblock.getLocation());
-				
-				Player p = event.getPlayer();
-				
-				if(id.equalsIgnoreCase(""))
-				{
-					if(!canbuild)
-					{
-						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-						event.setCancelled(true);
-					}
-				}
-				else
-				{
-					Plot plot = PlotManager.getPlotById(p,id);
-					
-					if (plot == null)
-					{
-						if(!canbuild)
-						{
-							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-							event.setCancelled(true);
-						}
-					}
-					else
-					{
-						if(!plot.isAllowed(p.getName()))
-						{
-							if(!canbuild)
-							{
-								p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-								event.setCancelled(true);
-							}
-						}
-						else
-						{
-							plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
-						}
-					}
-				}
+			    ItemStack is = player.getItemInHand();
+			    
+			    if(event.getClickedBlock() != null && is != null) 
+			    {
+			        Material matClicked = event.getClickedBlock().getType();
+			        Material matHeld = is.getType();
+			        
+			        if(matClicked == matHeld) 
+			        {
+        				BlockFace face = event.getBlockFace();
+        				Block builtblock = b.getWorld().getBlockAt(b.getX() + face.getModX(), b.getY() + face.getModY(), b.getZ() + face.getModZ());
+        				
+        				String id = PlotManager.getPlotId(builtblock.getLocation());
+        				
+        				Player p = event.getPlayer();
+        				
+        				if(id.equalsIgnoreCase(""))
+        				{
+        					if(!canbuild)
+        					{
+        						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+        						event.setCancelled(true);
+        					}
+        				}
+        				else
+        				{
+        					Plot plot = PlotManager.getPlotById(p,id);
+        					
+        					if (plot == null)
+        					{
+        						if(!canbuild)
+        						{
+        							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+        							event.setCancelled(true);
+        						}
+        					}
+        					else
+        					{
+        						if(!plot.isAllowed(p.getName()))
+        						{
+        							if(!canbuild)
+        							{
+        								p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+        								event.setCancelled(true);
+        							}
+        						}
+        						else
+        						{
+        							plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
+        						}
+        					}
+        				}
+    				}
+			    }
 			}
 			else
-			{
-				/*for(int blockid : pmi.ProtectedBlocks)
-				{
-					if(blockid == b.getTypeId())
-					{
-						if(!PlotMe.cPerms(player, "plotme.unblock." + blockid))
-							blocked = true;
-						
-						break;
-					}
-				}*/
-				
+			{				
 				if(pmi.ProtectedBlocks.contains(b.getTypeId()))
 				{
 					if(!PlotMe.cPerms(player, "plotme.unblock." + b.getTypeId()))
@@ -555,7 +605,7 @@ public class PlotListener implements Listener
 						{
 							event.setCancelled(true);
 						}
-						else if(!plot.isAllowed(p.getName()))
+						else if(!plot.isAllowed(p.getUniqueId()))
 						{
 							event.setCancelled(true);
 						}
@@ -596,7 +646,7 @@ public class PlotListener implements Listener
 						event.setCancelled(true);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{
@@ -616,7 +666,7 @@ public class PlotListener implements Listener
 	public void onHangingBreakByEntity(final HangingBreakByEntityEvent event)
 	{
 		Entity entity = event.getRemover();
-		
+
 		if(entity instanceof Player)
 		{
 			Player p = (Player)entity;
@@ -649,7 +699,7 @@ public class PlotListener implements Listener
 							event.setCancelled(true);
 						}
 					}
-					else if(!plot.isAllowed(p.getName()))
+					else if(!plot.isAllowed(p.getUniqueId()))
 					{
 						if(!canbuild)
 						{
@@ -670,7 +720,7 @@ public class PlotListener implements Listener
 	public void onPlayerInteractEntity(final PlayerInteractEntityEvent event)
 	{
 		Location l = event.getRightClicked().getLocation();
-		
+
 		if(PlotManager.isPlotWorld(l))
 		{
 			Player p = event.getPlayer();
@@ -697,7 +747,7 @@ public class PlotListener implements Listener
 						event.setCancelled(true);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{
@@ -712,6 +762,58 @@ public class PlotListener implements Listener
 			}
 		}
 	}	
+	
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityDamageByEntity(final EntityDamageByEntityEvent event)
+    {
+        Location l = event.getEntity().getLocation();
+        Entity e = event.getDamager();
+
+        if(PlotManager.isPlotWorld(l))
+        {
+            if(!(e instanceof Player)){
+                event.setCancelled(true);
+            } else {
+                Player p = (Player) e;
+                boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
+                String id = PlotManager.getPlotId(l);
+                
+                if(id.equalsIgnoreCase(""))
+                {
+                    if(!canbuild)
+                    {
+                        p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+                        event.setCancelled(true);
+                    }
+                }
+                else
+                {
+                    Plot plot = PlotManager.getPlotById(p,id);
+                    
+                    if (plot == null)
+                    {
+                        if(!canbuild)
+                        {
+                            p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+                            event.setCancelled(true);
+                        }
+                    }
+                    else if(!plot.isAllowed(p.getUniqueId()))
+                    {
+                        if(!canbuild)
+                        {
+                            p.sendMessage(PlotMe.caption("ErrCannotBuild"));
+                            event.setCancelled(true);
+                        }
+                    }
+                    else
+                    {
+                        plot.resetExpire(PlotManager.getMap(l).DaysToExpiration);
+                    }
+                }
+            }
+        }
+    }   
 	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerEggThrow(final PlayerEggThrowEvent event)
@@ -744,7 +846,7 @@ public class PlotListener implements Listener
 						event.setHatching(false);
 					}
 				}
-				else if(!plot.isAllowed(p.getName()))
+				else if(!plot.isAllowed(p.getUniqueId()))
 				{
 					if(!canbuild)
 					{

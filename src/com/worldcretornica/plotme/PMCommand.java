@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
@@ -1288,7 +1289,8 @@ public class PMCommand implements CommandExecutor
 		return true;
 	}
 
-	private boolean plotlist(Player p, String[] args)
+	
+    private boolean plotlist(Player p, String[] args)
 	{
 		if(PlotMe.cPerms(p, "PlotMe.use.list"))
 		{
@@ -1299,16 +1301,17 @@ public class PMCommand implements CommandExecutor
 			}
 			else
 			{
-				String name;
+			    String name;
+			    String pname = p.getName();
 				
 				if(PlotMe.cPerms(p, "PlotMe.admin.list") && args.length == 2)
 				{
-					name = args[1];
+				    name = args[1];
 					Send(p, C("MsgListOfPlotsWhere") + " " + BLUE + name + RESET + " " + C("MsgCanBuild"));
 				}
 				else
 				{
-					name = p.getName();
+				    name = p.getName();
 					Send(p, C("MsgListOfPlotsWhereYou"));
 				}
 								
@@ -1342,7 +1345,7 @@ public class PMCommand implements CommandExecutor
 					{
 						if(plot.allowedcount() == 0)
 						{
-							if(name.equalsIgnoreCase(p.getName()))
+							if(name.equalsIgnoreCase(pname))
 								p.sendMessage("  " + plot.id + " -> " + BLUE + ITALIC + C("WordYours") + RESET + addition);
 							else
 								p.sendMessage("  " + plot.id + " -> " + BLUE + ITALIC + plot.owner + RESET + addition);
@@ -1357,29 +1360,30 @@ public class PMCommand implements CommandExecutor
 							if(helpers.length() > 2)
 								helpers.delete(helpers.length() - 2, helpers.length());
 							
-							if(name.equalsIgnoreCase(p.getName()))
+							if(name.equalsIgnoreCase(pname))
 								p.sendMessage("  " + plot.id + " -> " + BLUE + ITALIC + C("WordYours") + RESET + addition + ", " + C("WordHelpers") + ": " + helpers);
 							else
 								p.sendMessage("  " + plot.id + " -> " + BLUE + ITALIC + plot.owner + RESET + addition + ", " + C("WordHelpers") + ": " + helpers);
 						}
 					}
-					else if(plot.isAllowed(name))
+					else if(plot.isAllowedConsulting(name))
 					{
 						StringBuilder helpers = new StringBuilder();
 						for(int i = 0 ; i < plot.allowedcount(); i++)
 						{
 							if(p.getName().equalsIgnoreCase((String) plot.allowed().toArray()[i]))
-								if(name.equalsIgnoreCase(p.getName()))
+								if(name.equalsIgnoreCase(pname)) {
 									helpers.append(BLUE).append(ITALIC).append("You").append(RESET).append(", ");
-								else
-									helpers.append(BLUE).append(ITALIC).append(name).append(RESET).append(", ");
+								} else {
+								    helpers.append(BLUE).append(ITALIC).append(args[1]).append(RESET).append(", ");
+								}
 							else
 								helpers.append(BLUE).append(plot.allowed().toArray()[i]).append(RESET).append(", ");
 						}
 						if(helpers.length() > 2)
 							helpers.delete(helpers.length() - 2, helpers.length());
 						
-						if(plot.owner.equalsIgnoreCase(p.getName()))
+						if(plot.owner.equalsIgnoreCase(pname))
 							p.sendMessage("  " + plot.id + " -> " + BLUE + C("WordYours") + RESET + addition + ", " + C("WordHelpers") + ": " + helpers);
 						else
 							p.sendMessage("  " + plot.id + " -> " + BLUE + plot.owner + C("WordPossessive") + RESET + addition + ", " + C("WordHelpers") + ": " + helpers);
@@ -1920,6 +1924,7 @@ public class PMCommand implements CommandExecutor
 									if(PlotManager.isPlotAvailable(id, w))
 									{									
 										String name = p.getName();
+										UUID uuid = p.getUniqueId();
 										
 										double price = 0;
 										
@@ -1946,7 +1951,7 @@ public class PMCommand implements CommandExecutor
 											}
 										}
 										
-										Plot plot = PlotManager.createPlot(w, id, name);
+										Plot plot = PlotManager.createPlot(w, id, name, uuid);
 										
 										//PlotManager.adjustLinkedPlots(id, w);
 										
@@ -1999,12 +2004,14 @@ public class PMCommand implements CommandExecutor
 				else
 				{
 					String playername = p.getName();
+					UUID uuid = p.getUniqueId();
 					
 					if(args.length == 2)
 					{
 						if(PlotMe.cPerms(p, "PlotMe.admin.claim.other"))
 						{
 							playername = args[1];
+							uuid = null;
 						}
 					}
 					
@@ -2045,7 +2052,7 @@ public class PMCommand implements CommandExecutor
 							}
 						}
 						
-						Plot plot = PlotManager.createPlot(w, id, playername);
+						Plot plot = PlotManager.createPlot(w, id, playername, uuid);
 						
 						//PlotManager.adjustLinkedPlots(id, w);
 		
@@ -2329,6 +2336,7 @@ public class PMCommand implements CommandExecutor
 							World w = p.getWorld();
 							PlotMapInfo pmi = PlotManager.getMap(w);
 							String playername = p.getName();
+							UUID uuid = p.getUniqueId();
 							
 							double price = 0;
 							
@@ -2360,12 +2368,13 @@ public class PMCommand implements CommandExecutor
 							String text = StringUtils.join(args," ");
 							text = text.substring(text.indexOf(" "));
 							
-							String[] comment = new String[2];
+							String[] comment = new String[3];
 							comment[0] = playername;
 							comment[1] = text;
+							comment[2] = uuid.toString();
 							
 							plot.comments.add(comment);
-							SqlManager.addPlotComment(comment, plot.comments.size(), PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world);
+							SqlManager.addPlotComment(comment, plot.comments.size(), PlotManager.getIdX(id), PlotManager.getIdZ(id), plot.world, uuid);
 							
 							Send(p, C("MsgCommentAdded") + " " + f(-price));
 							
@@ -2411,7 +2420,7 @@ public class PMCommand implements CommandExecutor
 						{
 							Plot plot = PlotManager.getPlotById(p,id);
 							
-							if(plot.owner.equalsIgnoreCase(p.getName()) || plot.isAllowed(p.getName()) || PlotMe.cPerms(p, "PlotMe.admin"))
+							if(plot.ownerId.equals(p.getUniqueId()) || plot.isAllowed(p.getUniqueId()) || PlotMe.cPerms(p, "PlotMe.admin"))
 							{
 								if(plot.comments.size() == 0)
 								{
@@ -2876,7 +2885,7 @@ public class PMCommand implements CommandExecutor
 							
 							if(plot.owner.equalsIgnoreCase(playername) || PlotMe.cPerms(p, "PlotMe.admin.add"))
 							{
-								if(plot.isAllowed(allowed))
+								if(plot.isAllowedConsulting(allowed) || plot.isGroupAllowed(allowed))
 								{
 									Send(p, C("WordPlayer") + " " + RED + args[1] + RESET + " " + C("MsgAlreadyAllowed"));
 								}
@@ -2911,7 +2920,7 @@ public class PMCommand implements CommandExecutor
 										}
 									}
 									
-									plot.addAllowed(args[1]);
+									plot.addAllowed(allowed);
 									
 									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " " + C("MsgNowAllowed") + " " + f(-price));
 									
@@ -2939,7 +2948,7 @@ public class PMCommand implements CommandExecutor
 		return true;
 	}
 	
-	private boolean deny(Player p, String[] args)
+    private boolean deny(Player p, String[] args)
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.deny") || PlotMe.cPerms(p, "PlotMe.use.deny"))
 		{
@@ -2971,7 +2980,7 @@ public class PMCommand implements CommandExecutor
 							
 							if(plot.owner.equalsIgnoreCase(playername) || PlotMe.cPerms(p, "PlotMe.admin.deny"))
 							{
-								if(plot.isDenied(denied))
+								if(plot.isDeniedConsulting(denied) || plot.isGroupDenied(denied))
 								{
 									Send(p, C("WordPlayer") + " " + RED + args[1] + RESET + " " + C("MsgAlreadyDenied"));
 								}
@@ -3006,7 +3015,7 @@ public class PMCommand implements CommandExecutor
 										}
 									}
 									
-									plot.addDenied(args[1]);
+                                    plot.addDenied(denied);
 									
 									if(denied.equals("*"))
 									{
@@ -3014,13 +3023,14 @@ public class PMCommand implements CommandExecutor
 										
 										for(Player deniedplayer : deniedplayers)
 										{
-											if(!plot.isAllowed(deniedplayer.getName()))
+											if(!plot.isAllowed(deniedplayer.getUniqueId()))
 												deniedplayer.teleport(PlotManager.getPlotHome(w, plot));
 										}
 									}
 									else
 									{
-										Player deniedplayer = Bukkit.getServer().getPlayer(denied);
+										@SuppressWarnings("deprecation")
+                                        Player deniedplayer = Bukkit.getPlayerExact(denied);
 										
 										if(deniedplayer != null)
 										{
@@ -3062,7 +3072,7 @@ public class PMCommand implements CommandExecutor
 		return true;
 	}
 	
-	private boolean remove(Player p, String[] args)
+    private boolean remove(Player p, String[] args)
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.remove") || PlotMe.cPerms(p, "PlotMe.use.remove"))
 		{
@@ -3089,13 +3099,13 @@ public class PMCommand implements CommandExecutor
 						{
 							Plot plot = PlotManager.getPlotById(p,id);
 							String playername = p.getName();
+							UUID playeruuid = p.getUniqueId();
 							String allowed = args[1];
 							
-							if(plot.owner.equalsIgnoreCase(playername) || PlotMe.cPerms(p, "PlotMe.admin.remove"))
+							if(plot.ownerId.equals(playeruuid) || PlotMe.cPerms(p, "PlotMe.admin.remove"))
 							{
-								if(plot.isAllowed(allowed))
+								if(plot.isAllowedConsulting(allowed) || plot.isGroupAllowed(allowed))
 								{
-									
 									World w = p.getWorld();
 									
 									PlotMapInfo pmi = PlotManager.getMap(w);
@@ -3125,12 +3135,17 @@ public class PMCommand implements CommandExecutor
 										}
 									}
 									
-									plot.removeAllowed(allowed);
+                                    if (allowed.startsWith("group:")) {
+                                        plot.removeAllowedGroup(allowed);
+                                    } else {
+                                        plot.removeAllowed(allowed);
+
+                                    }
 																	
-									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " " + C("WorldRemoved") + ". " + f(-price));
+									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " " + C("WordRemoved") + ". " + f(-price));
 									
 									if(isAdv)
-										PlotMe.logger.info(LOG + playername + " " + C("MsgRemovedPlayer") + " " + allowed + " " + C("MsgFromPlot") + " " + id + ((price != 0) ? " " + C("WordFor") + " " + price : ""));
+										PlotMe.logger.info(LOG + p.getName() + " " + C("MsgRemovedPlayer") + " " + allowed + " " + C("MsgFromPlot") + " " + id + ((price != 0) ? " " + C("WordFor") + " " + price : ""));
 								}
 								else
 								{
@@ -3157,7 +3172,7 @@ public class PMCommand implements CommandExecutor
 		return true;
 	}
 	
-	private boolean undeny(Player p, String[] args)
+    private boolean undeny(Player p, String[] args)
 	{
 		if (PlotMe.cPerms(p, "PlotMe.admin.undeny") || PlotMe.cPerms(p, "PlotMe.use.undeny"))
 		{
@@ -3184,13 +3199,13 @@ public class PMCommand implements CommandExecutor
 						{
 							Plot plot = PlotManager.getPlotById(p,id);
 							String playername = p.getName();
+							UUID playeruuid = p.getUniqueId();
 							String denied = args[1];
 							
-							if(plot.owner.equalsIgnoreCase(playername) || PlotMe.cPerms(p, "PlotMe.admin.undeny"))
+							if(plot.ownerId.equals(playeruuid) || PlotMe.cPerms(p, "PlotMe.admin.undeny"))
 							{
-								if(plot.isDenied(denied))
+								if(plot.isDeniedConsulting(denied) || plot.isGroupAllowed(denied))
 								{
-									
 									World w = p.getWorld();
 									
 									PlotMapInfo pmi = PlotManager.getMap(w);
@@ -3219,8 +3234,12 @@ public class PMCommand implements CommandExecutor
 											return true;
 										}
 									}
-									
-									plot.removeDenied(denied);
+
+                                    if (denied.startsWith("group:")) {
+                                        plot.removeDeniedGroup(denied);
+                                    } else {
+                                        plot.removeDenied(denied);
+                                    }
 																	
 									Send(p, C("WordPlayer") + " " + RED + denied + RESET + " " + C("MsgNowUndenied") + " " + f(-price));
 									
@@ -3335,6 +3354,7 @@ public class PMCommand implements CommandExecutor
 							}
 							
 							plot.currentbidder = "";
+							plot.currentbidderId = null;
 							plot.currentbid = 0;
 							plot.auctionned = false;
 							plot.forsale = false;
@@ -3345,6 +3365,7 @@ public class PMCommand implements CommandExecutor
 							plot.updateField("currentbid", 0);
 							plot.updateField("auctionned", false);
 							plot.updateField("forsale", false);
+							plot.updateField("currentbidderid", null);
 					
 							plot.owner = newowner;
 							
@@ -3354,7 +3375,7 @@ public class PMCommand implements CommandExecutor
 						}
 						else
 						{
-							PlotManager.createPlot(p.getWorld(), id,newowner);
+							PlotManager.createPlot(p.getWorld(), id, newowner, null);
 						}
 						
 						Send(p, C("MsgOwnerChangedTo") + " " + RED + newowner);

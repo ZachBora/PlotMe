@@ -148,7 +148,7 @@ public class PlotWorldEditListener implements Listener
 			{
 				Plot plot = PlotManager.getPlotById(p);
 				
-				if(plot == null || !plot.isAllowed(p.getName()))
+				if(plot == null || !plot.isAllowed(p.getUniqueId()))
 				{
 					event.setCancelled(true);
 				}
@@ -169,7 +169,7 @@ public class PlotWorldEditListener implements Listener
 				Block b = event.getClickedBlock();
 				Plot plot = PlotManager.getPlotById(b);
 				
-				if(plot != null && plot.isAllowed(p.getName()))
+				if(plot != null && plot.isAllowed(p.getUniqueId()))
 					PlotWorldEdit.setMask(p, b.getLocation());
 				else
 					event.setCancelled(true);

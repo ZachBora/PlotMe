@@ -38,11 +38,12 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.mcstats.Metrics;
+import org.mcstats.Metrics.Graph;
 import org.yaml.snakeyaml.Yaml;
 
 import com.griefcraft.model.Protection;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.worldcretornica.plotme.Metrics.Graph;
 import com.worldcretornica.plotme.listener.PlotDenyListener;
 import com.worldcretornica.plotme.listener.PlotListener;
 import com.worldcretornica.plotme.listener.PlotWorldEditListener;
@@ -76,8 +77,6 @@ public class PlotMe extends JavaPlugin
     
     private static HashSet<String> playersignoringwelimit = null;
     private static HashMap<String, String> captions;
-    
-    private static Boolean update = false;
     
     public static World worldcurrentlyprocessingexpired;
     public static CommandSender cscurrentlyprocessingexpired;
@@ -113,7 +112,6 @@ public class PlotMe extends JavaPlugin
 		usinglwc = null;
 		playersignoringwelimit = null;
 		captions = null;
-		update = null;
 		worldcurrentlyprocessingexpired = null;
 		cscurrentlyprocessingexpired = null;
 		counterexpired = null;
@@ -156,29 +154,11 @@ public class PlotMe extends JavaPlugin
 				
 		getCommand("plotme").setExecutor(new PMCommand(this));
 				
-		setupUpdater();
-				
 		self = this;
+		
+		SqlManager.plotConvertToUUIDAsynchronously();
 	}
-	
-	private void setupUpdater()
-	{
-		if (autoUpdate)
-		{
-			if (advancedlogging)
-			{
-				logger.info("Checking for a new update...");
-			}
-			
-			Updater updater = new Updater(this, NAME, this.getFile(), Updater.UpdateType.DEFAULT, false);
-			update = updater.getResult() != Updater.UpdateResult.NO_UPDATE;
-			
-			if (advancedlogging)
-			{
-				logger.info("Update available: " + update);
-			}
-		}
-	}	
+
 	
 	private void doMetric()
 	{
@@ -661,6 +641,9 @@ public class PlotMe extends JavaPlugin
 		protections.add(Material.BEACON.getId());
 		protections.add(Material.FLOWER_POT.getId());
 		protections.add(Material.ANVIL.getId());
+		protections.add(Material.DISPENSER.getId());
+		protections.add(Material.DROPPER.getId());
+		protections.add(Material.HOPPER.getId());
 		
 		return protections;
 	}
@@ -675,6 +658,7 @@ public class PlotMe extends JavaPlugin
 		preventeditems.add("" + Material.MINECART.getId());
 		preventeditems.add("" + Material.POWERED_MINECART.getId());
 		preventeditems.add("" + Material.STORAGE_MINECART.getId());
+		preventeditems.add("" + Material.HOPPER_MINECART.getId());
 		preventeditems.add("" + Material.BOAT.getId());
 		
 		return preventeditems;
