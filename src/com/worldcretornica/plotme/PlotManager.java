@@ -912,7 +912,7 @@ public class PlotManager
 				plots.put(idFrom, plot2);
 				
                 for (int i = 0; i < plot2.comments.size(); i++) {
-                    String strUUID = plot2.comments.get(i)[2];
+                    String strUUID = "";
                     UUID uuid = null;
 
                     if (plot2.comments.get(i).length >= 3) {
@@ -978,7 +978,7 @@ public class PlotManager
 				
 				for(int i = 0 ; i < plot.comments.size() ; i++)
 				{
-				    String strUUID = plot.comments.get(i)[2];
+				    String strUUID = "";
                     UUID uuid = null;
 
                     if (plot.comments.get(i).length >= 3) {
@@ -1020,7 +1020,7 @@ public class PlotManager
 				
 				for(int i = 0 ; i < plot.comments.size() ; i++)
 				{
-				    String strUUID = plot.comments.get(i)[2];
+				    String strUUID = "";
                     UUID uuid = null;
 
                     if (plot.comments.get(i).length >= 3) {

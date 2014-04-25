@@ -85,6 +85,8 @@ public class PlotMe extends JavaPlugin
     public static Boolean defaultWEAnywhere;
     
     protected static PlotMe self = null;
+    
+    Boolean initialized = false;
 	
 	public void onDisable()
 	{	
@@ -119,11 +121,14 @@ public class PlotMe extends JavaPlugin
 		defaultWEAnywhere = null;
 		self = null;
 		allowToDeny = null;
+		initialized = null;
 	}
 	
 	public void onEnable()
 	{
-		initialize();
+	    self = this;
+	    
+	    initialize();
 		
 		doMetric();
 		
@@ -153,8 +158,8 @@ public class PlotMe extends JavaPlugin
 		}
 				
 		getCommand("plotme").setExecutor(new PMCommand(this));
-				
-		self = this;
+		
+		initialized = true;
 		
 		SqlManager.plotConvertToUUIDAsynchronously();
 	}
