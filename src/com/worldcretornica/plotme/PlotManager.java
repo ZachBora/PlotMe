@@ -1050,22 +1050,22 @@ public class PlotManager
 	
 	public static int getNbOwnedPlot(Player p)
 	{
-		return getNbOwnedPlot(p.getName(), p.getWorld());
+		return getNbOwnedPlot(p.getUniqueId(), p.getWorld());
 	}
 	
 	public static int getNbOwnedPlot(Player p, World w)
 	{
-		return getNbOwnedPlot(p.getName(), w);
+		return getNbOwnedPlot(p.getUniqueId(), w);
 	}
 
-	public static int getNbOwnedPlot(String name, World w)
+	public static int getNbOwnedPlot(UUID uuid, World w)
 	{
 		int nbfound = 0;
 		if(PlotManager.getPlots(w) != null)
 		{
 			for(Plot plot : PlotManager.getPlots(w).values())
 			{
-				if(plot.owner.equalsIgnoreCase(name))
+				if(plot.ownerId.equals(uuid))
 				{
 					nbfound++;
 				}
