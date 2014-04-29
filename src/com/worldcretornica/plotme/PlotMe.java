@@ -14,9 +14,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import net.milkbowl.vault.economy.Economy;
@@ -69,7 +69,7 @@ public class PlotMe extends JavaPlugin
     public static Boolean autoUpdate;
     public static Boolean allowToDeny;
     
-    public static Map<String, PlotMapInfo> plotmaps = null;
+    public static ConcurrentHashMap<String, PlotMapInfo> plotmaps = null;
     
     public static WorldEditPlugin we = null;
     public static Economy economy = null;
@@ -358,7 +358,7 @@ public class PlotMe extends JavaPlugin
 			worlds = config.getConfigurationSection("worlds");
 		}
 		
-		plotmaps = new HashMap<String, PlotMapInfo>();
+		plotmaps = new ConcurrentHashMap<String, PlotMapInfo>();
 		
 		for(String worldname : worlds.getKeys(false))
 		{

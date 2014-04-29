@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -1317,7 +1318,12 @@ public class SqlManager {
                     String[] comment = new String[3];
                     comment[0] = setComments.getString("player");
                     comment[1] = setComments.getString("comment");
-                    comment[2] = UUIDFetcher.fromBytes(setComments.getBytes("playerid")).toString();
+                    
+                    byte[] byPlayerId = setComments.getBytes("playerid");
+                    if (byPlayerId != null) {
+                        comment[2] = UUIDFetcher.fromBytes(byPlayerId).toString();
+                    }
+                    
                     comments.add(comment);
                 }
 
@@ -1451,6 +1457,40 @@ public class SqlManager {
                             psAllowedPlayerId.close();
                             psDeniedPlayerId.close();
                             psCommentsPlayerId.close();
+                            
+                            
+                            //Update plot information
+                            for (PlotMapInfo pmi : PlotMe.plotmaps.values()) {
+                                for(Plot plot : pmi.plots.values()) {
+                                    for(Entry<String, UUID> player : response.entrySet()) {
+                                        //Owner
+                                        if(plot.ownerId == null && plot.owner != null && plot.owner.equalsIgnoreCase(player.getKey())) {
+                                            plot.owner = player.getKey();
+                                            plot.ownerId = player.getValue();
+                                        }
+                                        
+                                        //Bidder
+                                        if(plot.currentbidderId == null && plot.currentbidder != null && plot.currentbidder.equalsIgnoreCase(player.getKey())) {
+                                            plot.currentbidder = player.getKey();
+                                            plot.currentbidderId = player.getValue();
+                                        }
+                                        
+                                        //Allowed
+                                        plot.allowed.replace(player.getKey(), player.getValue());
+                                        
+                                        //Denied
+                                        plot.denied.replace(player.getKey(), player.getValue());
+                                        
+                                        //Comments
+                                        for(String[] comment : plot.comments) {
+                                            if(comment.length > 2 && comment[2] == null && comment[0] != null && comment[0].equalsIgnoreCase(player.getKey())) {
+                                                comment[0] = player.getKey();
+                                                comment[2] = player.getValue().toString();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         boConversion = true;
@@ -1648,5 +1688,57 @@ public class SqlManager {
                 }
             });
         }
+    }
+    
+    public static void updatePlotsNewUUID(final UUID uuid, final String newname) {
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() {
+            @Override
+            public void run() {
+                PreparedStatement[] pss = new PreparedStatement[5];
+
+                try {
+                    Connection conn = getConnection();
+
+                    pss[0] = conn.prepareStatement("UPDATE plotmePlots SET owner = ? WHERE ownerid = ?");
+                    pss[1] = conn.prepareStatement("UPDATE plotmePlots SET currentbidder = ? WHERE currentbidderid = ?");
+                    pss[2] = conn.prepareStatement("UPDATE plotmeAllowed SET player = ? WHERE playerid = ?");
+                    pss[3] = conn.prepareStatement("UPDATE plotmeDenied SET player = ? WHERE playerid = ?");
+                    pss[4] = conn.prepareStatement("UPDATE plotmeComments SET player = ? WHERE playerid = ?");
+
+                    for (PreparedStatement ps : pss) {
+                        ps.setString(1, newname);
+                        ps.setBytes(2, UUIDFetcher.toBytes(uuid));
+                        ps.executeUpdate();
+                    }
+
+                    conn.commit();
+
+                    for (PreparedStatement ps : pss) {
+                        ps.close();
+                    }
+
+                } catch (SQLException ex) {
+                    PlotMe.logger.severe("Update player in database from uuid failed :");
+                    PlotMe.logger.severe("  " + ex.getMessage());
+                    for (StackTraceElement e : ex.getStackTrace()) {
+                        PlotMe.logger.severe("  " + e.toString());
+                    }
+                } finally {
+                    try {
+                        for (PreparedStatement ps : pss) {
+                            if (ps != null) {
+                                ps.close();
+                            }
+                        }
+                    } catch (SQLException ex) {
+                        PlotMe.logger.severe("Update player in database from uuid failed (on close) :");
+                        PlotMe.logger.severe("  " + ex.getMessage());
+                        for (StackTraceElement e : ex.getStackTrace()) {
+                            PlotMe.logger.severe("  " + e.toString());
+                        }
+                    }
+                }
+            }
+        });
     }
 }

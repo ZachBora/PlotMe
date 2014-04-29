@@ -34,6 +34,7 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -856,6 +857,15 @@ public class PlotListener implements Listener
 				}
 			}
 		}
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onPlayerJoin(final PlayerJoinEvent event) {
+	    Player p = event.getPlayer();
+	    
+	    if(p != null) {
+	        PlotManager.UpdatePlayerNameFromId(p.getUniqueId(), p.getName());
+	    }
 	}
 	
 /*

@@ -1907,7 +1907,7 @@ public class PMCommand implements CommandExecutor
 				{
 					if(PlotManager.getNbOwnedPlot(p, w) >= PlotMe.getPlotLimit(p) && !PlotMe.cPerms(p, "PlotMe.admin"))
 						Send(p, RED + C("MsgAlreadyReachedMaxPlots") + " (" + 
-								PlotManager.getNbOwnedPlot(p, w) + "/" + PlotMe.getPlotLimit(p) + "). " + C("WordUse") + " " + RED + "/plotme " + C("CommandHome") + RESET + " " + C("MsgToGetToIt"));
+								PlotManager.getNbOwnedPlot(p, w) + "/" + PlotMe.getPlotLimit(p) + "). " + C("WordUse") + " " + "/plotme " + C("CommandHome") + " " + C("MsgToGetToIt"));
 					else
 					{
 						PlotMapInfo pmi = PlotManager.getMap(w);
@@ -2093,6 +2093,7 @@ public class PMCommand implements CommandExecutor
 			{
 				boolean found = false;
 				String playername = p.getName();
+				UUID uuid = p.getUniqueId();
 				int nb = 1;
 				World w;
 				
@@ -2133,6 +2134,7 @@ public class PMCommand implements CommandExecutor
 						if(PlotMe.cPerms(p, "PlotMe.admin.home.other"))
 						{
 							playername = args[1];
+							uuid = null;
 						}
 					}
 					else
@@ -2164,7 +2166,7 @@ public class PMCommand implements CommandExecutor
 							
 					for(Plot plot : PlotManager.getPlots(w).values())
 					{
-						if(plot.owner.equalsIgnoreCase(playername))
+						if(uuid == null && plot.owner.equalsIgnoreCase(playername) || uuid != null && plot.ownerId != null && plot.ownerId.equals(uuid))
 						{
 							if(i == 0)
 							{							

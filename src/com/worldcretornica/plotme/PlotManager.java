@@ -1065,7 +1065,7 @@ public class PlotManager
 		{
 			for(Plot plot : PlotManager.getPlots(w).values())
 			{
-				if(plot.ownerId.equals(uuid))
+				if(plot.ownerId != null && plot.ownerId.equals(uuid))
 				{
 					nbfound++;
 				}
@@ -1426,7 +1426,7 @@ public class PlotManager
 		return null;
 	}
 	
-	public static World getFirstWorld(String player)
+	public static World getFirstWorld(UUID uuid)
 	{
 		if(PlotMe.plotmaps != null)
 		{
@@ -1438,7 +1438,7 @@ public class PlotManager
 					{
 						for(String id : PlotMe.plotmaps.get(mapkey).plots.keySet())
 						{
-							if(PlotMe.plotmaps.get(mapkey).plots.get(id).owner.equalsIgnoreCase(player))
+							if(PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid))
 							{
 								return Bukkit.getWorld(mapkey);
 							}
@@ -1450,7 +1450,7 @@ public class PlotManager
 		return null;
 	}
 	
-	public static Plot getFirstPlot(String player)
+	public static Plot getFirstPlot(UUID uuid)
 	{
 		if(PlotMe.plotmaps != null)
 		{
@@ -1462,7 +1462,7 @@ public class PlotManager
 					{
 						for(String id : PlotMe.plotmaps.get(mapkey).plots.keySet())
 						{
-							if(PlotMe.plotmaps.get(mapkey).plots.get(id).owner.equalsIgnoreCase(player))
+							if(PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid))
 							{
 								return PlotMe.plotmaps.get(mapkey).plots.get(id);
 							}
@@ -1652,79 +1652,43 @@ public class PlotManager
 					}
 				}
 			});
-			
-			// loadProtections(String world, int x1, int x2, int y1, int y2, int z1, int z2)
-			// _1 is min, _2 max
-			/*List<Protection> protections = lwc.getPhysicalDatabase().loadProtections(wname, x1, x2, y1, y2, z1, z2);
-
-			for (Protection protection : protections) {
-			    protection.remove();
-			}*/
-			
-			
-			//plugin.scheduleProtectionRemoval(PlotManager.getBottom(w, plot), PlotManager.getTop(w, plot));
-			
-			/*Player p = Bukkit.getServer().getPlayerExact(plot.owner);
-			
-			if(p == null)
-			{
-				p = (Player) Bukkit.getServer().getOfflinePlayer(plot.owner);
-			}
-			
-			if(p == null)
-			{
-				PlotMe.logger.info("didnt find player:" + plot.owner);
-			}else{
-				Location bottom = getBottom(w, plot);
-				Location top = getTop(w, plot);
-				
-				LWC lwc = com.griefcraft.lwc.LWC.getInstance();
-				
-				int x1 = bottom.getBlockX();
-		    	int y1 = bottom.getBlockY();
-		    	int z1 = bottom.getBlockZ();
-		    	int x2 = top.getBlockX();
-		    	int y2 = top.getBlockY();
-		    	int z2 = top.getBlockZ();
-		    	
-		    	for(int x = x1; x <= x2; x++)
-		    	{
-		    		for(int z = z1; z <= z2; z++)
-		    		{
-		    			for(int y = y1; y <= y2; y++)
-		    			{
-		    				Block block = w.getBlockAt(x, y, z);
-	
-							Material material = block.getType();
-							
-							boolean ignoreBlockDestruction = Boolean.parseBoolean(lwc.resolveProtectionConfiguration(material, "ignoreBlockDestruction"));
-							
-							if (!ignoreBlockDestruction)
-							{							
-								Protection protection = lwc.findProtection(block);
-								
-								if(protection != null)
-								{
-									protection.remove();
-									boolean canAccess = lwc.canAccessProtection(p, protection);
-							        boolean canAdmin = lwc.canAdminProtection(p, protection);
-									
-									try 
-									{
-							            LWCProtectionDestroyEvent evt = new LWCProtectionDestroyEvent(p, protection, LWCProtectionDestroyEvent.Method.BLOCK_DESTRUCTION, canAccess, canAdmin);
-							            lwc.getModuleLoader().dispatchEvent(evt);
-							        } 
-									catch (Exception e) 
-							        {
-							            lwc.sendLocale(p, "protection.internalerror", "id", "BLOCK_BREAK");
-							            e.printStackTrace();
-							        }
-								}
-							}
-						}
-		    		}
-		    	}
-			}*/
 	    }
+	}
+	
+	public static void UpdatePlayerNameFromId(final UUID uuid, final String name) {
+        SqlManager.updatePlotsNewUUID(uuid, name);
+        
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() {
+            @Override
+            public void run() {
+                for (PlotMapInfo pmi : PlotMe.plotmaps.values()) {
+                    for(Plot plot : pmi.plots.values()) {
+
+                        //Owner
+                        if(plot.ownerId != null && plot.ownerId.equals(uuid)) {
+                            plot.owner = name;
+                        }
+                        
+                        //Bidder
+                        if(plot.currentbidderId != null && plot.currentbidderId.equals(uuid)) {
+                            plot.currentbidder = name;
+                        }
+                        
+                        //Allowed
+                        plot.allowed.replace(uuid, name);
+                        
+                        //Denied
+                        plot.denied.replace(uuid, name);
+                        
+                        //Comments
+                        for(String[] comment : plot.comments) {
+                            if(comment.length > 2 && comment[2] != null && comment[2].equalsIgnoreCase(uuid.toString())) {
+                                comment[0] = name;
+                            }
+                        }
+                    }
+                }
+            }
+        });
 	}
 }
