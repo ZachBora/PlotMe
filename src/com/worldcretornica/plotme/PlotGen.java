@@ -297,9 +297,9 @@ public class PlotGen extends ChunkGenerator {
 	{
 		if(temppmi == null)
 		{
-			return Arrays.asList((BlockPopulator)new PlotPopulator());
+			return Arrays.asList((BlockPopulator)new PlotRoadPopulator());
 		}else{
-			return Arrays.asList((BlockPopulator)new PlotPopulator(temppmi));
+			return Arrays.asList((BlockPopulator)new PlotRoadPopulator(temppmi));
 		}
     }
 

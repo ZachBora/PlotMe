@@ -35,9 +35,9 @@ public class PlotRoadPopulator extends BlockPopulator
 		pathsize = 7;
 		wall = 0;
 		wallid = 44;
-		floor2 = 0;
+		floor2 = 2;
 		floor2id = 5;
-		floor1 = 2;
+		floor1 = 0;
 		floor1id = 5;
 		
 		pillar = 0;
@@ -58,10 +58,10 @@ public class PlotRoadPopulator extends BlockPopulator
 		pathsize = pmi.PathWidth;
 		wall = pmi.WallBlockValue;
 		wallid = pmi.WallBlockId;
-		floor2 = pmi.RoadMainBlockValue;
-		floor2id = pmi.RoadMainBlockId;
-		floor1 = pmi.RoadStripeBlockValue;
-		floor1id = pmi.RoadStripeBlockId;
+		floor1 = pmi.RoadMainBlockValue;
+		floor1id = pmi.RoadMainBlockId;
+		floor2 = pmi.RoadStripeBlockValue;
+		floor2id = pmi.RoadStripeBlockId;
 		roadheight = pmi.RoadHeight;
 		
 		pillar = 0;
