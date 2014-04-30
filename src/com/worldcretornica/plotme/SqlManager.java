@@ -1003,6 +1003,16 @@ public class SqlManager {
             }
         }
     }
+    
+    public static void addPlotComment(String[] comment, int commentid, int idX, int idZ, String world) {
+        UUID uuid = null;
+        if(comment.length > 2) {
+            try{
+                uuid = UUID.fromString(comment[2]);
+            }catch(IllegalArgumentException e){}
+        }
+        addPlotComment(comment, commentid, idX, idZ, world, uuid);
+    }
 
     public static void addPlotComment(String[] comment, int commentid, int idX, int idZ, String world, UUID uuid) {
         PreparedStatement ps = null;
