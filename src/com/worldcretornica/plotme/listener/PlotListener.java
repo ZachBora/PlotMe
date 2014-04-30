@@ -24,6 +24,7 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
@@ -187,6 +188,18 @@ public class PlotListener implements Listener
                         plot.resetExpire(PlotManager.getMap(b).DaysToExpiration);
                     }
                 }
+            }
+        }
+    }
+	
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEntityBlockForm(final EntityBlockFormEvent event) {
+        Block b = event.getBlock();
+        Entity e = event.getEntity();
+
+        if (PlotManager.isPlotWorld(b)) {
+            if (!(e instanceof Player)) {
+                event.setCancelled(true);
             }
         }
     }
