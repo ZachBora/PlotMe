@@ -102,30 +102,34 @@ public class PlayerList {
     }
     
     public void replace(UUID uuid, String newname) {
-        if(this.contains(uuid)) {
-            Iterator<String> it = playerlist.keySet().iterator();
-            while (it.hasNext()) {
-                String name = it.next();
-                
-                if(playerlist.get(name).equals(uuid)) {
-                    playerlist.remove(name);
-                    playerlist.put(newname, uuid);
-                    return;
+        if(uuid != null && playerlist != null) {
+            if(this.contains(uuid)) {
+                Iterator<String> it = playerlist.keySet().iterator();
+                while (it.hasNext()) {
+                    String name = it.next();
+                    
+                    if(playerlist.get(name) != null && playerlist.get(name).equals(uuid)) {
+                        playerlist.remove(name);
+                        playerlist.put(newname, uuid);
+                        return;
+                    }
                 }
             }
         }
     }
     
     public void replace(String name, UUID newuuid) {
-        if(this.contains(name)) {
-            Iterator<String> it = playerlist.keySet().iterator();
-            while (it.hasNext()) {
-                String key = it.next();
-                
-                if(key.equalsIgnoreCase(name)) {
-                    playerlist.remove(key);
-                    playerlist.put(name, newuuid);
-                    return;
+        if(newuuid != null && playerlist != null) {
+            if(this.contains(name)) {
+                Iterator<String> it = playerlist.keySet().iterator();
+                while (it.hasNext()) {
+                    String key = it.next();
+                    
+                    if(key.equalsIgnoreCase(name)) {
+                        playerlist.remove(key);
+                        playerlist.put(name, newuuid);
+                        return;
+                    }
                 }
             }
         }

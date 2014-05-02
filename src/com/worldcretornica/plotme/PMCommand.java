@@ -501,13 +501,13 @@ public class PMCommand implements CommandExecutor
 								
 								if(plot.auctionned)
 								{
-									if(!plot.currentbidder.equalsIgnoreCase("") && !PlotMe.cPerms(p, "PlotMe.admin.auction"))
+									if(plot.currentbidder != null && !plot.currentbidder.equalsIgnoreCase("") && !PlotMe.cPerms(p, "PlotMe.admin.auction"))
 									{
 										Send(p, RED + C("MsgPlotHasBidsAskAdmin"));
 									}
 									else
 									{
-										if(!plot.currentbidder.equalsIgnoreCase(""))
+										if(plot.currentbidder != null && !plot.currentbidder.equalsIgnoreCase(""))
 										{
 											EconomyResponse er = PlotMe.economy.depositPlayer(plot.currentbidder, plot.currentbid);
 											
@@ -520,7 +520,7 @@ public class PMCommand implements CommandExecutor
 											{
 											    for(Player player : Bukkit.getServer().getOnlinePlayers())
 											    {
-											        if(player.getName().equalsIgnoreCase(plot.currentbidder))
+											        if(plot.currentbidder != null && player.getName().equalsIgnoreCase(plot.currentbidder))
 											        {
 											            Send(player, C("MsgAuctionCancelledOnPlot") + 
 											            		" " + id + " " + C("MsgOwnedBy") + " " + plot.owner + ". " + f(plot.currentbid));
@@ -1333,7 +1333,7 @@ public class PMCommand implements CommandExecutor
 					
 					if(plot.auctionned)
 					{
-						addition.append(" " + C("WordAuction") + ": " + GREEN + round(plot.currentbid) + RESET + ((!plot.currentbidder.equals("")) ? " " + plot.currentbidder : "") );
+						addition.append(" " + C("WordAuction") + ": " + GREEN + round(plot.currentbid) + RESET + ((plot.currentbidder != null && !plot.currentbidder.equals("")) ? " " + plot.currentbidder : "") );
 					}
 					
 					if(plot.forsale)
@@ -2280,7 +2280,7 @@ public class PMCommand implements CommandExecutor
 						
 						if(PlotManager.isEconomyEnabled(p))
 						{
-							if(plot.currentbidder.equalsIgnoreCase(""))
+							if(plot.currentbidder != null || plot.currentbidder.equalsIgnoreCase(""))
 							{
 								p.sendMessage(GREEN + C("InfoAuctionned") + ": " + AQUA + ((plot.auctionned) ? C("WordYes") + 
 										GREEN + " " + C("InfoMinimumBid") + ": " + AQUA + round(plot.currentbid) : C("WordNo")) +
@@ -3332,7 +3332,7 @@ public class PMCommand implements CommandExecutor
 									}
 								}
 								
-								if(!plot.currentbidder.equals(""))
+								if(plot.currentbidder != null && !plot.currentbidder.equals(""))
 								{
 									EconomyResponse er = PlotMe.economy.depositPlayer(plot.currentbidder, plot.currentbid);
 									
