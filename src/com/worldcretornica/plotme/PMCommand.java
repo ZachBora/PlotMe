@@ -2153,7 +2153,7 @@ public class PMCommand implements CommandExecutor
 				{
 					if(Bukkit.getWorld(args[2]) == null)
 					{
-						Send(p, RED + args[2] + C("MsgWorldNotPlot"));
+						Send(p, RED + args[2] + " " + C("MsgWorldNotPlot"));
 						return true;
 					}
 					else
@@ -2165,7 +2165,7 @@ public class PMCommand implements CommandExecutor
 				
 				if(!PlotManager.isPlotWorld(w))
 				{
-					Send(p, RED + worldname + C("MsgWorldNotPlot"));
+					Send(p, RED + worldname + " " + C("MsgWorldNotPlot"));
 				}
 				else
 				{
