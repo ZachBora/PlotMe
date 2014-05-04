@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.worldcretornica</groupId>
   <artifactId>PlotMe</artifactId>
-  <version>0.13f-SNAPSHOT</version>
+  <version>0.13g-SNAPSHOT</version>
   <name>PlotMe</name>
   <url>http://dev.bukkit.org/bukkit-mods/plotme/</url>
   <build>

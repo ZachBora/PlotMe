@@ -2095,7 +2095,8 @@ public class PMCommand implements CommandExecutor
 				String playername = p.getName();
 				UUID uuid = p.getUniqueId();
 				int nb = 1;
-				World w;
+				World w = null;
+				String worldname = "";
 				
 				if(!PlotManager.isPlotWorld(p) && PlotMe.allowWorldTeleport)
 				{
@@ -2104,6 +2105,10 @@ public class PMCommand implements CommandExecutor
 				else
 				{
 					w = p.getWorld();
+				}
+				
+				if(w != null) {
+				    worldname = w.getName();
 				}
 				
 				if(args[0].contains(":"))
@@ -2140,6 +2145,7 @@ public class PMCommand implements CommandExecutor
 					else
 					{
 						w = Bukkit.getWorld(args[1]);
+						worldname = args[1];
 					}
 				}
 				
@@ -2153,12 +2159,13 @@ public class PMCommand implements CommandExecutor
 					else
 					{
 						w = Bukkit.getWorld(args[2]);
+						worldname = args[2];
 					}
 				}
 				
 				if(!PlotManager.isPlotWorld(w))
 				{
-					Send(p, RED + w.getName() + C("MsgWorldNotPlot"));
+					Send(p, RED + worldname + C("MsgWorldNotPlot"));
 				}
 				else
 				{
