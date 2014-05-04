@@ -3213,7 +3213,7 @@ public class PMCommand implements CommandExecutor
 							
 							if(plot.ownerId.equals(playeruuid) || PlotMe.cPerms(p, "PlotMe.admin.undeny"))
 							{
-								if(plot.isDeniedConsulting(denied) || plot.isGroupAllowed(denied))
+								if(plot.isDeniedConsulting(denied) || plot.isGroupDenied(denied))
 								{
 									World w = p.getWorld();
 									
