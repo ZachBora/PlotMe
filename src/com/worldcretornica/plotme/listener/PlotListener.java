@@ -142,7 +142,6 @@ public class PlotListener implements Listener
 		}
 	}
 	
-	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onEntityChangeBlock(final EntityChangeBlockEvent event)
     {
@@ -152,7 +151,9 @@ public class PlotListener implements Listener
         if(PlotManager.isPlotWorld(b))
         {
             if(!(e instanceof Player)) {
-                event.setCancelled(true);
+                if(!(e instanceof org.bukkit.entity.FallingBlock)) {
+                    event.setCancelled(true);
+                }
             } else {
                 Player p = (Player) e;
                 boolean canbuild = PlotMe.cPerms(p, "plotme.admin.buildanywhere");
@@ -203,6 +204,7 @@ public class PlotListener implements Listener
             }
         }
     }
+	
 	
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onPlayerBucketEmpty(final PlayerBucketEmptyEvent event)
@@ -880,31 +882,4 @@ public class PlotListener implements Listener
 	        PlotManager.UpdatePlayerNameFromId(p.getUniqueId(), p.getName());
 	    }
 	}
-	
-/*
-	@EventHandler
-	public void onWorldInit(WorldInitEvent event) 
-	{
-		World w = event.getWorld();
-		
-		if (w.getName().equalsIgnoreCase("TestWorld"))
-		{
-			for (BlockPopulator pop : w.getPopulators()) 
-			{
-				if ((pop instanceof PlotRoadPopulator)) 
-				{
-					return;
-				}
-			}
-			
-			PlotMapInfo pmi = PlotManager.getMap(w);
-			
-			if(pmi == null)
-			{
-				w.getPopulators().add(new PlotRoadPopulator());
-			}else{
-				w.getPopulators().add(new PlotRoadPopulator(pmi));
-			}
-		}
-	}*/
 }
