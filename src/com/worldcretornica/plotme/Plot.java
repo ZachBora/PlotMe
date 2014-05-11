@@ -300,6 +300,19 @@ public class Plot implements Comparable<Plot> {
         if (allowed.contains(name)) {
             UUID uuid = allowed.remove(name);
             SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
+            
+            if(PlotMe.we != null) {
+                Player p = Bukkit.getPlayer(uuid);
+                
+                if(p != null) {
+                    if(PlotManager.isPlotWorld(p.getWorld())) {
+                        if(!PlotMe.isIgnoringWELimit(p))
+                            PlotWorldEdit.setMask(p);
+                        else
+                            PlotWorldEdit.removeMask(p);
+                    }
+                }
+            }
         }
     }
     
@@ -314,6 +327,19 @@ public class Plot implements Comparable<Plot> {
         if (allowed.contains(uuid)) {
             String name = allowed.remove(uuid);
             SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
+            
+            if(PlotMe.we != null) {
+                Player p = Bukkit.getPlayer(uuid);
+                
+                if(p != null) {
+                    if(PlotManager.isPlotWorld(p.getWorld())) {
+                        if(!PlotMe.isIgnoringWELimit(p))
+                            PlotWorldEdit.setMask(p);
+                        else
+                            PlotWorldEdit.removeMask(p);
+                    }
+                }
+            }
         }
     }
 
@@ -399,7 +425,7 @@ public class Plot implements Comparable<Plot> {
     }
     
     private boolean isAllowedInternal(String name, UUID uuid, boolean IncludeStar, boolean IncludeGroup) {
-        
+                
         if(IncludeStar && owner.equals("*")) {
             return true;
         }
@@ -409,7 +435,7 @@ public class Plot implements Comparable<Plot> {
         if (uuid != null) {
             p = Bukkit.getServer().getPlayer(uuid);
         }
-        
+                
         if (uuid != null && ownerId != null && ownerId.equals(uuid)) {
             return true;
         } else if(uuid == null && owner.equalsIgnoreCase(name)) {
@@ -472,14 +498,14 @@ public class Plot implements Comparable<Plot> {
     
     private boolean isDeniedInternal(String name, UUID uuid, boolean IncludeStar, boolean IncludeGroup) {
         Player p = null;
-
+        
+        if (isAllowedInternal(name, uuid, false, false))
+            return false;
+        
         if (uuid != null) {
             p = Bukkit.getServer().getPlayer(uuid);
         }
-
-        if (isAllowedInternal(name, uuid, false, false))
-            return false;
-
+        
         HashMap<String, UUID> list = denied.getAllPlayers();
         for (String str : list.keySet()) {
             if(str.equals("*")) {
@@ -492,7 +518,7 @@ public class Plot implements Comparable<Plot> {
             } else if(uuid == null && str.equalsIgnoreCase(name)) {
                 return true;
             }
-
+            
             if (IncludeGroup && str.toLowerCase().startsWith("group:") && p != null)
                 if (p.hasPermission("plotme.group." + str.replace("Group:", "")))
                     return true;

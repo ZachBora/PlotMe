@@ -2287,7 +2287,7 @@ public class PMCommand implements CommandExecutor
 						
 						if(PlotManager.isEconomyEnabled(p))
 						{
-							if(plot.currentbidder != null || plot.currentbidder.equalsIgnoreCase(""))
+							if(plot.currentbidder == null || plot.currentbidder.equalsIgnoreCase(""))
 							{
 								p.sendMessage(GREEN + C("InfoAuctionned") + ": " + AQUA + ((plot.auctionned) ? C("WordYes") + 
 										GREEN + " " + C("InfoMinimumBid") + ": " + AQUA + round(plot.currentbid) : C("WordNo")) +
@@ -2930,6 +2930,7 @@ public class PMCommand implements CommandExecutor
 									}
 									
 									plot.addAllowed(allowed);
+									plot.removeDenied(allowed);
 									
 									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " " + C("MsgNowAllowed") + " " + f(-price));
 									
@@ -3025,6 +3026,7 @@ public class PMCommand implements CommandExecutor
 									}
 									
                                     plot.addDenied(denied);
+                                    plot.removeAllowed(denied);
 									
 									if(denied.equals("*"))
 									{
@@ -3148,7 +3150,6 @@ public class PMCommand implements CommandExecutor
                                         plot.removeAllowedGroup(allowed);
                                     } else {
                                         plot.removeAllowed(allowed);
-
                                     }
 																	
 									Send(p, C("WordPlayer") + " " + RED + allowed + RESET + " " + C("WordRemoved") + ". " + f(-price));

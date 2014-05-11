@@ -73,7 +73,12 @@ public class PlayerList {
         if (list.length() > 1) {
             list = list.delete(list.length() - 2, list.length());
         }
-        return list.toString();
+        if(list.toString() == null)
+        {
+            return "";
+        } else {
+            return list.toString();
+        }
     }
     
     public boolean contains(String name) {
