@@ -1380,6 +1380,13 @@ public class SqlManager {
                 PreparedStatement psAllowedPlayerId = null;
                 PreparedStatement psDeniedPlayerId = null;
                 PreparedStatement psCommentsPlayerId = null;
+                
+                PreparedStatement psDeleteOwner = null;
+                PreparedStatement psDeleteCurrentBidder = null;
+                PreparedStatement psDeleteAllowed = null;
+                PreparedStatement psDeleteDenied = null;
+                PreparedStatement psDeleteComments = null;
+                
                 ResultSet setPlayers = null;
                 int nbConverted = 0;
                 String sql = "";
@@ -1404,14 +1411,43 @@ public class SqlManager {
                     if (setPlayers.next()) {
 
                         List<String> names = new ArrayList<String>();
+                        
+                        //Prepare delete statements
+                        psDeleteOwner = conn.prepareStatement("UPDATE plotmePlots SET owner = '' WHERE owner = ? ");
+                        psDeleteCurrentBidder = conn.prepareStatement("UPDATE plotmePlots SET currentbidder = null WHERE currentbidder = ? ");
+                        psDeleteAllowed = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE player = ? ");
+                        psDeleteDenied = conn.prepareStatement("DELETE FROM plotmeDenied WHERE player = ? ");
+                        psDeleteComments = conn.prepareStatement("DELETE FROM plotmeComments WHERE player = ? ");
 
                         PlotMe.logger.info("Starting to convert plots to UUID");
                         do {
-                            if (!setPlayers.getString("Name").equals("")) {
-                                names.add(setPlayers.getString("Name"));
+                            String name = setPlayers.getString("Name");
+                            if (!name.equals("")) {     
+                                if(name.matches("^[a-zA-Z0-9_]{1,16}$")) {
+                                    names.add(name);
+                                } else {
+                                    PlotMe.logger.warning("Invalid name found : " + name + ". Removing from database.");
+                                    psDeleteOwner.setString(1, name);
+                                    psDeleteOwner.executeUpdate();
+                                    psDeleteCurrentBidder.setString(1, name);
+                                    psDeleteCurrentBidder.executeUpdate();
+                                    psDeleteAllowed.setString(1, name);
+                                    psDeleteAllowed.executeUpdate();
+                                    psDeleteDenied.setString(1, name);
+                                    psDeleteDenied.executeUpdate();
+                                    psDeleteComments.setString(1, name);
+                                    psDeleteComments.executeUpdate();
+                                    conn.commit();
+                                }
                             }
                         } while (setPlayers.next());
 
+                        psDeleteOwner.close();
+                        psDeleteCurrentBidder.close();
+                        psDeleteAllowed.close();
+                        psDeleteDenied.close();
+                        psDeleteComments.close();
+                        
                         UUIDFetcher fetcher = new UUIDFetcher(names);
 
                         Map<String, UUID> response = null;
@@ -1542,6 +1578,21 @@ public class SqlManager {
                         }
                         if (setPlayers != null) {
                             setPlayers.close();
+                        }
+                        if (psDeleteOwner != null) {
+                            psDeleteOwner.close();
+                        }
+                        if (psDeleteCurrentBidder != null) {
+                            psDeleteCurrentBidder.close();
+                        }
+                        if (psDeleteAllowed != null) {
+                            psDeleteAllowed.close();
+                        }
+                        if (psDeleteDenied != null) {
+                            psDeleteDenied.close();
+                        }
+                        if (psDeleteComments != null) {
+                            psDeleteComments.close();
                         }
                     } catch (SQLException ex) {
                         PlotMe.logger.severe("Conversion to UUID failed (on close) :");
