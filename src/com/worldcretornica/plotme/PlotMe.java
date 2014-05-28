@@ -55,7 +55,7 @@ public class PlotMe extends JavaPlugin
 	public static String VERSION;
 	public static String WEBSITE;
 	
-	public static Logger logger = Logger.getLogger("Minecraft");
+	public static Logger logger = null;
 		
 	public static Boolean usemySQL;
     public static String mySQLuname;
@@ -127,6 +127,7 @@ public class PlotMe extends JavaPlugin
 	public void onEnable()
 	{
 	    self = this;
+	    logger = getLogger();
 	    
 	    initialize();
 		
