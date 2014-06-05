@@ -580,7 +580,7 @@ public class SqlManager {
                         boolean finished = setPlots.getBoolean("finished");
                         PlayerList allowed = new PlayerList();
                         PlayerList denied = new PlayerList();
-                        List<String[]> comments = new ArrayList<String[]>();
+                        List<String[]> comments = new ArrayList<>();
                         double customprice = setPlots.getDouble("customprice");
                         boolean forsale = setPlots.getBoolean("forsale");
                         String finisheddate = setPlots.getString("finisheddate");
@@ -1228,7 +1228,7 @@ public class SqlManager {
     }
 
     public static HashMap<String, Plot> getPlots(String world) {
-        HashMap<String, Plot> ret = new HashMap<String, Plot>();
+        HashMap<String, Plot> ret = new HashMap<>();
         Statement statementPlot = null;
         Statement statementAllowed = null;
         Statement statementDenied = null;
@@ -1258,7 +1258,7 @@ public class SqlManager {
                 boolean finished = setPlots.getBoolean("finished");
                 PlayerList allowed = new PlayerList();
                 PlayerList denied = new PlayerList();
-                List<String[]> comments = new ArrayList<String[]>();
+                List<String[]> comments = new ArrayList<>();
                 double customprice = setPlots.getDouble("customprice");
                 boolean forsale = setPlots.getBoolean("forsale");
                 String finisheddate = setPlots.getString("finisheddate");
@@ -1399,7 +1399,7 @@ public class SqlManager {
 
                     if (setPlayers.next()) {
 
-                        List<String> names = new ArrayList<String>();
+                        List<String> names = new ArrayList<>();
                         
                         //Prepare delete statements
                         psDeleteOwner = conn.prepareStatement("UPDATE plotmePlots SET owner = '' WHERE owner = ? ");
@@ -1631,7 +1631,7 @@ public class SqlManager {
                             uuid = p.getUniqueId();
                             newname = p.getName();
                         } else {
-                            List<String> names = new ArrayList<String>();
+                            List<String> names = new ArrayList<>();
     
                             names.add(name);
     

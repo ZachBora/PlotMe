@@ -1,31 +1,12 @@
 package com.worldcretornica.plotme;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
+import com.griefcraft.model.Protection;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.worldcretornica.plotme.listener.PlotDenyListener;
+import com.worldcretornica.plotme.listener.PlotListener;
+import com.worldcretornica.plotme.listener.PlotWorldEditListener;
 import net.milkbowl.vault.economy.Economy;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -42,11 +23,11 @@ import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.yaml.snakeyaml.Yaml;
 
-import com.griefcraft.model.Protection;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.worldcretornica.plotme.listener.PlotDenyListener;
-import com.worldcretornica.plotme.listener.PlotListener;
-import com.worldcretornica.plotme.listener.PlotWorldEditListener;
+import java.io.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 public class PlotMe extends JavaPlugin
 {
@@ -257,7 +238,7 @@ public class PlotMe extends JavaPlugin
 		VERSION = pdfFile.getVersion();
 		WEBSITE = pdfFile.getWebsite();
 		configpath = getDataFolder().getAbsolutePath();
-		playersignoringwelimit = new HashSet<String>();
+		playersignoringwelimit = new HashSet<>();
 
 		if(!this.getDataFolder().exists()) 
 		{
@@ -358,7 +339,7 @@ public class PlotMe extends JavaPlugin
 			worlds = config.getConfigurationSection("worlds");
 		}
 		
-		plotmaps = new ConcurrentHashMap<String, PlotMapInfo>();
+		plotmaps = new ConcurrentHashMap<>();
 		
 		for(String worldname : worlds.getKeys(false))
 		{
@@ -630,7 +611,7 @@ public class PlotMe extends JavaPlugin
 	@SuppressWarnings("deprecation")
     private List<Integer> getDefaultProtectedBlocks()
 	{
-		List<Integer> protections = new ArrayList<Integer>();
+		List<Integer> protections = new ArrayList<>();
 		
 		protections.add(Material.CHEST.getId());
 		protections.add(Material.FURNACE.getId());
@@ -656,7 +637,7 @@ public class PlotMe extends JavaPlugin
 	@SuppressWarnings("deprecation")
     private List<String> getDefaultPreventedItems()
 	{
-		List<String> preventeditems = new ArrayList<String>();
+		List<String> preventeditems = new ArrayList<>();
 
 		preventeditems.add("" + Material.INK_SACK.getId() + ":15");
 		preventeditems.add("" + Material.FLINT_AND_STEEL.getId());
@@ -683,7 +664,7 @@ public class PlotMe extends JavaPlugin
 	{
 		File filelang = new File(this.getDataFolder(), "caption-english.yml");
 		
-		TreeMap<String, String> properties = new TreeMap<String, String>();
+		TreeMap<String, String> properties = new TreeMap<>();
 		properties.put("MsgStartDeleteSession","Starting delete session");
 		properties.put("MsgDeletedExpiredPlots", "Deleted expired plot");
 		properties.put("MsgDeleteSessionFinished","Deletion session finished, rerun to reset more plots");
@@ -988,7 +969,7 @@ public class PlotMe extends JavaPlugin
 				@SuppressWarnings("unchecked")
 				LinkedHashMap<String, String> data = (LinkedHashMap<String, String>) obj;
 							    
-			    captions = new HashMap<String, String>();
+			    captions = new HashMap<>();
 				for(String key : data.keySet())
 				{
 					captions.put(key, data.get(key));

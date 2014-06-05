@@ -15,7 +15,7 @@ public class PlotRunnableDeleteExpire implements Runnable {
 		if(PlotMe.worldcurrentlyprocessingexpired != null)
 		{
 			World w = PlotMe.worldcurrentlyprocessingexpired;
-			List<Plot> expiredplots = new ArrayList<Plot>();
+			List<Plot> expiredplots = new ArrayList<>();
 			HashMap<String, Plot> plots = PlotManager.getPlots(w);
 			String date = PlotMe.getDate();
 			Plot expiredplot;

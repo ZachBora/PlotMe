@@ -1051,7 +1051,7 @@ public class PMCommand implements CommandExecutor
 			{
 				
 				HashMap<String, Plot> plots = pmi.plots;
-				List<Plot> finishedplots = new ArrayList<Plot>();
+				List<Plot> finishedplots = new ArrayList<>();
 				int nbfinished = 0;
 				int maxpage = 0;
 				int pagesize = 8;
@@ -1232,7 +1232,7 @@ public class PMCommand implements CommandExecutor
 				int maxpage = 0;
 				int nbexpiredplots = 0; 
 				World w = p.getWorld();
-				List<Plot> expiredplots = new ArrayList<Plot>();
+				List<Plot> expiredplots = new ArrayList<>();
 				HashMap<String, Plot> plots = PlotManager.getPlots(w);
 				String date = PlotMe.getDate();
 				
@@ -1441,7 +1441,7 @@ public class PMCommand implements CommandExecutor
 		int maxpage = 0;
 		boolean ecoon = PlotManager.isEconomyEnabled(p);
 		
-		List<String> allowed_commands = new ArrayList<String>();
+		List<String> allowed_commands = new ArrayList<>();
 		
 		allowed_commands.add("limit");
 		if(PlotMe.cPerms(p, "PlotMe.use.claim")) allowed_commands.add("claim");
@@ -2584,7 +2584,7 @@ public class PMCommand implements CommandExecutor
 			
 			//int i = 0;
 			StringBuilder line = new StringBuilder();
-			List<String> biomes = new ArrayList<String>();
+			List<String> biomes = new ArrayList<>();
 			
 			for(Biome b : Biome.values())
 			{
@@ -2593,9 +2593,9 @@ public class PMCommand implements CommandExecutor
 			
 			Collections.sort(biomes);
 			
-			List<String> column1 = new ArrayList<String>();
-			List<String> column2 = new ArrayList<String>();
-			List<String> column3 = new ArrayList<String>();
+			List<String> column1 = new ArrayList<>();
+			List<String> column2 = new ArrayList<>();
+			List<String> column3 = new ArrayList<>();
 			
 			for(int ctr = 0; ctr < biomes.size(); ctr++)
 			{

@@ -97,7 +97,7 @@ public class Updater
         */        
         UPDATE_AVAILABLE(7);        
         
-        private static final Map<Integer, Updater.UpdateResult> valueList = new HashMap<Integer, Updater.UpdateResult>();
+        private static final Map<Integer, Updater.UpdateResult> valueList = new HashMap<>();
         private final int value;
         
         private UpdateResult(int value)
@@ -142,7 +142,7 @@ public class Updater
         */        
         NO_DOWNLOAD(3);
         
-        private static final Map<Integer, Updater.UpdateType> valueList = new HashMap<Integer, Updater.UpdateType>();
+        private static final Map<Integer, Updater.UpdateType> valueList = new HashMap<>();
         private final int value;
         
         private UpdateType(int value)

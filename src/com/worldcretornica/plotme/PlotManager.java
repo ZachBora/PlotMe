@@ -126,7 +126,7 @@ public class PlotManager
 
 	public static List<Player> getPlayersInPlot(World w, String id) 
 	{
-		List<Player> playersInPlot = new ArrayList<Player>();
+		List<Player> playersInPlot = new ArrayList<>();
 		
 		for (Player p : w.getPlayers()) 
 		{
@@ -729,7 +729,7 @@ public class PlotManager
 		World w = l.getWorld();
 		PlotMapInfo pmi = getMap(w);
 		
-		List<String> wallids = new ArrayList<String>();
+		List<String> wallids = new ArrayList<>();
 		
 		String auctionwallid = pmi.AuctionWallBlockId;
 		String forsalewallid = pmi.ForSaleWallBlockId;
@@ -1376,7 +1376,7 @@ public class PlotManager
 	
 	public static void deleteNextExpired(World w, CommandSender sender)
 	{
-		List<Plot> expiredplots = new ArrayList<Plot>();
+		List<Plot> expiredplots = new ArrayList<>();
 		HashMap<String, Plot> plots = getPlots(w);
 		String date = PlotMe.getDate();
 		Plot expiredplot;
@@ -1507,7 +1507,7 @@ public class PlotManager
 		int minChunkZ = (int) Math.floor((double) bottomZ / 16);
 		int maxChunkZ = (int) Math.floor((double) topZ / 16);
 		
-		HashMap<Location, Biome> biomes = new HashMap<Location, Biome>();
+		HashMap<Location, Biome> biomes = new HashMap<>();
 		
 		for(int cx = minChunkX; cx <= maxChunkX; cx++)
 		{
