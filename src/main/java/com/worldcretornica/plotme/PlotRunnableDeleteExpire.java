@@ -1,12 +1,12 @@
 package com.worldcretornica.plotme;
 
+import org.bukkit.ChatColor;
+import org.bukkit.World;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-
-import org.bukkit.ChatColor;
-import org.bukkit.World;
 
 public class PlotRunnableDeleteExpire implements Runnable {
 
@@ -24,7 +24,7 @@ public class PlotRunnableDeleteExpire implements Runnable {
 			{
 				Plot plot = plots.get(id);
 				
-				if(!plot.protect && !plot.finished && plot.expireddate != null && PlotMe.getDate(plot.expireddate).compareTo(date.toString()) < 0)
+				if(!plot.protect && !plot.finished && plot.expireddate != null && PlotMe.getDate(plot.expireddate).compareTo(date) < 0)
 				{
 					expiredplots.add(plot);
 				}
@@ -41,8 +41,7 @@ public class PlotRunnableDeleteExpire implements Runnable {
 			}
 			else
 			{
-				plots = null;
-				
+
 				Collections.sort(expiredplots);
 				
 				String ids = "";

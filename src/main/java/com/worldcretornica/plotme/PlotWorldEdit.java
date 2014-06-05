@@ -24,8 +24,8 @@ public class PlotWorldEdit {
 		
 		String id = PlotManager.getPlotId(l);
 				
-		Location bottom = null;
-		Location top = null;
+		Location bottom;
+		Location top;
 		
 		LocalSession session = PlotMe.we.getSession(p);
 				
@@ -52,12 +52,10 @@ public class PlotWorldEdit {
 				return;
 			}
 		}
-		
-		if(bottom == null || top == null){
-			bottom = new Location(w, 0, 0, 0);
-			top = new Location(w, 0, 0, 0);
-		}
-		
+
+		bottom = new Location(w, 0, 0, 0);
+		top = new Location(w, 0, 0, 0);
+
 		if(session.getMask() == null)
 		{
 			BukkitPlayer player = PlotMe.we.wrapPlayer(p);

@@ -1,13 +1,13 @@
 package com.worldcretornica.plotme;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class PlotGen extends ChunkGenerator {
 
@@ -70,13 +70,13 @@ public class PlotGen extends ChunkGenerator {
         int mod1 = 1;
 
         if (pathsize % 2 == 1) {
-            n1 = Math.ceil(((double) pathsize) / 2) - 2;
-            n2 = Math.ceil(((double) pathsize) / 2) - 1;
-            n3 = Math.ceil(((double) pathsize) / 2);
+            n1 = Math.ceil(pathsize / 2) - 2;
+            n2 = Math.ceil(pathsize / 2) - 1;
+            n3 = Math.ceil(pathsize / 2);
         } else {
-            n1 = Math.floor(((double) pathsize) / 2) - 2;
-            n2 = Math.floor(((double) pathsize) / 2) - 1;
-            n3 = Math.floor(((double) pathsize) / 2);
+            n1 = Math.floor(pathsize / 2) - 2;
+            n2 = Math.floor(pathsize / 2) - 1;
+            n3 = Math.floor(pathsize / 2);
         }
 
         if (pathsize % 2 == 1) {
@@ -179,11 +179,10 @@ public class PlotGen extends ChunkGenerator {
                                 }
                             }
 
-                            if (found) {
-                            } else {
-                                setBlock(result, x, y, z, wall);
-                            }
-                        } else {
+							if (!found) {
+								setBlock(result, x, y, z, wall);
+							}
+						} else {
                             boolean found = false;
                             for (double i = n2; i >= 0; i--) {
                                 if ((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0) {
@@ -195,7 +194,6 @@ public class PlotGen extends ChunkGenerator {
                             if (!found) {
                                 if ((valz - n3 + mod1) % size == 0 || (valz + n3 + mod2) % size == 0) {
                                     setBlock(result, x, y, z, wall);
-                                } else {
                                 }
                             }
                         }

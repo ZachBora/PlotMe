@@ -4,7 +4,6 @@ import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
 import org.bukkit.*;
 import org.bukkit.block.*;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
@@ -1327,7 +1326,7 @@ public class PlotManager
 			return plots.get(plotid);
 	}
 	
-	public static void deleteNextExpired(World w, CommandSender sender)
+	public static void deleteNextExpired(World w)
 	{
 		List<Plot> expiredplots = new ArrayList<>();
 		HashMap<String, Plot> plots = getPlots(w);
@@ -1435,7 +1434,7 @@ public class PlotManager
 	}
 	
 	@SuppressWarnings("deprecation")
-    public static void regen(World w, Plot plot, CommandSender sender)
+    public static void regen(World w, Plot plot)
 	{
 		int bottomX = PlotManager.bottomX(plot.id, w);
 		int topX = PlotManager.topX(plot.id, w);
