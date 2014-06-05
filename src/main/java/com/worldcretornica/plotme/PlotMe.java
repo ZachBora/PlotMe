@@ -220,6 +220,7 @@ public class PlotMe extends JavaPlugin {
 	}
 
 	public void initialize() {
+		saveDefaultConfig();
 		PluginDescriptionFile pdfFile = this.getDescription();
 		NAME = pdfFile.getName();
 		PREFIX = ChatColor.BLUE + "[" + NAME + "] " + ChatColor.RESET;
@@ -258,65 +259,7 @@ public class PlotMe extends JavaPlugin {
 		autoUpdate = config.getBoolean("auto-update", false);
 		allowToDeny = config.getBoolean("allowToDeny", true);
 
-		ConfigurationSection worlds;
-
-		if (!config.contains("worlds")) {
-			worlds = config.createSection("worlds");
-
-			ConfigurationSection plotworld = worlds.createSection("plotworld");
-
-			plotworld.set("PlotAutoLimit", 1000);
-			plotworld.set("PathWidth", 7);
-			plotworld.set("PlotSize", 32);
-
-			plotworld.set("BottomBlockId", "7");
-			plotworld.set("WallBlockId", "44");
-			plotworld.set("PlotFloorBlockId", "2");
-			plotworld.set("PlotFillingBlockId", "3");
-			plotworld.set("RoadMainBlockId", "5");
-			plotworld.set("RoadStripeBlockId", "5:2");
-
-			plotworld.set("RoadHeight", 64);
-			plotworld.set("DaysToExpiration", 7);
-			plotworld.set("ProtectedBlocks", getDefaultProtectedBlocks());
-			plotworld.set("PreventedItems", getDefaultPreventedItems());
-			plotworld.set("ProtectedWallBlockId", "44:4");
-			plotworld.set("ForSaleWallBlockId", "44:1");
-			plotworld.set("AuctionWallBlockId", "44:1");
-			plotworld.set("AutoLinkPlots", true);
-			plotworld.set("DisableExplosion", true);
-			plotworld.set("DisableIgnition", true);
-
-			ConfigurationSection economysection = plotworld.createSection("economy");
-
-			economysection.set("UseEconomy", false);
-			economysection.set("CanPutOnSale", false);
-			economysection.set("CanSellToBank", false);
-			economysection.set("RefundClaimPriceOnReset", false);
-			economysection.set("RefundClaimPriceOnSetOwner", false);
-			economysection.set("ClaimPrice", 0);
-			economysection.set("ClearPrice", 0);
-			economysection.set("AddPlayerPrice", 0);
-			economysection.set("DenyPlayerPrice", 0);
-			economysection.set("RemovePlayerPrice", 0);
-			economysection.set("UndenyPlayerPrice", 0);
-			economysection.set("PlotHomePrice", 0);
-			economysection.set("CanCustomizeSellPrice", false);
-			economysection.set("SellToPlayerPrice", 0);
-			economysection.set("SellToBankPrice", 0);
-			economysection.set("BuyFromBankPrice", 0);
-			economysection.set("AddCommentPrice", 0);
-			economysection.set("BiomeChangePrice", 0);
-			economysection.set("ProtectPrice", 0);
-			economysection.set("DisposePrice", 0);
-
-			plotworld.set("economy", economysection);
-
-			worlds.set("plotworld", plotworld);
-			config.set("worlds", worlds);
-		} else {
-			worlds = config.getConfigurationSection("worlds");
-		}
+		ConfigurationSection worlds = config.getConfigurationSection("worlds");
 
 		plotmaps = new ConcurrentHashMap<>();
 
