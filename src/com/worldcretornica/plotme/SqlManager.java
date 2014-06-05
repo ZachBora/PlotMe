@@ -1,27 +1,16 @@
 package com.worldcretornica.plotme;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
+import com.worldcretornica.plotme.utils.UUIDFetcher;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.worldcretornica.plotme.utils.UUIDFetcher;
+import java.io.File;
+import java.io.IOException;
+import java.sql.*;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class SqlManager {
 
@@ -1666,24 +1655,23 @@ public class SqlManager {
                                 e.printStackTrace();
                             }
                         }
-    
-                        
-                        switch (Property) {
-                        case "owner":
-                            ps = conn.prepareStatement("UPDATE plotmePlots SET ownerid = ?, owner = ? WHERE LOWER(owner) = ? AND idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
-                            break;
-                        case "bidder":
-                            ps = conn.prepareStatement("UPDATE plotmePlots SET currentbidderid = ?, currentbidder = ? WHERE LOWER(currentbidder) = ? AND idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
-                            break;
-                        case "allowed":
-                            ps = conn.prepareStatement("UPDATE plotmeAllowed SET playerid = ?, player = ? WHERE LOWER(player) = ? AND idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
-                            break;
-                        case "denied":
-                            ps = conn.prepareStatement("UPDATE plotmeDenied SET playerid = ?, player = ? WHERE LOWER(player) = ? AND idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
-                            break;
-                        default:
-                            return;
-                        }
+
+
+						if (Property.equals("owner")) {
+							ps = conn.prepareStatement("UPDATE plotmePlots SET ownerid = ?, owner = ? WHERE LOWER(owner) = ? AND idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+
+						} else if (Property.equals("bidder")) {
+							ps = conn.prepareStatement("UPDATE plotmePlots SET currentbidderid = ?, currentbidder = ? WHERE LOWER(currentbidder) = ? AND idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+
+						} else if (Property.equals("allowed")) {
+							ps = conn.prepareStatement("UPDATE plotmeAllowed SET playerid = ?, player = ? WHERE LOWER(player) = ? AND idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+
+						} else if (Property.equals("denied")) {
+							ps = conn.prepareStatement("UPDATE plotmeDenied SET playerid = ?, player = ? WHERE LOWER(player) = ? AND idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+
+						} else {
+							return;
+						}
     
                         if (uuid != null) {
                             ps.setBytes(1, UUIDFetcher.toBytes(uuid));
@@ -1701,26 +1689,25 @@ public class SqlManager {
                             Plot plot = PlotManager.getPlotById(world, "" + idX + ";" + idZ);
                             
                             if(plot != null) {
-                                switch (Property) {
-                                case "owner":
-                                    plot.owner = newname;
-                                    plot.ownerId = uuid;
-                                    break;
-                                case "bidder":
-                                    plot.currentbidder = newname;
-                                    plot.currentbidderId = uuid;
-                                    break;
-                                case "allowed":
-                                    plot.allowed.remove(name);
-                                    plot.allowed.put(newname, uuid);
-                                    break;
-                                case "denied":
-                                    plot.denied.remove(name);
-                                    plot.denied.put(newname, uuid);
-                                    break;
-                                default:
-                                    return;
-                                }
+								if (Property.equals("owner")) {
+									plot.owner = newname;
+									plot.ownerId = uuid;
+
+								} else if (Property.equals("bidder")) {
+									plot.currentbidder = newname;
+									plot.currentbidderId = uuid;
+
+								} else if (Property.equals("allowed")) {
+									plot.allowed.remove(name);
+									plot.allowed.put(newname, uuid);
+
+								} else if (Property.equals("denied")) {
+									plot.denied.remove(name);
+									plot.denied.put(newname, uuid);
+
+								} else {
+									return;
+								}
                             }
                             
                             if(p == null) {
