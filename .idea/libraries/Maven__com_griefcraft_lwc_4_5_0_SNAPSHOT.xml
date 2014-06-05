@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.griefcraft:lwc:4.5.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/griefcraft/lwc/4.5.0-SNAPSHOT/lwc-4.5.0-20140518.202458-6.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/griefcraft/lwc/4.5.0-SNAPSHOT/lwc-4.5.0-20140518.202458-6-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/griefcraft/lwc/4.5.0-SNAPSHOT/lwc-4.5.0-20140518.202458-6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

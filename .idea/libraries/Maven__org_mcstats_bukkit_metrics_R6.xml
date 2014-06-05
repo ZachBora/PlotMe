@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.mcstats.bukkit:metrics:R6">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mcstats/bukkit/metrics/R6/metrics-R6.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mcstats/bukkit/metrics/R6/metrics-R6-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mcstats/bukkit/metrics/R6/metrics-R6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
