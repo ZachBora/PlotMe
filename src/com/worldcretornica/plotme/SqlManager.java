@@ -782,11 +782,11 @@ public class SqlManager {
                 }
             }
 
-            if (plot.owner != null && !plot.owner.equals("") && plot.ownerId == null) {
+            if (plot.owner != null && !plot.owner.isEmpty() && plot.ownerId == null) {
                 fetchOwnerUUIDAsync(idX, idZ, plot.world.toLowerCase(), plot.owner);
             }
 
-            if (plot.currentbidder != null && !plot.currentbidder.equals("") && plot.currentbidderId == null) {
+            if (plot.currentbidder != null && !plot.currentbidder.isEmpty() && plot.currentbidderId == null) {
                 fetchBidderUUIDAsync(idX, idZ, plot.world.toLowerCase(), plot.currentbidder);
             }
 
@@ -1357,7 +1357,7 @@ public class SqlManager {
     }
 
     public static void plotConvertToUUIDAsynchronously() {
-        Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() {
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.instance, new Runnable() {
             @Override
             public void run() {
                 PlotMe.logger.info("Checking if conversion to UUID needed...");
@@ -1411,7 +1411,7 @@ public class SqlManager {
                         PlotMe.logger.info("Starting to convert plots to UUID");
                         do {
                             String name = setPlayers.getString("Name");
-                            if (!name.equals("")) {     
+                            if (!name.isEmpty()) {
                                 if(name.matches("^[a-zA-Z0-9_]{1,16}$")) {
                                     names.add(name);
                                 } else {
@@ -1612,8 +1612,8 @@ public class SqlManager {
     }
 
     private static void _fetchUUIDAsync(final int idX, final int idZ, final String world, final String Property, final String name) {
-        if (PlotMe.self.initialized) {
-            Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() {
+        if (PlotMe.instance.initialized) {
+            Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.instance, new Runnable() {
                 @Override
                 public void run() {
     
@@ -1739,7 +1739,7 @@ public class SqlManager {
     }
     
     public static void updatePlotsNewUUID(final UUID uuid, final String newname) {
-        Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() {
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.instance, new Runnable() {
             @Override
             public void run() {
                 PreparedStatement[] pss = new PreparedStatement[5];

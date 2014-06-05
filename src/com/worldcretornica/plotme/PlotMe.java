@@ -65,10 +65,14 @@ public class PlotMe extends JavaPlugin
     public static Integer nbperdeletionprocessingexpired;
     public static Boolean defaultWEAnywhere;
     
-    protected static PlotMe self = null;
+    protected static PlotMe instance = null;
     
     Boolean initialized = false;
-	
+
+	/**
+	 * Called when this plugin is disabled.
+	 */
+	@Override
 	public void onDisable()
 	{	
 		SqlManager.closeConnection();
@@ -100,115 +104,108 @@ public class PlotMe extends JavaPlugin
 		counterexpired = null;
 		nbperdeletionprocessingexpired = null;
 		defaultWEAnywhere = null;
-		self = null;
+		instance = null;
 		allowToDeny = null;
 		initialized = null;
 	}
-	
+
+	/**
+	 * Called when this plugin is enabled
+	 */
+	@Override
 	public void onEnable()
 	{
-	    self = this;
+	    instance = this;
 	    
 	    initialize();
-		
+
+		setupHooks();
+		setupListeners();
+
+		getCommand("plotme").setExecutor(new PMCommand(this));
+
+		initialized = true;
+
+		SqlManager.plotConvertToUUIDAsynchronously();
 		doMetric();
-		
+
+			}
+
+	/**
+	 * Setup all listeners in plugin.
+	 */
+	private void setupListeners() {
 		PluginManager pm = getServer().getPluginManager();
-				
 		pm.registerEvents(new PlotListener(), this);
-		
-		if(pm.getPlugin("Vault") != null)
-		{
-			setupEconomy();
-		}
-		
-		if(pm.getPlugin("WorldEdit") != null)
-		{
-			we = (WorldEditPlugin) pm.getPlugin("WorldEdit");
-			pm.registerEvents(new PlotWorldEditListener(), this);			
-		}
-		
-		if(pm.getPlugin("LWC") != null)
-		{
-			usinglwc = true;
-		}
-		
-		if(allowToDeny)
-		{
+		if (allowToDeny) {
 			pm.registerEvents(new PlotDenyListener(), this);
 		}
-				
-		getCommand("plotme").setExecutor(new PMCommand(this));
-		
-		initialized = true;
-		
-		SqlManager.plotConvertToUUIDAsynchronously();
+		pm.registerEvents(new PlotWorldEditListener(), this);
 	}
 
-	
-	private void doMetric()
-	{
-		try
-		{
-		    Metrics metrics = new Metrics(this);
-		    
-		    Graph graphNbWorlds = metrics.createGraph("Plot worlds");
-		    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds")
-		    {
+	/**
+	 * Setup Hooks to optional addon plugins.
+	 */
+	private void setupHooks() {
+		PluginManager pm = getServer().getPluginManager();
+		if (pm.getPlugin("Vault") != null) {
+			setupEconomy();
+		}
+		if (pm.getPlugin("WorldEdit") != null) {
+			we = (WorldEditPlugin) pm.getPlugin("WorldEdit");
+		}
+		if (pm.getPlugin("LWC") != null) {
+			usinglwc = true;
+		}
+	}
+
+
+	private void doMetric() {
+		try {
+			Metrics metrics = new Metrics(this);
+
+			Graph graphNbWorlds = metrics.createGraph("Plot worlds");
+
+			graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plot worlds") {
 				@Override
-				public int getValue() 
-				{
+				public int getValue() {
 					return plotmaps.size();
 				}
 			});
-		    	    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size")
-		    {
+
+			graphNbWorlds.addPlotter(new Metrics.Plotter("Average Plot size") {
 				@Override
-				public int getValue() 
-				{
-					
-					if(plotmaps.size() > 0)
-					{
+				public int getValue() {
+
+					if (plotmaps.size() > 0) {
 						int totalplotsize = 0;
-						
-						for(PlotMapInfo p : plotmaps.values())
-						{
+
+						for (PlotMapInfo p : plotmaps.values()) {
 							totalplotsize += p.PlotSize;
 						}
-						
-						
 						return totalplotsize / plotmaps.size();
-					}
-					else
-					{
+					} else {
 						return 0;
 					}
 				}
 			});
-		    
-		    graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots")
-		    {
+
+			graphNbWorlds.addPlotter(new Metrics.Plotter("Number of plots") {
 				@Override
-				public int getValue() 
-				{
+				public int getValue() {
 					int nbplot = 0;
-					
-					for(PlotMapInfo p : plotmaps.values())
-					{
+
+					for (PlotMapInfo p : plotmaps.values()) {
 						nbplot += p.plots.size();
 					}
-					
+
 					return nbplot;
 				}
 			});
-		    		    
-		    metrics.start();
-		} 
-		catch (IOException e) 
-		{
-		    // Failed to submit the stats :-(
+
+			metrics.start();
+		} catch (IOException e) {
+			// Failed to submit the stats :-(
 		}
 	}
 	
@@ -587,8 +584,8 @@ public class PlotMe extends JavaPlugin
 	{
 		int imonth = cal.get(Calendar.MONTH) + 1;
         int iday = cal.get(Calendar.DAY_OF_MONTH) + 1;
-        String month = "";
-        String day = "";
+        String month;
+        String day;
         
         if(imonth < 10)
         	month = "0" + imonth;
@@ -950,7 +947,7 @@ public class PlotMe extends JavaPlugin
 		
 		CreateConfig(filelang, properties, "PlotMe Caption configuration αω");
 		
-		if (language != "english")
+		if (!language.equals("english"))
 		{
 			filelang = new File(this.getDataFolder(), "caption-" + language + ".yml");
 			CreateConfig(filelang, properties, "PlotMe Caption configuration");
@@ -1113,7 +1110,7 @@ public class PlotMe extends JavaPlugin
 	
 	private short getBlockId(ConfigurationSection cs, String section, String def)
 	{
-		String idvalue = cs.getString(section, def.toString());
+		String idvalue = cs.getString(section, def);
 		if(idvalue.indexOf(":") > 0)
 		{
 			return Short.parseShort(idvalue.split(":")[0]);
@@ -1126,7 +1123,7 @@ public class PlotMe extends JavaPlugin
 	
 	private byte getBlockValue(ConfigurationSection cs, String section, String def)
 	{
-		String idvalue = cs.getString(section, def.toString());
+		String idvalue = cs.getString(section, def);
 		if(idvalue.indexOf(":") > 0)
 		{
 			return Byte.parseByte(idvalue.split(":")[1]);

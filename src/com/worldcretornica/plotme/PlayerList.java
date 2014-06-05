@@ -1,11 +1,10 @@
 package com.worldcretornica.plotme;
 
+import org.bukkit.Bukkit;
+
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
-
-import org.bukkit.Bukkit;
 
 public class PlayerList {
 
@@ -40,10 +39,9 @@ public class PlayerList {
         {
             if(key.equalsIgnoreCase(name)) {
                 found = key;
-                continue;
-            }
+			}
         }
-        if(!found.equals("")) {
+        if(!found.isEmpty()) {
             uuid = playerlist.get(found);
             playerlist.remove(found);
         }
@@ -73,13 +71,8 @@ public class PlayerList {
         if (list.length() > 1) {
             list = list.delete(list.length() - 2, list.length());
         }
-        if(list.toString() == null)
-        {
-            return "";
-        } else {
-            return list.toString();
-        }
-    }
+		return list.toString();
+	}
     
     public boolean contains(String name) {
         for(String key : playerlist.keySet()) {
@@ -109,16 +102,13 @@ public class PlayerList {
     public void replace(UUID uuid, String newname) {
         if(uuid != null && playerlist != null) {
             if(this.contains(uuid)) {
-                Iterator<String> it = playerlist.keySet().iterator();
-                while (it.hasNext()) {
-                    String name = it.next();
-                    
-                    if(playerlist.get(name) != null && playerlist.get(name).equals(uuid)) {
-                        playerlist.remove(name);
-                        playerlist.put(newname, uuid);
-                        return;
-                    }
-                }
+				for (String name : playerlist.keySet()) {
+					if (playerlist.get(name) != null && playerlist.get(name).equals(uuid)) {
+						playerlist.remove(name);
+						playerlist.put(newname, uuid);
+						return;
+					}
+				}
             }
         }
     }
@@ -126,16 +116,13 @@ public class PlayerList {
     public void replace(String name, UUID newuuid) {
         if(newuuid != null && playerlist != null) {
             if(this.contains(name)) {
-                Iterator<String> it = playerlist.keySet().iterator();
-                while (it.hasNext()) {
-                    String key = it.next();
-                    
-                    if(key.equalsIgnoreCase(name)) {
-                        playerlist.remove(key);
-                        playerlist.put(name, newuuid);
-                        return;
-                    }
-                }
+				for (String key : playerlist.keySet()) {
+					if (key.equalsIgnoreCase(name)) {
+						playerlist.remove(key);
+						playerlist.put(name, newuuid);
+						return;
+					}
+				}
             }
         }
     }
