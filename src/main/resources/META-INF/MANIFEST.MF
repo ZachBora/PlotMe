@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Class-Path: metrics-R6.jar truezip-6.8.3.jar worldedit-6.0.0-SNAPSHOT.
+ jar jsr305-1.3.9.jar lwc-4.5.0-20140518.202458-6.jar guava-10.0.1.jar
+  js-1.7R2.jar
+
