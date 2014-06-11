@@ -1,0 +1,77 @@
+worlds:
+  plotworld:
+    PlotAutoLimit: 1000
+    PathWidth: 7
+    PlotSize: 32
+    BottomBlockId: '7'
+    WallBlockId: '44'
+    PlotFloorBlockId: '2'
+    PlotFillingBlockId: '3'
+    RoadMainBlockId: '5'
+    RoadStripeBlockId: '5:2'
+    RoadHeight: 64
+    DaysToExpiration: 7
+    ProtectedBlocks:
+    - 54
+    - 61
+    - 62
+    - 120
+    - 94
+    - 93
+    - 84
+    - 25
+    - 355
+    - 118
+    - 117
+    - 138
+    - 140
+    - 145
+    - 23
+    - 158
+    - 154
+    PreventedItems:
+    - '351:15'
+    - '259'
+    - '328'
+    - '343'
+    - '342'
+    - '408'
+    - '333'
+    ProtectedWallBlockId: '44:4'
+    ForSaleWallBlockId: '44:1'
+    AuctionWallBlockId: '44:1'
+    AutoLinkPlots: true
+    DisableExplosion: true
+    DisableIgnition: true
+    economy:
+      UseEconomy: false
+      CanPutOnSale: false
+      CanSellToBank: false
+      RefundClaimPriceOnReset: false
+      RefundClaimPriceOnSetOwner: false
+      ClaimPrice: 0.0
+      ClearPrice: 0.0
+      AddPlayerPrice: 0.0
+      DenyPlayerPrice: 0.0
+      RemovePlayerPrice: 0.0
+      UndenyPlayerPrice: 0.0
+      PlotHomePrice: 0.0
+      CanCustomizeSellPrice: false
+      SellToPlayerPrice: 0.0
+      SellToBankPrice: 0.0
+      BuyFromBankPrice: 0.0
+      AddCommentPrice: 0.0
+      BiomeChangePrice: 0.0
+      ProtectPrice: 0.0
+      DisposePrice: 0.0
+usemySQL: false
+mySQLconn: jdbc:mysql://localhost:3306/minecraft
+mySQLuname: root
+mySQLpass: password
+globalUseEconomy: false
+AdvancedLogging: false
+Language: english
+allowWorldTeleport: true
+defaultWEAnywhere: false
+auto-update: false
+allowToDeny: true
