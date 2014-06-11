@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class PlotMe extends JavaPlugin {
+
 	public static String NAME;
 	public static String PREFIX;
 	public static String VERSION;
@@ -156,7 +157,6 @@ public class PlotMe extends JavaPlugin {
 		}
 	}
 
-
 	private void doMetric() {
 		try {
 			Metrics metrics = new Metrics(this);
@@ -206,6 +206,7 @@ public class PlotMe extends JavaPlugin {
 		}
 	}
 
+	@Override
 	public ChunkGenerator getDefaultWorldGenerator(String worldname, String id) {
 		if (PlotManager.isPlotWorld(worldname)) {
 			return new PlotGen(PlotManager.getMap(worldname));
@@ -312,10 +313,11 @@ public class PlotMe extends JavaPlugin {
 
 			ConfigurationSection economysection;
 
-			if (currworld.getConfigurationSection("economy") == null)
+			if (currworld.getConfigurationSection("economy") == null) {
 				economysection = currworld.createSection("economy");
-			else
+			} else {
 				economysection = currworld.getConfigurationSection("economy");
+			}
 
 			tempPlotInfo.UseEconomy = economysection.getBoolean("UseEconomy", false);
 			tempPlotInfo.CanPutOnSale = economysection.getBoolean("CanPutOnSale", false);
@@ -337,7 +339,6 @@ public class PlotMe extends JavaPlugin {
 			tempPlotInfo.BiomeChangePrice = economysection.getDouble("BiomeChangePrice", 0);
 			tempPlotInfo.ProtectPrice = economysection.getDouble("ProtectPrice", 0);
 			tempPlotInfo.DisposePrice = economysection.getDouble("DisposePrice", 0);
-
 
 			currworld.set("PlotAutoLimit", tempPlotInfo.PlotAutoLimit);
 			currworld.set("PathWidth", tempPlotInfo.PathWidth);
@@ -426,24 +427,27 @@ public class PlotMe extends JavaPlugin {
 	public static void addIgnoreWELimit(Player p) {
 		if (!playersignoringwelimit.contains(p.getName())) {
 			playersignoringwelimit.add(p.getName());
-			if (we != null)
+			if (we != null) {
 				PlotWorldEdit.removeMask(p);
+			}
 		}
 	}
 
 	public static void removeIgnoreWELimit(Player p) {
 		if (playersignoringwelimit.contains(p.getName())) {
 			playersignoringwelimit.remove(p.getName());
-			if (we != null)
+			if (we != null) {
 				PlotWorldEdit.setMask(p);
+			}
 		}
 	}
 
 	public static boolean isIgnoringWELimit(Player p) {
-		if (defaultWEAnywhere && cPerms(p, "PlotMe.admin.weanywhere"))
+		if (defaultWEAnywhere && cPerms(p, "PlotMe.admin.weanywhere")) {
 			return !playersignoringwelimit.contains(p.getName());
-		else
+		} else {
 			return playersignoringwelimit.contains(p.getName());
+		}
 	}
 
 	public static int getPlotLimit(Player p) {
@@ -463,12 +467,13 @@ public class PlotMe extends JavaPlugin {
 		}
 
 		if (max == -2) {
-			if (cPerms(p, "plotme.admin"))
+			if (cPerms(p, "plotme.admin")) {
 				return -1;
-			else if (cPerms(p, "plotme.use"))
+			} else if (cPerms(p, "plotme.use")) {
 				return 1;
-			else
+			} else {
 				return 0;
+			}
 		}
 
 		return max;
@@ -484,15 +489,17 @@ public class PlotMe extends JavaPlugin {
 		String month;
 		String day;
 
-		if (imonth < 10)
+		if (imonth < 10) {
 			month = "0" + imonth;
-		else
+		} else {
 			month = "" + imonth;
+		}
 
-		if (iday < 10)
+		if (iday < 10) {
 			day = "0" + iday;
-		else
+		} else {
 			day = "" + iday;
+		}
 
 		return "" + cal.get(Calendar.YEAR) + "-" + month + "-" + day;
 	}
@@ -733,7 +740,6 @@ public class PlotMe extends JavaPlugin {
 		properties.put("HelpResetExpired", "Resets the 50 oldest plots on that world.");
 		properties.put("HelpBid", "Places a bid on the current plot.");
 
-
 		properties.put("WordWorld", "World");
 		properties.put("WordUsage", "Usage");
 		properties.put("WordExample", "Example");
@@ -866,9 +872,11 @@ public class PlotMe extends JavaPlugin {
 			logger.severe("[" + NAME + "] Error with configuration: " + e.getMessage());
 			e.printStackTrace();
 		} finally {
-			if (input != null) try {
-				input.close();
-			} catch (IOException e) {
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+				}
 			}
 		}
 	}
@@ -893,9 +901,11 @@ public class PlotMe extends JavaPlugin {
 				logger.severe("[" + NAME + "] Unable to create config file : " + Title + "!");
 				logger.severe(e.getMessage());
 			} finally {
-				if (writer != null) try {
-					writer.close();
-				} catch (IOException e2) {
+				if (writer != null) {
+					try {
+						writer.close();
+					} catch (IOException e2) {
+					}
 				}
 			}
 		} else {
@@ -914,8 +924,9 @@ public class PlotMe extends JavaPlugin {
 					writer = new OutputStreamWriter(new FileOutputStream(file, true), "UTF-8");
 
 					for (Entry<String, String> e : properties.entrySet()) {
-						if (!data.containsKey(e.getKey()))
+						if (!data.containsKey(e.getKey())) {
 							writer.write("\n" + e.getKey() + ": '" + e.getValue().replace("'", "''") + "'");
+						}
 					}
 
 					writer.close();
@@ -928,13 +939,17 @@ public class PlotMe extends JavaPlugin {
 				logger.severe("[" + NAME + "] Error with configuration: " + e.getMessage());
 				e.printStackTrace();
 			} finally {
-				if (writer != null) try {
-					writer.close();
-				} catch (IOException e2) {
+				if (writer != null) {
+					try {
+						writer.close();
+					} catch (IOException e2) {
+					}
 				}
-				if (input != null) try {
-					input.close();
-				} catch (IOException e) {
+				if (input != null) {
+					try {
+						input.close();
+					} catch (IOException e) {
+					}
 				}
 			}
 		}
@@ -968,6 +983,7 @@ public class PlotMe extends JavaPlugin {
 					final Block block = w.getBlockAt(x, y, z);
 
 					Bukkit.getScheduler().runTask(this, new Runnable() {
+						@Override
 						public void run() {
 							Protection protection = com.griefcraft.lwc.LWC.getInstance().findProtection(block);
 
