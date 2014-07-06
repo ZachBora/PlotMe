@@ -9,9 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
@@ -188,20 +186,8 @@ public class PlotMe extends JavaPlugin {
 		if (!this.getDataFolder().exists()) {
 			this.getDataFolder().mkdirs();
 		}
-
-		File configfile = new File(configpath, "config.yml");
-		FileConfiguration config = new YamlConfiguration();
-
-		try {
-			config.load(configfile);
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) {
-			logger.severe(PREFIX + "can't read configuration file");
-			e.printStackTrace();
-		} catch (InvalidConfigurationException e) {
-			logger.severe(PREFIX + "invalid configuration format");
-			e.printStackTrace();
-		}
+		saveDefaultConfig();
+		FileConfiguration config = getConfig();
 
 		usemySQL = config.getBoolean("usemySQL", false);
 		mySQLconn = config.getString("mySQLconn", "jdbc:mysql://localhost:3306/minecraft");
@@ -211,65 +197,7 @@ public class PlotMe extends JavaPlugin {
 		allowWorldTeleport = config.getBoolean("allowWorldTeleport", true);
 		allowToDeny = config.getBoolean("allowToDeny", true);
 
-		ConfigurationSection worlds;
-
-		if (!config.contains("worlds")) {
-			worlds = config.createSection("worlds");
-
-			ConfigurationSection plotworld = worlds.createSection("plotworld");
-
-			plotworld.set("PlotAutoLimit", 1000);
-			plotworld.set("PathWidth", 7);
-			plotworld.set("PlotSize", 32);
-
-			plotworld.set("BottomBlockId", "7");
-			plotworld.set("WallBlockId", "44");
-			plotworld.set("PlotFloorBlockId", "2");
-			plotworld.set("PlotFillingBlockId", "3");
-			plotworld.set("RoadMainBlockId", "5");
-			plotworld.set("RoadStripeBlockId", "5:2");
-
-			plotworld.set("RoadHeight", 64);
-			plotworld.set("DaysToExpiration", 7);
-			plotworld.set("ProtectedBlocks", getDefaultProtectedBlocks());
-			plotworld.set("PreventedItems", getDefaultPreventedItems());
-			plotworld.set("ProtectedWallBlockId", "44:4");
-			plotworld.set("ForSaleWallBlockId", "44:1");
-			plotworld.set("AuctionWallBlockId", "44:1");
-			plotworld.set("AutoLinkPlots", true);
-			plotworld.set("DisableExplosion", true);
-			plotworld.set("DisableIgnition", true);
-
-			ConfigurationSection economysection = plotworld.createSection("economy");
-
-			economysection.set("UseEconomy", false);
-			economysection.set("CanPutOnSale", false);
-			economysection.set("CanSellToBank", false);
-			economysection.set("RefundClaimPriceOnReset", false);
-			economysection.set("RefundClaimPriceOnSetOwner", false);
-			economysection.set("ClaimPrice", 0);
-			economysection.set("ClearPrice", 0);
-			economysection.set("AddPlayerPrice", 0);
-			economysection.set("DenyPlayerPrice", 0);
-			economysection.set("RemovePlayerPrice", 0);
-			economysection.set("UndenyPlayerPrice", 0);
-			economysection.set("PlotHomePrice", 0);
-			economysection.set("CanCustomizeSellPrice", false);
-			economysection.set("SellToPlayerPrice", 0);
-			economysection.set("SellToBankPrice", 0);
-			economysection.set("BuyFromBankPrice", 0);
-			economysection.set("AddCommentPrice", 0);
-			economysection.set("BiomeChangePrice", 0);
-			economysection.set("ProtectPrice", 0);
-			economysection.set("DisposePrice", 0);
-
-			plotworld.set("economy", economysection);
-
-			worlds.set("plotworld", plotworld);
-			config.set("worlds", worlds);
-		} else {
-			worlds = config.getConfigurationSection("worlds");
-		}
+		ConfigurationSection worlds = config.getConfigurationSection("worlds");
 
 		plotmaps = new ConcurrentHashMap<>();
 
@@ -412,13 +340,6 @@ public class PlotMe extends JavaPlugin {
 		config.set("globalUseEconomy", globalUseEconomy);
 		config.set("allowWorldTeleport", allowWorldTeleport);
 		config.set("allowToDeny", allowToDeny);
-
-		try {
-			config.save(configfile);
-		} catch (IOException e) {
-			logger.severe(PREFIX + "error writting configurations");
-			e.printStackTrace();
-		}
 
 		loadCaptions();
 	}
