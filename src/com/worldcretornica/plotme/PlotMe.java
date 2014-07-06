@@ -248,13 +248,7 @@ public class PlotMe extends JavaPlugin {
 			tempPlotInfo.DisableExplosion = currworld.getBoolean("DisableExplosion", true);
 			tempPlotInfo.DisableIgnition = currworld.getBoolean("DisableIgnition", true);
 
-			ConfigurationSection economysection;
-
-			if (currworld.getConfigurationSection("economy") == null) {
-				economysection = currworld.createSection("economy");
-			} else {
-				economysection = currworld.getConfigurationSection("economy");
-			}
+			ConfigurationSection economysection = currworld.getConfigurationSection("economy");
 
 			tempPlotInfo.UseEconomy = economysection.getBoolean("UseEconomy", false);
 			tempPlotInfo.CanPutOnSale = economysection.getBoolean("CanPutOnSale", false);
@@ -276,57 +270,6 @@ public class PlotMe extends JavaPlugin {
 			tempPlotInfo.BiomeChangePrice = economysection.getDouble("BiomeChangePrice", 0);
 			tempPlotInfo.ProtectPrice = economysection.getDouble("ProtectPrice", 0);
 			tempPlotInfo.DisposePrice = economysection.getDouble("DisposePrice", 0);
-
-
-			currworld.set("PlotAutoLimit", tempPlotInfo.PlotAutoLimit);
-			currworld.set("PathWidth", tempPlotInfo.PathWidth);
-			currworld.set("PlotSize", tempPlotInfo.PlotSize);
-
-			currworld.set("BottomBlockId", getBlockValueId(tempPlotInfo.BottomBlockId, tempPlotInfo.BottomBlockValue));
-			currworld.set("WallBlockId", getBlockValueId(tempPlotInfo.WallBlockId, tempPlotInfo.WallBlockValue));
-			currworld.set("PlotFloorBlockId", getBlockValueId(tempPlotInfo.PlotFloorBlockId, tempPlotInfo.PlotFloorBlockValue));
-			currworld.set("PlotFillingBlockId", getBlockValueId(tempPlotInfo.PlotFillingBlockId, tempPlotInfo.PlotFillingBlockValue));
-			currworld.set("RoadMainBlockId", getBlockValueId(tempPlotInfo.RoadMainBlockId, tempPlotInfo.RoadMainBlockValue));
-			currworld.set("RoadStripeBlockId", getBlockValueId(tempPlotInfo.RoadStripeBlockId, tempPlotInfo.RoadStripeBlockValue));
-
-			currworld.set("RoadHeight", tempPlotInfo.RoadHeight);
-			currworld.set("WorldHeight", null);
-			currworld.set("DaysToExpiration", tempPlotInfo.DaysToExpiration);
-			currworld.set("ProtectedBlocks", tempPlotInfo.ProtectedBlocks);
-			currworld.set("PreventedItems", tempPlotInfo.PreventedItems);
-			currworld.set("ProtectedWallBlockId", tempPlotInfo.ProtectedWallBlockId);
-			currworld.set("ForSaleWallBlockId", tempPlotInfo.ForSaleWallBlockId);
-			currworld.set("AuctionWallBlockId", tempPlotInfo.AuctionWallBlockId);
-			currworld.set("AutoLinkPlots", tempPlotInfo.AutoLinkPlots);
-			currworld.set("DisableExplosion", tempPlotInfo.DisableExplosion);
-			currworld.set("DisableIgnition", tempPlotInfo.DisableIgnition);
-
-			economysection = currworld.createSection("economy");
-
-			economysection.set("UseEconomy", tempPlotInfo.UseEconomy);
-			economysection.set("CanPutOnSale", tempPlotInfo.CanPutOnSale);
-			economysection.set("CanSellToBank", tempPlotInfo.CanSellToBank);
-			economysection.set("RefundClaimPriceOnReset", tempPlotInfo.RefundClaimPriceOnReset);
-			economysection.set("RefundClaimPriceOnSetOwner", tempPlotInfo.RefundClaimPriceOnSetOwner);
-			economysection.set("ClaimPrice", tempPlotInfo.ClaimPrice);
-			economysection.set("ClearPrice", tempPlotInfo.ClearPrice);
-			economysection.set("AddPlayerPrice", tempPlotInfo.AddPlayerPrice);
-			economysection.set("DenyPlayerPrice", tempPlotInfo.DenyPlayerPrice);
-			economysection.set("RemovePlayerPrice", tempPlotInfo.RemovePlayerPrice);
-			economysection.set("UndenyPlayerPrice", tempPlotInfo.UndenyPlayerPrice);
-			economysection.set("PlotHomePrice", tempPlotInfo.PlotHomePrice);
-			economysection.set("CanCustomizeSellPrice", tempPlotInfo.CanCustomizeSellPrice);
-			economysection.set("SellToPlayerPrice", tempPlotInfo.SellToPlayerPrice);
-			economysection.set("SellToBankPrice", tempPlotInfo.SellToBankPrice);
-			economysection.set("BuyFromBankPrice", tempPlotInfo.BuyFromBankPrice);
-			economysection.set("AddCommentPrice", tempPlotInfo.AddCommentPrice);
-			economysection.set("BiomeChangePrice", tempPlotInfo.BiomeChangePrice);
-			economysection.set("ProtectPrice", tempPlotInfo.ProtectPrice);
-			economysection.set("DisposePrice", tempPlotInfo.DisposePrice);
-
-			currworld.set("economy", economysection);
-
-			worlds.set(worldname, currworld);
 
 			tempPlotInfo.plots = SqlManager.getPlots(worldname.toLowerCase());
 
