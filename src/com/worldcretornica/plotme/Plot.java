@@ -432,31 +432,25 @@ public class Plot implements Comparable<Plot> {
 		return false;
 	}
 
-	@Deprecated
-	public boolean isDenied(String name) {
-		Player p = Bukkit.getServer().getPlayerExact(name);
-		return p != null && isDeniedInternal(name, null, true, true);
-	}
-
 	public boolean isDeniedConsulting(String name) {
 		@SuppressWarnings("deprecation")
 		Player p = Bukkit.getServer().getPlayerExact(name);
 		if (p != null) {
-			return isDeniedInternal(name, p.getUniqueId(), true, true);
+			return isDeniedInternal(name, p.getUniqueId(), true);
 		} else {
-			return isDeniedInternal(name, null, true, true);
+			return isDeniedInternal(name, null, true);
 		}
 	}
 
 	public boolean isGroupDenied(String name) {
-		return isDeniedInternal(name, null, true, true);
+		return isDeniedInternal(name, null, true);
 	}
 
 	public boolean isDenied(UUID uuid) {
-		return isDeniedInternal("", uuid, true, true);
+		return isDeniedInternal("", uuid, true);
 	}
 
-	private boolean isDeniedInternal(String name, UUID uuid, boolean IncludeStar, boolean IncludeGroup) {
+	private boolean isDeniedInternal(String name, UUID uuid, boolean IncludeGroup) {
 		Player p = null;
 
 		if (isAllowedInternal(name, uuid, false, false)) {

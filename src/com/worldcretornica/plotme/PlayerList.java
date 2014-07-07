@@ -38,10 +38,9 @@ public class PlayerList {
 		for (String key : playerlist.keySet()) {
 			if (key.equalsIgnoreCase(name)) {
 				found = key;
-				continue;
 			}
 		}
-		if (!found.equals("")) {
+		if (!found.isEmpty()) {
 			uuid = playerlist.get(found);
 			playerlist.remove(found);
 		}
@@ -71,11 +70,7 @@ public class PlayerList {
 		if (list.length() > 1) {
 			list = list.delete(list.length() - 2, list.length());
 		}
-		if (list.toString() == null) {
-			return "";
-		} else {
-			return list.toString();
-		}
+		return list.toString();
 	}
 
 	public boolean contains(String name) {

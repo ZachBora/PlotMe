@@ -2,12 +2,14 @@ package com.worldcretornica.plotme;
 
 import org.bukkit.*;
 import org.bukkit.block.*;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 public class PlotManager {
 	public static String getPlotId(Location loc) {
@@ -286,30 +288,11 @@ public class PlotManager {
 	}
 
 	public static boolean isPlotAvailable(String id, String world) {
-		if (isPlotWorld(world)) {
-			return !getPlots(world).containsKey(id);
-		} else {
-			return false;
-		}
-	}
-
-	@Deprecated
-	public static Plot createPlot(World world, String id, String owner) {
-		if (isPlotAvailable(id, world) && id != "") {
-			Plot plot = new Plot(owner, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration);
-
-			setOwnerSign(world, plot);
-
-			getPlots(world).put(id, plot);
-			SqlManager.addPlot(plot, getIdX(id), getIdZ(id), world);
-			return plot;
-		} else {
-			return null;
-		}
+		return isPlotWorld(world) && !getPlots(world).containsKey(id);
 	}
 
 	public static Plot createPlot(World world, String id, String owner, UUID uuid) {
-		if (isPlotAvailable(id, world) && id != "") {
+		if (isPlotAvailable(id, world) && !id.isEmpty()) {
 			Plot plot = new Plot(owner, uuid, getPlotTopLoc(world, id), getPlotBottomLoc(world, id), id, getMap(world).DaysToExpiration);
 
 			setOwnerSign(world, plot);
@@ -393,7 +376,7 @@ public class PlotManager {
 				}
 
 				sign.setLine(0, "" + PlotMe.caption("SignOnAuction"));
-				if (plot.currentbidder.equals("")) {
+				if (plot.currentbidder.isEmpty()) {
 					sign.setLine(1, PlotMe.caption("SignMinimumBid"));
 				} else {
 					sign.setLine(1, PlotMe.caption("SignCurrentBid"));
@@ -579,11 +562,7 @@ public class PlotManager {
 					} else if (y == pmi.RoadHeight) {
 						block.setTypeId(pmi.PlotFloorBlockId);
 					} else {
-						if (y == (pmi.RoadHeight + 1) &&
-								(x == bottomX - 1 ||
-										x == topX + 1 ||
-										z == bottomZ - 1 ||
-										z == topZ + 1)) {
+						if (y == (pmi.RoadHeight + 1) && (x == bottomX - 1 || x == topX + 1 || z == bottomZ - 1 || z == topZ + 1)) {
 							//block.setTypeId(pmi.WallBlockId);
 						} else {
 							block.setTypeIdAndData(0, (byte) 0, false); //.setType(Material.AIR);
@@ -692,17 +671,6 @@ public class PlotManager {
 	}
 
 
-	public static boolean isBlockInPlot(Plot plot, Location blocklocation) {
-		World w = blocklocation.getWorld();
-		int lowestX = Math.min(PlotManager.bottomX(plot.id, w), PlotManager.topX(plot.id, w));
-		int highestX = Math.max(PlotManager.bottomX(plot.id, w), PlotManager.topX(plot.id, w));
-		int lowestZ = Math.min(PlotManager.bottomZ(plot.id, w), PlotManager.topZ(plot.id, w));
-		int highestZ = Math.max(PlotManager.bottomZ(plot.id, w), PlotManager.topZ(plot.id, w));
-
-		return blocklocation.getBlockX() >= lowestX && blocklocation.getBlockX() <= highestX
-				&& blocklocation.getBlockZ() >= lowestZ && blocklocation.getBlockZ() <= highestZ;
-	}
-
 	@SuppressWarnings("deprecation")
 	public static boolean movePlot(World w, String idFrom, String idTo) {
 		Location plot1Bottom = getPlotBottomLoc(w, idFrom);
@@ -770,7 +738,7 @@ public class PlotManager {
 				plots.put(idFrom, plot2);
 
 				for (int i = 0; i < plot2.comments.size(); i++) {
-					String strUUID = "";
+					String strUUID;
 					UUID uuid = null;
 
 					if (plot2.comments.get(i).length >= 3) {
@@ -794,7 +762,7 @@ public class PlotManager {
 				plots.put(idTo, plot1);
 
 				for (int i = 0; i < plot1.comments.size(); i++) {
-					String strUUID = "";
+					String strUUID;
 					UUID uuid = null;
 
 					if (plot1.comments.get(i).length >= 3) {
@@ -831,7 +799,7 @@ public class PlotManager {
 				plots.put(idTo, plot);
 
 				for (int i = 0; i < plot.comments.size(); i++) {
-					String strUUID = "";
+					String strUUID;
 					UUID uuid = null;
 
 					if (plot.comments.get(i).length >= 3) {
@@ -870,7 +838,7 @@ public class PlotManager {
 				plots.put(idFrom, plot);
 
 				for (int i = 0; i < plot.comments.size(); i++) {
-					String strUUID = "";
+					String strUUID;
 					UUID uuid = null;
 
 					if (plot.comments.get(i).length >= 3) {
@@ -934,11 +902,7 @@ public class PlotManager {
 	}
 
 	public static boolean isPlotWorld(World w) {
-		if (w == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(w.getName().toLowerCase());
-		}
+		return w != null && PlotMe.plotmaps.containsKey(w.getName().toLowerCase());
 	}
 
 	public static boolean isPlotWorld(String name) {
@@ -946,55 +910,25 @@ public class PlotManager {
 	}
 
 	public static boolean isPlotWorld(Location l) {
-		if (l == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(l.getWorld().getName().toLowerCase());
-		}
+		return l != null && PlotMe.plotmaps.containsKey(l.getWorld().getName().toLowerCase());
 	}
 
 	public static boolean isPlotWorld(Player p) {
-		if (p == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(p.getWorld().getName().toLowerCase());
-		}
+		return p != null && PlotMe.plotmaps.containsKey(p.getWorld().getName().toLowerCase());
 	}
 
 	public static boolean isPlotWorld(Block b) {
-		if (b == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
-		}
+		return b != null && PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
 	}
 
 	public static boolean isPlotWorld(BlockState b) {
-		if (b == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
-		}
+		return b != null && PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
 	}
 
 	public static boolean isEconomyEnabled(World w) {
 		PlotMapInfo pmi = getMap(w);
 
-		if (pmi == null) {
-			return false;
-		} else {
-			return pmi.UseEconomy && PlotMe.globalUseEconomy && PlotMe.economy != null;
-		}
-	}
-
-	public static boolean isEconomyEnabled(String name) {
-		PlotMapInfo pmi = getMap(name);
-
-		if (pmi == null) {
-			return false;
-		} else {
-			return pmi.UseEconomy && PlotMe.globalUseEconomy;
-		}
+		return pmi != null && pmi.UseEconomy && PlotMe.globalUseEconomy && PlotMe.economy != null;
 	}
 
 	public static boolean isEconomyEnabled(Player p) {
@@ -1004,21 +938,7 @@ public class PlotManager {
 
 		PlotMapInfo pmi = getMap(p);
 
-		if (pmi == null) {
-			return false;
-		} else {
-			return pmi.UseEconomy && PlotMe.globalUseEconomy;
-		}
-	}
-
-	public static boolean isEconomyEnabled(Block b) {
-		PlotMapInfo pmi = getMap(b);
-
-		if (pmi == null) {
-			return false;
-		} else {
-			return pmi.UseEconomy && PlotMe.globalUseEconomy;
-		}
+		return pmi != null && pmi.UseEconomy && PlotMe.globalUseEconomy;
 	}
 
 	public static PlotMapInfo getMap(World w) {
@@ -1137,16 +1057,6 @@ public class PlotManager {
 		}
 	}
 
-	public static Plot getPlotById(World w, String id) {
-		HashMap<String, Plot> plots = getPlots(w);
-
-		if (plots == null) {
-			return null;
-		} else {
-			return plots.get(id);
-		}
-	}
-
 	public static Plot getPlotById(String name, String id) {
 		HashMap<String, Plot> plots = getPlots(name);
 
@@ -1167,22 +1077,11 @@ public class PlotManager {
 		}
 	}
 
-	public static Plot getPlotById(Player p) {
-		HashMap<String, Plot> plots = getPlots(p);
-		String plotid = getPlotId(p.getLocation());
-
-		if (plots == null || plotid == "") {
-			return null;
-		} else {
-			return plots.get(plotid);
-		}
-	}
-
 	public static Plot getPlotById(Location l) {
 		HashMap<String, Plot> plots = getPlots(l);
 		String plotid = getPlotId(l);
 
-		if (plots == null || plotid == "") {
+		if (plots == null || plotid.isEmpty()) {
 			return null;
 		} else {
 			return plots.get(plotid);
@@ -1199,91 +1098,10 @@ public class PlotManager {
 		}
 	}
 
-	public static Plot getPlotById(Block b) {
-		HashMap<String, Plot> plots = getPlots(b);
-		String plotid = getPlotId(b.getLocation());
-
-		if (plots == null || plotid == "") {
-			return null;
-		} else {
-			return plots.get(plotid);
-		}
-	}
-
-	public static void deleteNextExpired(World w, CommandSender sender) {
-		List<Plot> expiredplots = new ArrayList<>();
-		HashMap<String, Plot> plots = getPlots(w);
-		String date = PlotMe.getDate();
-		Plot expiredplot;
-
-		for (String id : plots.keySet()) {
-			Plot plot = plots.get(id);
-
-			if (!plot.protect && !plot.finished && plot.expireddate != null && PlotMe.getDate(plot.expireddate).compareTo(date) < 0) {
-				expiredplots.add(plot);
-			}
-		}
-
-		plots = null;
-
-		Collections.sort(expiredplots);
-
-		expiredplot = expiredplots.get(0);
-
-		expiredplots = null;
-
-		clear(w, expiredplot);
-
-		String id = expiredplot.id;
-
-		getPlots(w).remove(id);
-
-		removeOwnerSign(w, id);
-		removeSellSign(w, id);
-
-		SqlManager.deletePlot(getIdX(id), getIdZ(id), w.getName().toLowerCase());
-	}
-
 	public static World getFirstWorld() {
 		if (PlotMe.plotmaps != null) {
-			if (PlotMe.plotmaps.keySet() != null) {
-				if (PlotMe.plotmaps.keySet().toArray().length > 0) {
-					return Bukkit.getWorld((String) PlotMe.plotmaps.keySet().toArray()[0]);
-				}
-			}
-		}
-		return null;
-	}
-
-	public static World getFirstWorld(UUID uuid) {
-		if (PlotMe.plotmaps != null) {
-			if (PlotMe.plotmaps.keySet() != null) {
-				if (PlotMe.plotmaps.keySet().toArray().length > 0) {
-					for (String mapkey : PlotMe.plotmaps.keySet()) {
-						for (String id : PlotMe.plotmaps.get(mapkey).plots.keySet()) {
-							if (PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid)) {
-								return Bukkit.getWorld(mapkey);
-							}
-						}
-					}
-				}
-			}
-		}
-		return null;
-	}
-
-	public static Plot getFirstPlot(UUID uuid) {
-		if (PlotMe.plotmaps != null) {
-			if (PlotMe.plotmaps.keySet() != null) {
-				if (PlotMe.plotmaps.keySet().toArray().length > 0) {
-					for (String mapkey : PlotMe.plotmaps.keySet()) {
-						for (String id : PlotMe.plotmaps.get(mapkey).plots.keySet()) {
-							if (PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid)) {
-								return PlotMe.plotmaps.get(mapkey).plots.get(id);
-							}
-						}
-					}
-				}
+			if (PlotMe.plotmaps.keySet().toArray().length > 0) {
+				return Bukkit.getWorld((String) PlotMe.plotmaps.keySet().toArray()[0]);
 			}
 		}
 		return null;
@@ -1303,75 +1121,6 @@ public class PlotManager {
 				return false;
 			}
 		}
-	}
-
-	@SuppressWarnings("deprecation")
-	public static void regen(World w, Plot plot, CommandSender sender) {
-		int bottomX = PlotManager.bottomX(plot.id, w);
-		int topX = PlotManager.topX(plot.id, w);
-		int bottomZ = PlotManager.bottomZ(plot.id, w);
-		int topZ = PlotManager.topZ(plot.id, w);
-
-		int minChunkX = (int) Math.floor((double) bottomX / 16);
-		int maxChunkX = (int) Math.floor((double) topX / 16);
-		int minChunkZ = (int) Math.floor((double) bottomZ / 16);
-		int maxChunkZ = (int) Math.floor((double) topZ / 16);
-
-		HashMap<Location, Biome> biomes = new HashMap<>();
-
-		for (int cx = minChunkX; cx <= maxChunkX; cx++) {
-			int xx = cx << 4;
-
-			for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
-				int zz = cz << 4;
-
-				BlockState[][][] blocks = new BlockState[16][16][w.getMaxHeight()];
-				//Biome[][] biomes = new Biome[16][16];
-
-				for (int x = 0; x < 16; x++) {
-					for (int z = 0; z < 16; z++) {
-						biomes.put(new Location(w, x + xx, 0, z + zz), w.getBiome(x + xx, z + zz));
-
-						for (int y = 0; y < w.getMaxHeight(); y++) {
-							Block block = w.getBlockAt(x + xx, y, z + zz);
-							blocks[x][z][y] = block.getState();
-
-						}
-					}
-				}
-
-				try {
-					w.regenerateChunk(cx, cz);
-				} catch (Throwable t) {
-					t.printStackTrace();
-				}
-
-				for (int x = 0; x < 16; x++) {
-					for (int z = 0; z < 16; z++) {
-						for (int y = 0; y < w.getMaxHeight(); y++) {
-							if ((x + xx) < bottomX || (x + xx) > topX || (z + zz) < bottomZ || (z + zz) > topZ) {
-								Block newblock = w.getBlockAt(x + xx, y, z + zz);
-								BlockState oldblock = blocks[x][z][y];
-
-								newblock.setTypeIdAndData(oldblock.getTypeId(), oldblock.getRawData(), false);
-								oldblock.update();
-
-								//blocks[x][z][y].update(true);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		for (Location loc : biomes.keySet()) {
-			int x = loc.getBlockX();
-			int z = loc.getBlockX();
-
-			w.setBiome(x, z, biomes.get(loc));
-		}
-
-		//refreshPlotChunks(w, plot);
 	}
 
 	public static Location getPlotHome(World w, Plot plot) {

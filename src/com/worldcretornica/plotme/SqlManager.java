@@ -5,15 +5,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 import java.util.Map.Entry;
 
+import static com.worldcretornica.plotme.PlotMe.logger;
+
 public class SqlManager {
 
-	public final static String sqlitedb = "/plots.db";
 	private final static String PLOT_TABLE = "CREATE TABLE `plotmePlots` (" +
 			"`idX` INTEGER," +
 			"`idZ` INTEGER," +
@@ -66,36 +66,20 @@ public class SqlManager {
 
 	public static Connection initialize() {
 		try {
-			if (PlotMe.usemySQL) {
-				Class.forName("com.mysql.jdbc.Driver");
-				conn = DriverManager.getConnection(PlotMe.mySQLconn, PlotMe.mySQLuname, PlotMe.mySQLpass);
-				conn.setAutoCommit(false);
-			} else {
-				Class.forName("org.sqlite.JDBC");
-				conn = DriverManager.getConnection("jdbc:sqlite:" + PlotMe.configpath + "/plots.db");
-				conn.setAutoCommit(false);
-			}
+			Class.forName("org.sqlite.JDBC");
+			conn = DriverManager.getConnection("jdbc:sqlite:" + PlotMe.configpath + "/plots.db");
+			conn.setAutoCommit(false);
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + "SQL exception on initialize :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("SQL exception on initialize :");
+			logger.severe("  " + ex.getMessage());
 		} catch (ClassNotFoundException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + "You need the SQLite/MySQL library. :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("You need the SQLite/MySQL library. :");
+			logger.severe("  " + ex.getMessage());
 		}
 
 		createTable();
 
 		return conn;
-	}
-
-	public static String getSchema() {
-		String conn = PlotMe.mySQLconn;
-
-		if (conn.lastIndexOf("/") > 0) {
-			return conn.substring(conn.lastIndexOf("/") + 1);
-		} else {
-			return "";
-		}
 	}
 
 	public static void UpdateTables() {
@@ -107,352 +91,237 @@ public class SqlManager {
 
 			statement = conn.createStatement();
 
-			String schema = getSchema();
+			String column;
+			boolean found = false;
 
-			if (PlotMe.usemySQL) {
-				/*** START Version 0.8 changes ***/
-				// CustomPrice
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='customprice'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD customprice double NOT NULL DEFAULT '0';");
-					conn.commit();
+			/*** START Version 0.8 changes ***/
+			// CustomPrice
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("customprice")) {
+					found = true;
 				}
-				set.close();
-
-				// ForSale
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='forsale'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD forsale boolean NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-
-				// finisheddate
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='finisheddate'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD finisheddate varchar(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				// Protected
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='protected'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD protected boolean NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-
-				// Auctionned
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='auctionned'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD auctionned boolean NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-
-				// Auctionenddate
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='auctionenddate'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD auctionenddate varchar(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				// Currentbidder
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='currentbidder'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD currentbidder varchar(32) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				// Currentbid
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='currentbid'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD currentbid double NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-
-				/*** END Version 0.8 changes ***/
-
-				/*** START Version 0.13d changes ***/
-
-				// OwnerId
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='ownerid'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD ownerid blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				// Allowed playerid
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmeAllowed' AND column_name='playerid'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmeAllowed ADD playerid blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				// Denied playerid
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmeDenied' AND column_name='playerid'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmeDenied ADD playerid blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				// Commenter playerid
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmeComments' AND column_name='playerid'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmeComments ADD playerid blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				// CurrentBidderId
-				set = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" + schema + "' AND " + "TABLE_NAME='plotmePlots' AND column_name='currentbidderId'");
-				if (!set.next()) {
-					statement.execute("ALTER TABLE plotmePlots ADD currentbidderId blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				/*** END Version 0.13d changes ***/
-			} else {
-				String column;
-				boolean found = false;
-
-				/*** START Version 0.8 changes ***/
-				// CustomPrice
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("customprice")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD customprice double NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// ForSale
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("forsale")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD forsale boolean NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// FinishedDate
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("finisheddate")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD finisheddate varchar(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// Protected
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("protected")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD protected boolean NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// Auctionned
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("auctionned")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD auctionned boolean NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// Auctionenddate
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("auctionenddate")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD auctionenddate varchar(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// Currentbidder
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("currentbidder")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD currentbidder varchar(32) NULL;");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// Currentbid
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("currentbid")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD currentbid double NOT NULL DEFAULT '0';");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-				/*** END Version 0.8 changes ***/
-
-				/*** START Version 0.13d changes ***/
-
-				// OwnerId
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("ownerid")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD ownerid blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// Allowed id
-				set = statement.executeQuery("PRAGMA table_info(`plotmeAllowed`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("playerid")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmeAllowed ADD playerid blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// Denied id
-				set = statement.executeQuery("PRAGMA table_info(`plotmeDenied`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("playerid")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmeDenied ADD playerid blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// Commenter id
-				set = statement.executeQuery("PRAGMA table_info(`plotmeComments`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("playerid")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmeComments ADD playerid blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-				found = false;
-
-				// CurrentBidderId
-				set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
-
-				while (set.next() && !found) {
-					column = set.getString(2);
-					if (column.equalsIgnoreCase("currentbidderId")) {
-						found = true;
-					}
-				}
-
-				if (!found) {
-					statement.execute("ALTER TABLE plotmePlots ADD currentbidderId blob(16) NULL;");
-					conn.commit();
-				}
-				set.close();
-
-				/*** END Version 0.13d changes ***/
-
 			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD customprice double NOT NULL DEFAULT '0';");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// ForSale
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("forsale")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD forsale boolean NOT NULL DEFAULT '0';");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// FinishedDate
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("finisheddate")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD finisheddate varchar(16) NULL;");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// Protected
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("protected")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD protected boolean NOT NULL DEFAULT '0';");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// Auctionned
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("auctionned")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD auctionned boolean NOT NULL DEFAULT '0';");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// Auctionenddate
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("auctionenddate")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD auctionenddate varchar(16) NULL;");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// Currentbidder
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("currentbidder")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD currentbidder varchar(32) NULL;");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// Currentbid
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("currentbid")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD currentbid double NOT NULL DEFAULT '0';");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+			/*** END Version 0.8 changes ***/
+
+			/*** START Version 0.13d changes ***/
+
+			// OwnerId
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("ownerid")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD ownerid blob(16) NULL;");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// Allowed id
+			set = statement.executeQuery("PRAGMA table_info(`plotmeAllowed`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("playerid")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmeAllowed ADD playerid blob(16) NULL;");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// Denied id
+			set = statement.executeQuery("PRAGMA table_info(`plotmeDenied`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("playerid")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmeDenied ADD playerid blob(16) NULL;");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// Commenter id
+			set = statement.executeQuery("PRAGMA table_info(`plotmeComments`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("playerid")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmeComments ADD playerid blob(16) NULL;");
+				conn.commit();
+			}
+			set.close();
+			found = false;
+
+			// CurrentBidderId
+			set = statement.executeQuery("PRAGMA table_info(`plotmePlots`)");
+
+			while (set.next() && !found) {
+				column = set.getString(2);
+				if (column.equalsIgnoreCase("currentbidderId")) {
+					found = true;
+				}
+			}
+
+			if (!found) {
+				statement.execute("ALTER TABLE plotmePlots ADD currentbidderId blob(16) NULL;");
+				conn.commit();
+			}
+			set.close();
+
+			/*** END Version 0.13d changes ***/
+
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Update table exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Update table exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (statement != null) {
@@ -462,8 +331,8 @@ public class SqlManager {
 					set.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Update table exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Update table exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -472,34 +341,17 @@ public class SqlManager {
 		if (conn == null) {
 			conn = initialize();
 		}
-		if (PlotMe.usemySQL) {
-			try {
-				if (!conn.isValid(10)) {
-					conn = initialize();
-				}
-			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + "Failed to check SQL status :");
-				PlotMe.logger.severe("  " + ex.getMessage());
-			}
-		}
 		return conn;
 	}
 
 	public static void closeConnection() {
 		if (conn != null) {
 			try {
-				if (PlotMe.usemySQL) {
-					if (conn.isValid(10)) {
-						conn.close();
-					}
-					conn = null;
-				} else {
-					conn.close();
-					conn = null;
-				}
+				conn.close();
+				conn = null;
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + "Error on Connection close :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Error on Connection close :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -513,8 +365,8 @@ public class SqlManager {
 			rs = dbm.getTables(null, null, name, null);
 			return rs.next();
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Table Check Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Table Check Exception :");
+			logger.severe("  " + ex.getMessage());
 			return false;
 		} finally {
 			try {
@@ -522,8 +374,8 @@ public class SqlManager {
 					rs.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Table Check SQL Exception (on closing) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Table Check SQL Exception (on closing) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -556,159 +408,18 @@ public class SqlManager {
 
 			UpdateTables();
 
-			if (PlotMe.usemySQL) {
-				File sqlitefile = new File(PlotMe.configpath + sqlitedb);
-				if (sqlitefile.exists()) {
-					PlotMe.logger.info(PlotMe.NAME + " Modifying database for MySQL support");
-					PlotMe.logger.info(PlotMe.NAME + " Trying to import plots from plots.db");
-					Class.forName("org.sqlite.JDBC");
-					Connection sqliteconn = DriverManager.getConnection("jdbc:sqlite:" + PlotMe.configpath + sqlitedb);
-					sqliteconn.setAutoCommit(false);
-					Statement slstatement = sqliteconn.createStatement();
-					ResultSet setPlots = slstatement.executeQuery("SELECT * FROM plotmePlots");
-					Statement slAllowed = sqliteconn.createStatement();
-					ResultSet setAllowed = null;
-					Statement slDenied = sqliteconn.createStatement();
-					ResultSet setDenied = null;
-					Statement slComments = sqliteconn.createStatement();
-					ResultSet setComments = null;
-
-					int size = 0;
-					while (setPlots.next()) {
-						int idX = setPlots.getInt("idX");
-						int idZ = setPlots.getInt("idZ");
-						String owner = setPlots.getString("owner");
-						String world = setPlots.getString("world").toLowerCase();
-						int topX = setPlots.getInt("topX");
-						int bottomX = setPlots.getInt("bottomX");
-						int topZ = setPlots.getInt("topZ");
-						int bottomZ = setPlots.getInt("bottomZ");
-						String biome = setPlots.getString("biome");
-						java.sql.Date expireddate = setPlots.getDate("expireddate");
-						boolean finished = setPlots.getBoolean("finished");
-						PlayerList allowed = new PlayerList();
-						PlayerList denied = new PlayerList();
-						List<String[]> comments = new ArrayList<>();
-						double customprice = setPlots.getDouble("customprice");
-						boolean forsale = setPlots.getBoolean("forsale");
-						String finisheddate = setPlots.getString("finisheddate");
-						boolean protect = setPlots.getBoolean("protected");
-						boolean auctionned = setPlots.getBoolean("auctionned");
-						String currentbidder = setPlots.getString("currentbidder");
-						double currentbid = setPlots.getDouble("currentbid");
-
-						byte[] byOwner = setPlots.getBytes("ownerId");
-						byte[] byBidder = setPlots.getBytes("currentbidderid");
-
-						UUID ownerId = null;
-						UUID currentbidderid = null;
-
-						if (byOwner != null) {
-							ownerId = UUIDFetcher.fromBytes(byOwner);
-						}
-						if (byBidder != null) {
-							currentbidderid = UUIDFetcher.fromBytes(byBidder);
-						}
-
-						setAllowed = slAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
-
-						while (setAllowed.next()) {
-							byte[] byPlayerId = setAllowed.getBytes("playerid");
-							if (byPlayerId == null) {
-								allowed.put(setAllowed.getString("player"));
-							} else {
-								allowed.put(setAllowed.getString("player"), UUIDFetcher.fromBytes(byPlayerId));
-							}
-						}
-
-						if (setAllowed != null) {
-							setAllowed.close();
-						}
-
-						setDenied = slDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
-
-						while (setDenied.next()) {
-							byte[] byPlayerId = setDenied.getBytes("playerid");
-							if (byPlayerId == null) {
-								denied.put(setDenied.getString("player"));
-							} else {
-								denied.put(setDenied.getString("player"), UUIDFetcher.fromBytes(byPlayerId));
-							}
-						}
-
-						if (setDenied != null) {
-							setDenied.close();
-						}
-
-						setComments = slComments.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
-
-						while (setComments.next()) {
-							String[] comment = new String[3];
-
-							byte[] byPlayerId = setComments.getBytes("playerid");
-							if (byPlayerId != null) {
-								comment[2] = UUIDFetcher.fromBytes(byPlayerId).toString();
-							} else {
-								comment[2] = null;
-							}
-
-							comment[0] = setComments.getString("player");
-							comment[1] = setComments.getString("comment");
-							comments.add(comment);
-						}
-
-						Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
-						addPlot(plot, idX, idZ, topX, bottomX, topZ, bottomZ);
-
-						size++;
-					}
-					PlotMe.logger.info(PlotMe.NAME + " Imported " + size + " plots from " + sqlitedb);
-					if (slstatement != null) {
-						slstatement.close();
-					}
-					if (slAllowed != null) {
-						slAllowed.close();
-					}
-					if (slComments != null) {
-						slComments.close();
-					}
-					if (slDenied != null) {
-						slDenied.close();
-					}
-					if (setPlots != null) {
-						setPlots.close();
-					}
-					if (setComments != null) {
-						setComments.close();
-					}
-					if (setAllowed != null) {
-						setAllowed.close();
-					}
-					if (sqliteconn != null) {
-						sqliteconn.close();
-					}
-
-					PlotMe.logger.info(PlotMe.NAME + " Renaming " + sqlitedb + " to " + sqlitedb + ".old");
-					if (!sqlitefile.renameTo(new File(PlotMe.configpath, sqlitedb + ".old"))) {
-						PlotMe.logger.warning(PlotMe.NAME + " Failed to rename " + sqlitedb + "! Please rename this manually!");
-					}
-				}
-			}
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Create Table Exception :");
+			logger.severe("Create Table Exception :");
 			//PlotMe.logger.severe("  " + ex.getMessage());
 			ex.printStackTrace();
-		} catch (ClassNotFoundException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " You need the SQLite library :");
-			PlotMe.logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (st != null) {
 					st.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Could not create the table (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Could not create the table (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -798,25 +509,25 @@ public class SqlManager {
 				}
 			}
 
-			if (plot.owner != null && !plot.owner.equals("") && plot.ownerId == null) {
+			if (plot.owner != null && !plot.owner.isEmpty() && plot.ownerId == null) {
 				fetchOwnerUUIDAsync(idX, idZ, plot.world.toLowerCase(), plot.owner);
 			}
 
-			if (plot.currentbidder != null && !plot.currentbidder.equals("") && plot.currentbidderId == null) {
+			if (plot.currentbidder != null && !plot.currentbidder.isEmpty() && plot.currentbidderId == null) {
 				fetchBidderUUIDAsync(idX, idZ, plot.world.toLowerCase(), plot.currentbidder);
 			}
 
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Insert Exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (ps != null) {
 					ps.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Insert Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -850,16 +561,16 @@ public class SqlManager {
 			}
 
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Insert Exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (ps != null) {
 					ps.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Insert Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -896,16 +607,16 @@ public class SqlManager {
 			}
 
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Insert Exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (ps != null) {
 					ps.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Insert Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -938,16 +649,16 @@ public class SqlManager {
 			}
 
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Insert Exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (ps != null) {
 					ps.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe(" Insert Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -978,23 +689,22 @@ public class SqlManager {
 			conn.commit();
 
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Insert Exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (ps != null) {
 					ps.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Insert Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
 
 	public static void deletePlot(int idX, int idZ, String world) {
 		PreparedStatement ps = null;
-		ResultSet set = null;
 		try {
 			Connection conn = getConnection();
 
@@ -1031,23 +741,22 @@ public class SqlManager {
 			ps.close();
 
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Delete Exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (ps != null) {
 					ps.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Delete Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
 
 	public static void deletePlotAllowed(int idX, int idZ, String player, UUID playerid, String world) {
 		PreparedStatement ps = null;
-		ResultSet set = null;
 
 		try {
 			Connection conn = getConnection();
@@ -1066,23 +775,22 @@ public class SqlManager {
 			conn.commit();
 
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Delete Exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (ps != null) {
 					ps.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Delete Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
 
 	public static void deletePlotDenied(int idX, int idZ, String player, UUID playerid, String world) {
 		PreparedStatement ps = null;
-		ResultSet set = null;
 
 		try {
 			Connection conn = getConnection();
@@ -1101,16 +809,16 @@ public class SqlManager {
 			conn.commit();
 
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Delete Exception :");
+			logger.severe("  " + ex.getMessage());
 		} finally {
 			try {
 				if (ps != null) {
 					ps.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Delete Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 	}
@@ -1180,9 +888,7 @@ public class SqlManager {
 					}
 				}
 
-				if (setAllowed != null) {
-					setAllowed.close();
-				}
+				setAllowed.close();
 
 				statementDenied = conn.createStatement();
 				setDenied = statementDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
@@ -1196,9 +902,7 @@ public class SqlManager {
 					}
 				}
 
-				if (setDenied != null) {
-					setDenied.close();
-				}
+				setDenied.close();
 
 				statementComment = conn.createStatement();
 				setComments = statementComment.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
@@ -1217,12 +921,12 @@ public class SqlManager {
 				}
 
 				Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
-				ret.put("" + idX + ";" + idZ, plot);
+				ret.put(idX + ";" + idZ, plot);
 			}
-			PlotMe.logger.info(PlotMe.NAME + " " + size + " plots loaded");
+			logger.info(size + " plots loaded");
 		} catch (SQLException ex) {
-			PlotMe.logger.severe(PlotMe.NAME + " Load Exception :");
-			PlotMe.logger.severe("  " + ex.getMessage());
+			logger.severe("Load Exception :");
+			logger.severe("  " + ex.getMessage());
 			ex.printStackTrace();
 		} finally {
 			try {
@@ -1245,8 +949,8 @@ public class SqlManager {
 					setAllowed.close();
 				}
 			} catch (SQLException ex) {
-				PlotMe.logger.severe(PlotMe.NAME + " Load Exception (on close) :");
-				PlotMe.logger.severe("  " + ex.getMessage());
+				logger.severe("Load Exception (on close) :");
+				logger.severe("  " + ex.getMessage());
 			}
 		}
 		return ret;
@@ -1256,7 +960,7 @@ public class SqlManager {
 		Bukkit.getServer().getScheduler().runTaskAsynchronously(PlotMe.self, new Runnable() {
 			@Override
 			public void run() {
-				PlotMe.logger.info("Checking if conversion to UUID needed...");
+				logger.info("Checking if conversion to UUID needed...");
 
 				boolean boConversion = false;
 				Statement statementPlayers = null;
@@ -1289,7 +993,7 @@ public class SqlManager {
 					sql = sql + "UNION SELECT LOWER(player) as Name FROM plotmeDenied WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY LOWER(player) ";
 					sql = sql + "UNION SELECT LOWER(player) as Name FROM plotmeComments WHERE NOT player IS NULL AND Not player LIKE 'group:%' AND Not player LIKE '%*%' AND playerid IS NULL GROUP BY LOWER(player)";
 
-					PlotMe.logger.info("Verifying if database needs conversion");
+					logger.info("Verifying if database needs conversion");
 
 					setPlayers = statementPlayers.executeQuery(sql);
 
@@ -1304,14 +1008,14 @@ public class SqlManager {
 						psDeleteDenied = conn.prepareStatement("DELETE FROM plotmeDenied WHERE player = ? ");
 						psDeleteComments = conn.prepareStatement("DELETE FROM plotmeComments WHERE player = ? ");
 
-						PlotMe.logger.info("Starting to convert plots to UUID");
+						logger.info("Starting to convert plots to UUID");
 						do {
 							String name = setPlayers.getString("Name");
-							if (!name.equals("")) {
+							if (!name.isEmpty()) {
 								if (name.matches("^[a-zA-Z0-9_]{1,16}$")) {
 									names.add(name);
 								} else {
-									PlotMe.logger.warning("Invalid name found : " + name + ". Removing from database.");
+									logger.warning("Invalid name found : " + name + ". Removing from database.");
 									psDeleteOwner.setString(1, name);
 									psDeleteOwner.executeUpdate();
 									psDeleteCurrentBidder.setString(1, name);
@@ -1338,11 +1042,11 @@ public class SqlManager {
 						Map<String, UUID> response = null;
 
 						try {
-							PlotMe.logger.info("Fetching " + names.size() + " UUIDs from Mojang servers...");
+							logger.info("Fetching " + names.size() + " UUIDs from Mojang servers...");
 							response = fetcher.call();
-							PlotMe.logger.info("Finished fetching " + response.size() + " UUIDs. Starting database update.");
+							logger.info("Finished fetching " + response.size() + " UUIDs. Starting database update.");
 						} catch (Exception e) {
-							PlotMe.logger.warning("Exception while running UUIDFetcher");
+							logger.warning("Exception while running UUIDFetcher");
 							e.printStackTrace();
 						}
 
@@ -1379,7 +1083,7 @@ public class SqlManager {
 								if (count > 0) {
 									nbConverted++;
 								} else {
-									PlotMe.logger.warning("Unable to update player '" + key + "'");
+									logger.warning("Unable to update player '" + key + "'");
 								}
 							}
 
@@ -1425,21 +1129,21 @@ public class SqlManager {
 						}
 
 						boConversion = true;
-						PlotMe.logger.info(nbConverted + " players converted");
+						logger.info(nbConverted + " players converted");
 					}
 					setPlayers.close();
 					statementPlayers.close();
 
 					if (boConversion) {
-						PlotMe.logger.info("Plot conversion finished");
+						logger.info("Plot conversion finished");
 					} else {
-						PlotMe.logger.info("No plot conversion needed");
+						logger.info("No plot conversion needed");
 					}
 				} catch (SQLException ex) {
-					PlotMe.logger.severe("Conversion to UUID failed :");
-					PlotMe.logger.severe("  " + ex.getMessage());
+					logger.severe("Conversion to UUID failed :");
+					logger.severe("  " + ex.getMessage());
 					for (StackTraceElement e : ex.getStackTrace()) {
-						PlotMe.logger.severe("  " + e.toString());
+						logger.severe("  " + e.toString());
 					}
 				} finally {
 					try {
@@ -1480,10 +1184,10 @@ public class SqlManager {
 							psDeleteComments.close();
 						}
 					} catch (SQLException ex) {
-						PlotMe.logger.severe("Conversion to UUID failed (on close) :");
-						PlotMe.logger.severe("  " + ex.getMessage());
+						logger.severe("Conversion to UUID failed (on close) :");
+						logger.severe("  " + ex.getMessage());
 						for (StackTraceElement e : ex.getStackTrace()) {
-							PlotMe.logger.severe("  " + e.toString());
+							logger.severe("  " + e.toString());
 						}
 					}
 				}
@@ -1536,9 +1240,9 @@ public class SqlManager {
 							Map<String, UUID> response;
 
 							try {
-								PlotMe.logger.info("Fetching " + names.size() + " UUIDs from Mojang servers...");
+								logger.info("Fetching " + names.size() + " UUIDs from Mojang servers...");
 								response = fetcher.call();
-								PlotMe.logger.info("Received " + response.size() + " UUIDs. Starting database update...");
+								logger.info("Received " + response.size() + " UUIDs. Starting database update...");
 
 								if (response.size() > 0) {
 									Collection<UUID> values = response.values();
@@ -1547,9 +1251,9 @@ public class SqlManager {
 									newname = strings.toArray(new String[strings.size()])[0];
 								}
 							} catch (IOException e) {
-								PlotMe.logger.warning("Unable to connect to Mojang server!");
+								logger.warning("Unable to connect to Mojang server!");
 							} catch (Exception e) {
-								PlotMe.logger.warning("Exception while running UUIDFetcher");
+								logger.warning("Exception while running UUIDFetcher");
 								e.printStackTrace();
 							}
 						}
@@ -1585,7 +1289,7 @@ public class SqlManager {
 						ps.close();
 
 						if (uuid != null) {
-							Plot plot = PlotManager.getPlotById(world, "" + idX + ";" + idZ);
+							Plot plot = PlotManager.getPlotById(world, idX + ";" + idZ);
 
 							if (plot != null) {
 								switch (Property) {
@@ -1611,14 +1315,14 @@ public class SqlManager {
 							}
 
 							if (p == null) {
-								PlotMe.logger.info("UUID updated to Database!");
+								logger.info("UUID updated to Database!");
 							}
 						}
 					} catch (SQLException ex) {
-						PlotMe.logger.severe("Conversion to UUID failed :");
-						PlotMe.logger.severe("  " + ex.getMessage());
+						logger.severe("Conversion to UUID failed :");
+						logger.severe("  " + ex.getMessage());
 						for (StackTraceElement e : ex.getStackTrace()) {
-							PlotMe.logger.severe("  " + e.toString());
+							logger.severe("  " + e.toString());
 						}
 					} finally {
 						try {
@@ -1626,10 +1330,10 @@ public class SqlManager {
 								ps.close();
 							}
 						} catch (SQLException ex) {
-							PlotMe.logger.severe("Conversion to UUID failed (on close) :");
-							PlotMe.logger.severe("  " + ex.getMessage());
+							logger.severe("Conversion to UUID failed (on close) :");
+							logger.severe("  " + ex.getMessage());
 							for (StackTraceElement e : ex.getStackTrace()) {
-								PlotMe.logger.severe("  " + e.toString());
+								logger.severe("  " + e.toString());
 							}
 						}
 					}
@@ -1666,10 +1370,10 @@ public class SqlManager {
 					}
 
 				} catch (SQLException ex) {
-					PlotMe.logger.severe("Update player in database from uuid failed :");
-					PlotMe.logger.severe("  " + ex.getMessage());
+					logger.severe("Update player in database from uuid failed :");
+					logger.severe("  " + ex.getMessage());
 					for (StackTraceElement e : ex.getStackTrace()) {
-						PlotMe.logger.severe("  " + e.toString());
+						logger.severe("  " + e.toString());
 					}
 				} finally {
 					try {
@@ -1679,10 +1383,10 @@ public class SqlManager {
 							}
 						}
 					} catch (SQLException ex) {
-						PlotMe.logger.severe("Update player in database from uuid failed (on close) :");
-						PlotMe.logger.severe("  " + ex.getMessage());
+						logger.severe("Update player in database from uuid failed (on close) :");
+						logger.severe("  " + ex.getMessage());
 						for (StackTraceElement e : ex.getStackTrace()) {
-							PlotMe.logger.severe("  " + e.toString());
+							logger.severe("  " + e.toString());
 						}
 					}
 				}

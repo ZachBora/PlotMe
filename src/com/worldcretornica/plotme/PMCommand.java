@@ -24,7 +24,7 @@ public class PMCommand implements CommandExecutor {
 	private final ChatColor ITALIC = ChatColor.ITALIC;
 	private final String PREFIX = PlotMe.PREFIX;
 	private final String prefixe = "[Event] ";
-	private PlotMe plugin;
+	private final PlotMe plugin;
 
 	public PMCommand(PlotMe instance) {
 		plugin = instance;
@@ -229,7 +229,7 @@ public class PMCommand implements CommandExecutor {
 			if (PlotMe.cPerms(p, "PlotMe.use.bid")) {
 				String id = PlotManager.getPlotId(p.getLocation());
 
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -251,7 +251,7 @@ public class PMCommand implements CommandExecutor {
 									} catch (Exception e) {
 									}
 
-									if (bid < currentbid || (bid == currentbid && !currentbidder.equals(""))) {
+									if (bid < currentbid || (bid == currentbid && !currentbidder.isEmpty())) {
 										Send(p, RED + C("MsgInvalidBidMustBeAbove") + " " + RESET + f(plot.currentbid, false));
 									} else {
 										double balance = PlotMe.economy.getBalance(bidder);
@@ -262,7 +262,7 @@ public class PMCommand implements CommandExecutor {
 											EconomyResponse er = PlotMe.economy.withdrawPlayer(bidder, bid);
 
 											if (er.transactionSuccess()) {
-												if (!currentbidder.equals("")) {
+												if (!currentbidder.isEmpty()) {
 													EconomyResponse er2 = PlotMe.economy.depositPlayer(currentbidder, currentbid);
 
 													if (!er2.transactionSuccess()) {
@@ -323,7 +323,7 @@ public class PMCommand implements CommandExecutor {
 				Location l = p.getLocation();
 				String id = PlotManager.getPlotId(l);
 
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -417,7 +417,7 @@ public class PMCommand implements CommandExecutor {
 				if (PlotMe.cPerms(p, "PlotMe.use.auction") || PlotMe.cPerms(p, "PlotMe.admin.auction")) {
 					String id = PlotManager.getPlotId(p.getLocation());
 
-					if (id.equals("")) {
+					if (id.isEmpty()) {
 						Send(p, RED + C("MsgNoPlotFound"));
 					} else {
 						if (!PlotManager.isPlotAvailable(id, p)) {
@@ -514,7 +514,7 @@ public class PMCommand implements CommandExecutor {
 				Send(p, RED + C("MsgNotPlotWorld"));
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -547,7 +547,7 @@ public class PMCommand implements CommandExecutor {
 									if (plot.auctionned) {
 										String currentbidder = plot.currentbidder;
 
-										if (!currentbidder.equals("")) {
+										if (!currentbidder.isEmpty()) {
 											EconomyResponse er2 = PlotMe.economy.depositPlayer(currentbidder, plot.currentbid);
 
 											if (!er2.transactionSuccess()) {
@@ -604,7 +604,7 @@ public class PMCommand implements CommandExecutor {
 					Location l = p.getLocation();
 					String id = PlotManager.getPlotId(l);
 
-					if (id.equals("")) {
+					if (id.isEmpty()) {
 						Send(p, RED + C("MsgNoPlotFound"));
 					} else {
 						if (!PlotManager.isPlotAvailable(id, p)) {
@@ -662,7 +662,7 @@ public class PMCommand implements CommandExecutor {
 
 											String currentbidder = plot.currentbidder;
 
-											if (!currentbidder.equals("")) {
+											if (!currentbidder.isEmpty()) {
 												double bid = plot.currentbid;
 
 												EconomyResponse er = PlotMe.economy.depositPlayer(currentbidder, bid);
@@ -758,7 +758,7 @@ public class PMCommand implements CommandExecutor {
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
 
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -891,7 +891,7 @@ public class PMCommand implements CommandExecutor {
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
 
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -930,7 +930,7 @@ public class PMCommand implements CommandExecutor {
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
 
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -1046,7 +1046,7 @@ public class PMCommand implements CommandExecutor {
 					}
 
 					if (plot.auctionned) {
-						addition.append(" " + C("WordAuction") + ": " + GREEN + round(plot.currentbid) + RESET + ((plot.currentbidder != null && !plot.currentbidder.equals("")) ? " " + plot.currentbidder : ""));
+						addition.append(" " + C("WordAuction") + ": " + GREEN + round(plot.currentbid) + RESET + ((plot.currentbidder != null && !plot.currentbidder.isEmpty()) ? " " + plot.currentbidder : ""));
 					}
 
 					if (plot.forsale) {
@@ -1606,7 +1606,7 @@ public class PMCommand implements CommandExecutor {
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
 
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgCannotClaimRoad"));
 				} else if (!PlotManager.isPlotAvailable(id, p)) {
 					Send(p, RED + C("MsgThisPlotOwned"));
@@ -1697,7 +1697,7 @@ public class PMCommand implements CommandExecutor {
 
 				if (args[0].contains(":")) {
 					try {
-						if (args[0].split(":").length == 1 || args[0].split(":")[1].equals("")) {
+						if (args[0].split(":").length == 1 || args[0].split(":")[1].isEmpty()) {
 							Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandHome") + ":# " +
 									RESET + C("WordExample") + ": " + RED + "/plotme " + C("CommandHome") + ":1");
 							return true;
@@ -1801,7 +1801,7 @@ public class PMCommand implements CommandExecutor {
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
 
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -1856,7 +1856,7 @@ public class PMCommand implements CommandExecutor {
 				} else {
 					String id = PlotManager.getPlotId(p.getLocation());
 
-					if (id.equals("")) {
+					if (id.isEmpty()) {
 						Send(p, RED + C("MsgNoPlotFound"));
 					} else {
 						if (!PlotManager.isPlotAvailable(id, p)) {
@@ -1921,7 +1921,7 @@ public class PMCommand implements CommandExecutor {
 				if (args.length < 2) {
 					String id = PlotManager.getPlotId(p.getLocation());
 
-					if (id.equals("")) {
+					if (id.isEmpty()) {
 						Send(p, RED + C("MsgNoPlotFound"));
 					} else {
 						if (!PlotManager.isPlotAvailable(id, p)) {
@@ -1950,7 +1950,7 @@ public class PMCommand implements CommandExecutor {
 				}
 			}
 		} else {
-			p.sendMessage(BLUE + PREFIX + RED + C("MsgPermissionDenied"));
+			p.sendMessage(PREFIX + C("MsgPermissionDenied"));
 		}
 		return true;
 	}
@@ -1961,8 +1961,8 @@ public class PMCommand implements CommandExecutor {
 				Send(p, RED + C("MsgNotPlotWorld"));
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
-				if (id.equals("")) {
-					p.sendMessage(BLUE + PREFIX + RED + C("MsgNoPlotFound"));
+				if (id.isEmpty()) {
+					p.sendMessage(PREFIX + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
 						World w = p.getWorld();
@@ -2128,7 +2128,7 @@ public class PMCommand implements CommandExecutor {
 							if (plot.auctionned) {
 								String currentbidder = plot.currentbidder;
 
-								if (!currentbidder.equals("")) {
+								if (!currentbidder.isEmpty()) {
 									EconomyResponse er = PlotMe.economy.depositPlayer(currentbidder, plot.currentbid);
 
 									if (!er.transactionSuccess()) {
@@ -2194,7 +2194,7 @@ public class PMCommand implements CommandExecutor {
 				Send(p, RED + C("MsgNotPlotWorld"));
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -2258,7 +2258,7 @@ public class PMCommand implements CommandExecutor {
 				Send(p, RED + C("MsgNotPlotWorld"));
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -2326,7 +2326,7 @@ public class PMCommand implements CommandExecutor {
 				Send(p, RED + C("MsgNotPlotWorld"));
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -2417,7 +2417,7 @@ public class PMCommand implements CommandExecutor {
 				Send(p, RED + C("MsgNotPlotWorld"));
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -2488,7 +2488,7 @@ public class PMCommand implements CommandExecutor {
 				Send(p, RED + C("MsgNotPlotWorld"));
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
@@ -2559,10 +2559,10 @@ public class PMCommand implements CommandExecutor {
 				Send(p, RED + C("MsgNotPlotWorld"));
 			} else {
 				String id = PlotManager.getPlotId(p.getLocation());
-				if (id.equals("")) {
+				if (id.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
-					if (args.length < 2 || args[1].equals("")) {
+					if (args.length < 2 || args[1].isEmpty()) {
 						Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandSetowner") + " <" + C("WordPlayer") + ">");
 					} else {
 						String newowner = args[1];
@@ -2593,7 +2593,7 @@ public class PMCommand implements CommandExecutor {
 									}
 								}
 
-								if (plot.currentbidder != null && !plot.currentbidder.equals("")) {
+								if (plot.currentbidder != null && !plot.currentbidder.isEmpty()) {
 									EconomyResponse er = PlotMe.economy.depositPlayer(plot.currentbidder, plot.currentbid);
 
 									if (!er.transactionSuccess()) {
@@ -2652,7 +2652,7 @@ public class PMCommand implements CommandExecutor {
 			} else {
 				String plotid = PlotManager.getPlotId(p.getLocation());
 
-				if (plotid.equals("")) {
+				if (plotid.isEmpty()) {
 					Send(p, RED + C("MsgNoPlotFound"));
 				} else {
 					p.sendMessage(BLUE + C("WordPlot") + " " + C("WordId") + ": " + RESET + plotid);

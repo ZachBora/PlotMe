@@ -1,11 +1,11 @@
 name: PlotMe
 main: com.worldcretornica.plotme.PlotMe
-version: '0.13g'
-author: ZachBora
+version: 0.2.0
+author: MattBDev
 load: startup
 website: http://dev.bukkit.org/server-mods/plotme/
 loadbefore: [bPermissions, Multiverse-Core]
-softdepend: [WorldEdit, Vault, LWC]
+softdepend: [Vault]
 description: >
              Handles plot creation, management and protection
 commands:
