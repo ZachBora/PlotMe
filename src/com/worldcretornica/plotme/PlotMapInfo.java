@@ -9,8 +9,6 @@ public class PlotMapInfo {
 	public int PlotAutoLimit;
 	public int PathWidth;
 
-	public short BottomBlockId;
-	public byte BottomBlockValue;
 	public short WallBlockId;
 	public byte WallBlockValue;
 	public short PlotFloorBlockId;

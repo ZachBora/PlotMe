@@ -168,10 +168,10 @@ public class Plot implements Comparable<Plot> {
 		denied = den;
 	}
 
-	Plot(String o, UUID uuid, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, UUID bidderId, Double bid, boolean isauctionned, PlayerList den) {
+	Plot(String o, UUID uuid, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, UUID bidderId, Double bid, boolean isauctionned, PlayerList den) {
 		ownerId = uuid;
 		owner = o;
-		world = w;
+		world = "plotworld";
 		biome = Biome.valueOf(bio);
 		expireddate = exp;
 		finished = fini;

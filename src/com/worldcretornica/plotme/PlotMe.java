@@ -10,7 +10,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -31,7 +30,6 @@ public class PlotMe extends JavaPlugin {
 
 	public static String configpath;
 	public static Boolean globalUseEconomy;
-	public static Boolean allowWorldTeleport;
 	public static Boolean allowToDeny;
 	public static ConcurrentHashMap<String, PlotMapInfo> plotmaps = null;
 	public static Economy economy = null;
@@ -43,39 +41,6 @@ public class PlotMe extends JavaPlugin {
 	Boolean initialized = false;
 	private File captionFile = new File(getDataFolder(), "captions.yml");
 	private FileConfiguration captionsConfig;
-
-	public static boolean cPerms(CommandSender sender, String node) {
-		return sender.hasPermission(node);
-	}
-
-	public static int getPlotLimit(Player p) {
-		int max = -2;
-
-		int maxlimit = 255;
-
-		if (p.hasPermission("plotme.limit.*")) {
-			return -1;
-		} else {
-			for (int ctr = 0; ctr < maxlimit; ctr++) {
-				if (p.hasPermission("plotme.limit." + ctr)) {
-					max = ctr;
-				}
-			}
-
-		}
-
-		if (max == -2) {
-			if (cPerms(p, "plotme.admin")) {
-				return -1;
-			} else if (cPerms(p, "plotme.use")) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-
-		return max;
-	}
 
 	public static String getDate() {
 		return getDate(Calendar.getInstance());
@@ -126,6 +91,7 @@ public class PlotMe extends JavaPlugin {
 		// Look for defaults in the jar
 		InputStream defConfigStream = this.getResource("captions.yml");
 		if (defConfigStream != null) {
+			//noinspection deprecation
 			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
 			captionsConfig.setDefaults(defConfig);
 		}
@@ -135,8 +101,6 @@ public class PlotMe extends JavaPlugin {
 		SqlManager.closeConnection();
 
 		globalUseEconomy = null;
-		allowWorldTeleport = null;
-		plotmaps = null;
 		configpath = null;
 		economy = null;
 		worldcurrentlyprocessingexpired = null;
@@ -176,7 +140,7 @@ public class PlotMe extends JavaPlugin {
 		if (PlotManager.isPlotWorld(worldname)) {
 			return new PlotGen(PlotManager.getMap(worldname));
 		} else {
-			logger.warning("Configuration not found for PlotMe world '" + worldname + "' Using defaults");
+			logger.warning("Configuration not found for PlotMe world 'plotworld' Using defaults");
 			return new PlotGen();
 		}
 	}
@@ -192,12 +156,9 @@ public class PlotMe extends JavaPlugin {
 		FileConfiguration config = getConfig();
 
 		globalUseEconomy = config.getBoolean("globalUseEconomy", false);
-		allowWorldTeleport = config.getBoolean("allowWorldTeleport", true);
 		allowToDeny = config.getBoolean("allowToDeny", true);
 
 		ConfigurationSection plotworld = config.getConfigurationSection("plotworld");
-
-		plotmaps = new ConcurrentHashMap<>();
 
 		PlotMapInfo tempPlotInfo = new PlotMapInfo();
 
@@ -205,8 +166,6 @@ public class PlotMe extends JavaPlugin {
 		tempPlotInfo.PathWidth = plotworld.getInt("PathWidth", 7);
 		tempPlotInfo.PlotSize = plotworld.getInt("PlotSize", 32);
 
-		tempPlotInfo.BottomBlockId = getBlockId(plotworld, "BottomBlockId", "7:0");
-		tempPlotInfo.BottomBlockValue = getBlockValue(plotworld, "BottomBlockId", "7:0");
 		tempPlotInfo.WallBlockId = getBlockId(plotworld, "WallBlockId", "44:0");
 		tempPlotInfo.WallBlockValue = getBlockValue(plotworld, "WallBlockId", "44:0");
 		tempPlotInfo.PlotFloorBlockId = getBlockId(plotworld, "PlotFloorBlockId", "2:0");
@@ -267,7 +226,7 @@ public class PlotMe extends JavaPlugin {
 		tempPlotInfo.ProtectPrice = economysection.getDouble("ProtectPrice", 0);
 		tempPlotInfo.DisposePrice = economysection.getDouble("DisposePrice", 0);
 
-		tempPlotInfo.plots = SqlManager.getPlots("plotworld");
+		tempPlotInfo.plots = SqlManager.getPlots();
 
 		plotmaps.put("plotworld", tempPlotInfo);
 
@@ -321,11 +280,11 @@ public class PlotMe extends JavaPlugin {
 		return preventeditems;
 	}
 
-	public void scheduleTask(Runnable task, int eachseconds, int howmanytimes) {
+	public void scheduleTask(Runnable task) {
 		PlotMe.cscurrentlyprocessingexpired.sendMessage(PlotMe.PREFIX + caption("MsgStartDeleteSession"));
 
-		for (int ctr = 0; ctr < (howmanytimes / nbperdeletionprocessingexpired); ctr++) {
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, task, ctr * eachseconds * 20);
+		for (int ctr = 0; ctr < (50 / nbperdeletionprocessingexpired); ctr++) {
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, task, ctr * 5 * 20);
 		}
 	}
 

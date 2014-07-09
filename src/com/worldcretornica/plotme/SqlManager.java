@@ -823,7 +823,7 @@ public class SqlManager {
 		}
 	}
 
-	public static HashMap<String, Plot> getPlots(String world) {
+	public static HashMap<String, Plot> getPlots() {
 		HashMap<String, Plot> ret = new HashMap<>();
 		Statement statementPlot = null;
 		Statement statementAllowed = null;
@@ -838,7 +838,7 @@ public class SqlManager {
 			Connection conn = getConnection();
 
 			statementPlot = conn.createStatement();
-			setPlots = statementPlot.executeQuery("SELECT * FROM plotmePlots WHERE LOWER(world) = '" + world + "'");
+			setPlots = statementPlot.executeQuery("SELECT * FROM plotmePlots WHERE LOWER(world) = '" + "plotworld" + "'");
 			int size = 0;
 			while (setPlots.next()) {
 				size++;
@@ -877,7 +877,7 @@ public class SqlManager {
 				}
 
 				statementAllowed = conn.createStatement();
-				setAllowed = statementAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+				setAllowed = statementAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + "plotworld" + "'");
 
 				while (setAllowed.next()) {
 					byte[] byPlayerId = setAllowed.getBytes("playerid");
@@ -891,7 +891,7 @@ public class SqlManager {
 				setAllowed.close();
 
 				statementDenied = conn.createStatement();
-				setDenied = statementDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+				setDenied = statementDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + "plotworld" + "'");
 
 				while (setDenied.next()) {
 					byte[] byPlayerId = setDenied.getBytes("playerid");
@@ -905,7 +905,7 @@ public class SqlManager {
 				setDenied.close();
 
 				statementComment = conn.createStatement();
-				setComments = statementComment.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+				setComments = statementComment.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + "plotworld" + "'");
 
 				while (setComments.next()) {
 					String[] comment = new String[3];
@@ -920,7 +920,7 @@ public class SqlManager {
 					comments.add(comment);
 				}
 
-				Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
+				Plot plot = new Plot(owner, ownerId, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
 				ret.put(idX + ";" + idZ, plot);
 			}
 			logger.info(size + " plots loaded");
