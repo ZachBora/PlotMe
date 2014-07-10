@@ -41,13 +41,15 @@ public class PlotManager {
 			}
 
 			for (double i = n3; i >= 0; i--) {
-				if ((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0) {
+				if ((valx - i + mod1) % size == 0 ||
+						(valx + i + mod2) % size == 0) {
 					road = true;
 
 					x = (int) Math.ceil((valx - n3) / size);
 					//x2 = (int) Math.ceil((double)(valx + n3) / size);
 				}
-				if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
+				if ((valz - i + mod1) % size == 0 ||
+						(valz + i + mod2) % size == 0) {
 					road = true;
 
 					z = (int) Math.ceil((valz - n3) / size);
@@ -554,7 +556,7 @@ public class PlotManager {
 
 
 					if (y == 0) {
-						block.setType(Material.BEDROCK);
+						block.setTypeId(pmi.BottomBlockId);
 					} else if (y < pmi.RoadHeight) {
 						block.setTypeId(pmi.PlotFillingBlockId);
 					} else if (y == pmi.RoadHeight) {
@@ -563,7 +565,7 @@ public class PlotManager {
 						if (y == (pmi.RoadHeight + 1) && (x == bottomX - 1 || x == topX + 1 || z == bottomZ - 1 || z == topZ + 1)) {
 							//block.setTypeId(pmi.WallBlockId);
 						} else {
-							block.setType(Material.AIR);
+							block.setTypeIdAndData(0, (byte) 0, false); //.setType(Material.AIR);
 						}
 					}
 				}
@@ -641,6 +643,7 @@ public class PlotManager {
 		}
 	}
 
+
 	@SuppressWarnings("deprecation")
 	private static void setWall(Block block, String currentblockid) {
 
@@ -666,6 +669,7 @@ public class PlotManager {
 
 		block.setTypeIdAndData(blockId, blockData, true);
 	}
+
 
 	@SuppressWarnings("deprecation")
 	public static boolean movePlot(World w, String idFrom, String idTo) {
@@ -910,7 +914,7 @@ public class PlotManager {
 	}
 
 	public static boolean isPlotWorld(Player p) {
-		return p.getWorld() == Bukkit.getWorld("plotworld");
+		return p != null && PlotMe.plotmaps.containsKey(p.getWorld().getName().toLowerCase());
 	}
 
 	public static boolean isPlotWorld(Block b) {
@@ -1095,7 +1099,12 @@ public class PlotManager {
 	}
 
 	public static World getFirstWorld() {
-		return Bukkit.getWorld("plotworld");
+		if (PlotMe.plotmaps != null) {
+			if (PlotMe.plotmaps.keySet().toArray().length > 0) {
+				return Bukkit.getWorld((String) PlotMe.plotmaps.keySet().toArray()[0]);
+			}
+		}
+		return null;
 	}
 
 	public static boolean isValidId(String id) {

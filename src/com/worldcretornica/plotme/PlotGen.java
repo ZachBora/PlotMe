@@ -1,7 +1,6 @@
 package com.worldcretornica.plotme;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
@@ -14,6 +13,7 @@ public class PlotGen extends ChunkGenerator {
 
 	private double plotsize;
 	private double pathsize;
+	private short bottom;
 	private short wall;
 	private short plotfloor;
 	private short filling;
@@ -24,7 +24,8 @@ public class PlotGen extends ChunkGenerator {
 
 	public PlotGen() {
 		plotsize = 32;
-		pathsize = 6;
+		pathsize = 7;
+		bottom = 7;
 		wall = 44;
 		plotfloor = 2;
 		filling = 3;
@@ -38,6 +39,7 @@ public class PlotGen extends ChunkGenerator {
 	public PlotGen(PlotMapInfo pmi) {
 		plotsize = pmi.PlotSize;
 		pathsize = pmi.PathWidth;
+		bottom = pmi.BottomBlockId;
 		wall = pmi.WallBlockId;
 		plotfloor = pmi.PlotFloorBlockId;
 		filling = pmi.PlotFillingBlockId;
@@ -74,7 +76,7 @@ public class PlotGen extends ChunkGenerator {
 		if (pathsize % 2 == 1) {
 			mod2 = -1;
 		}
-		boolean found;
+
 		for (int x = 0; x < 16; x++) {
 			int valx = (cx * 16 + x);
 
@@ -83,14 +85,13 @@ public class PlotGen extends ChunkGenerator {
 				int valz = (cz * 16 + z);
 
 				for (int y = 0; y < height; y++) {
-					//sets bedrock layer at bottom of world.
 					if (y == 0) {
-						setBlock(result, x, y, z, (short) Material.BEDROCK.getId());
+						setBlock(result, x, y, z, bottom);
 
 					} else if (y == roadheight) {
 						if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) // middle+3
 						{
-							found = false;
+							boolean found = false;
 							for (double i = n2; i >= 0; i--) {
 								if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
 									found = true;
@@ -118,7 +119,7 @@ public class PlotGen extends ChunkGenerator {
 								setBlock(result, x, y, z, floor1);
 							}
 						} else {
-							found = false;
+							boolean found = false;
 							for (double i = n1; i >= 0; i--) {
 								if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
 									found = true;
@@ -164,7 +165,7 @@ public class PlotGen extends ChunkGenerator {
 
 						if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) // middle+3
 						{
-							found = false;
+							boolean found = false;
 							for (double i = n2; i >= 0; i--) {
 								if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
 									found = true;
@@ -176,7 +177,7 @@ public class PlotGen extends ChunkGenerator {
 								setBlock(result, x, y, z, wall);
 							}
 						} else {
-							found = false;
+							boolean found = false;
 							for (double i = n2; i >= 0; i--) {
 								if ((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0) {
 									found = true;
