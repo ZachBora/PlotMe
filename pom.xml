@@ -2,12 +2,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.worldcretornica</groupId>
-	<artifactId>PlotMe</artifactId>
-	<version>0.2.0</version>
-	<name>PlotMe</name>
-	<url>http://dev.bukkit.org/bukkit-mods/plotme/</url>
+	<artifactId>Spots</artifactId>
+	<version>0.2.2</version>
+	<name>Spots</name>
 	<build>
-		<finalName>PlotMe</finalName>
+		<finalName>Spots</finalName>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>

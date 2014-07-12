@@ -1,16 +1,16 @@
-name: PlotMe
+name: Spots
 main: com.worldcretornica.plotme.PlotMe
-version: 0.2.0
+version: 0.2.2
 author: MattBDev
 load: startup
-website: http://dev.bukkit.org/server-mods/plotme/
+website:
 loadbefore: [bPermissions, Multiverse-Core]
 softdepend: [Vault]
 description: >
-             Handles plot creation, management and protection
+             Handles spot creation, management and protection
 commands:
     plotme:
-      description: List PlotMe commands
+      description: List Spot commands
       usage: /plotme
       aliases: [p,plot]
 permissions:
