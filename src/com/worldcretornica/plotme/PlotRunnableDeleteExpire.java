@@ -62,11 +62,11 @@ public class PlotRunnableDeleteExpire implements Runnable {
 					ids = ids.substring(0, ids.length() - 2);
 				}
 
-				PlotMe.cscurrentlyprocessingexpired.sendMessage("" + PlotMe.PREFIX + PlotMe.caption("MsgDeletedExpiredPlots") + " " + ids);
+				PlotMe.cscurrentlyprocessingexpired.sendMessage(PlotMe.PREFIX + PlotMe.caption("MsgDeletedExpiredPlots") + " " + ids);
 			}
 
 			if (PlotMe.counterexpired == 0) {
-				PlotMe.cscurrentlyprocessingexpired.sendMessage("" + PlotMe.PREFIX + PlotMe.caption("MsgDeleteSessionFinished"));
+				PlotMe.cscurrentlyprocessingexpired.sendMessage(PlotMe.PREFIX + PlotMe.caption("MsgDeleteSessionFinished"));
 				PlotMe.worldcurrentlyprocessingexpired = null;
 				PlotMe.cscurrentlyprocessingexpired = null;
 			}

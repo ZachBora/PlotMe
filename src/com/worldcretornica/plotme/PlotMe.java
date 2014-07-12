@@ -267,7 +267,7 @@ public class PlotMe extends JavaPlugin {
 		tempPlotInfo.ProtectPrice = economysection.getDouble("ProtectPrice", 0);
 		tempPlotInfo.DisposePrice = economysection.getDouble("DisposePrice", 0);
 
-		tempPlotInfo.plots = SqlManager.getPlots("plotworld");
+		tempPlotInfo.plots = SqlManager.getPlots();
 
 		plotmaps.put("plotworld", tempPlotInfo);
 
@@ -321,11 +321,11 @@ public class PlotMe extends JavaPlugin {
 		return preventeditems;
 	}
 
-	public void scheduleTask(Runnable task, int eachseconds, int howmanytimes) {
+	public void scheduleTask(Runnable task) {
 		PlotMe.cscurrentlyprocessingexpired.sendMessage(PlotMe.PREFIX + caption("MsgStartDeleteSession"));
 
-		for (int ctr = 0; ctr < (howmanytimes / nbperdeletionprocessingexpired); ctr++) {
-			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, task, ctr * eachseconds * 20);
+		for (int ctr = 0; ctr < (50 / nbperdeletionprocessingexpired); ctr++) {
+			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, task, ctr * 100);
 		}
 	}
 

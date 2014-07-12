@@ -268,7 +268,7 @@ public class PlotListener implements Listener {
 					byte itemdata = is.getData().getData();
 
 					if (pmi.PreventedItems.contains("" + itemid)
-							|| pmi.PreventedItems.contains("" + itemid + ":" + itemdata)) {
+							|| pmi.PreventedItems.contains(itemid + ":" + itemdata)) {
 						if (!PlotMe.cPerms(player, "plotme.unblock." + itemid)) {
 							blocked = true;
 						}

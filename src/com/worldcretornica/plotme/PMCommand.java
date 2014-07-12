@@ -150,23 +150,23 @@ public class PMCommand implements CommandExecutor {
 							return expired(p, args);
 						}
 						if (a0.equalsIgnoreCase(C("CommandAddtime"))) {
-							return addtime(p, args);
+							return addtime(p);
 						}
 						if (a0.equalsIgnoreCase(C("CommandDone"))) {
-							return done(p, args);
+							return done(p);
 						}
 						if (a0.equalsIgnoreCase(C("CommandDoneList"))) {
 							return donelist(p, args);
 						}
 						if (a0.equalsIgnoreCase(C("CommandProtect"))) {
-							return protect(p, args);
+							return protect(p);
 						}
 
 						if (a0.equalsIgnoreCase(C("CommandSell"))) {
 							return sell(p, args);
 						}
 						if (a0.equalsIgnoreCase(C("CommandDispose"))) {
-							return dispose(p, args);
+							return dispose(p);
 						}
 						if (a0.equalsIgnoreCase(C("CommandAuction"))) {
 							return auction(p, args);
@@ -213,7 +213,7 @@ public class PMCommand implements CommandExecutor {
 							PlotMe.counterexpired = 50;
 							PlotMe.nbperdeletionprocessingexpired = 5;
 
-							plugin.scheduleTask(new PlotRunnableDeleteExpire(), 5, 50);
+							plugin.scheduleTask(new PlotRunnableDeleteExpire());
 						}
 					}
 				}
@@ -508,7 +508,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean dispose(Player p, String[] args) {
+	private boolean dispose(Player p) {
 		if (PlotMe.cPerms(p, "PlotMe.admin.dispose") || PlotMe.cPerms(p, "PlotMe.use.dispose")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, RED + C("MsgNotPlotWorld"));
@@ -750,7 +750,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean protect(Player p, String[] args) {
+	private boolean protect(Player p) {
 		if (PlotMe.cPerms(p, "PlotMe.admin.protect") || PlotMe.cPerms(p, "PlotMe.use.protect")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, RED + C("MsgNotPlotWorld"));
@@ -883,7 +883,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean done(Player p, String[] args) {
+	private boolean done(Player p) {
 		if (PlotMe.cPerms(p, "PlotMe.use.done") || PlotMe.cPerms(p, "PlotMe.admin.done")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, RED + C("MsgNotPlotWorld"));
@@ -922,7 +922,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean addtime(Player p, String[] args) {
+	private boolean addtime(Player p) {
 		if (PlotMe.cPerms(p, "PlotMe.admin.addtime")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, RED + C("MsgNotPlotWorld"));
@@ -1546,7 +1546,7 @@ public class PMCommand implements CommandExecutor {
 						for (int i = 0; i < limit; i++) {
 							for (int x = -i; x <= i; x++) {
 								for (int z = -i; z <= i; z++) {
-									String id = "" + x + ";" + z;
+									String id = x + ";" + z;
 
 									if (PlotManager.isPlotAvailable(id, w)) {
 										String name = p.getName();
@@ -2728,7 +2728,8 @@ public class PMCommand implements CommandExecutor {
 	}
 
 	private String round(double money) {
-		return (money % 1 == 0) ? "" + Math.round(money) : "" + money;
+		if (money % 1 == 0) return String.valueOf(Math.round(money));
+		else return String.valueOf(money);
 	}
 
 	private void warn(String msg) {

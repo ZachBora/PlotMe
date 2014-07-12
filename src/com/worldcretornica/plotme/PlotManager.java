@@ -87,7 +87,7 @@ public class PlotManager {
 				else*/
 				return "";
 			} else {
-				return "" + x + ";" + z;
+				return x + ";" + z;
 			}
 		} else {
 			return "";
@@ -375,7 +375,7 @@ public class PlotManager {
 					sign = (Sign) bsign.getState();
 				}
 
-				sign.setLine(0, "" + PlotMe.caption("SignOnAuction"));
+				sign.setLine(0, PlotMe.caption("SignOnAuction"));
 				if (plot.currentbidder.isEmpty()) {
 					sign.setLine(1, PlotMe.caption("SignMinimumBid"));
 				} else {
@@ -596,7 +596,7 @@ public class PlotManager {
 		}
 
 		if (wallids.size() == 0) {
-			wallids.add("" + pmi.WallBlockId + ":" + pmi.WallBlockValue);
+			wallids.add(pmi.WallBlockId + ":" + pmi.WallBlockValue);
 		}
 
 		int ctr = 0;
@@ -733,7 +733,7 @@ public class PlotManager {
 				idZ = getIdZ(idFrom);
 				SqlManager.deletePlot(idX, idZ, plot1.world);
 
-				plot2.id = "" + idX + ";" + idZ;
+				plot2.id = idX + ";" + idZ;
 				SqlManager.addPlot(plot2, idX, idZ, w);
 				plots.put(idFrom, plot2);
 
@@ -757,7 +757,7 @@ public class PlotManager {
 
 				idX = getIdX(idTo);
 				idZ = getIdZ(idTo);
-				plot1.id = "" + idX + ";" + idZ;
+				plot1.id = idX + ";" + idZ;
 				SqlManager.addPlot(plot1, idX, idZ, w);
 				plots.put(idTo, plot1);
 
@@ -794,7 +794,7 @@ public class PlotManager {
 				plots.remove(idFrom);
 				idX = getIdX(idTo);
 				idZ = getIdZ(idTo);
-				plot.id = "" + idX + ";" + idZ;
+				plot.id = idX + ";" + idZ;
 				SqlManager.addPlot(plot, idX, idZ, w);
 				plots.put(idTo, plot);
 
@@ -833,7 +833,7 @@ public class PlotManager {
 
 				idX = getIdX(idFrom);
 				idZ = getIdZ(idFrom);
-				plot.id = "" + idX + ";" + idZ;
+				plot.id = idX + ";" + idZ;
 				SqlManager.addPlot(plot, idX, idZ, w);
 				plots.put(idFrom, plot);
 

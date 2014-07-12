@@ -31,60 +31,6 @@ public class Plot implements Comparable<Plot> {
 	PlayerList allowed;
 	PlayerList denied;
 
-	public Plot() {
-		owner = "";
-		ownerId = null;
-		world = "";
-		id = "";
-		allowed = new PlayerList();
-		denied = new PlayerList();
-		biome = Biome.PLAINS;
-
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DAY_OF_YEAR, 7);
-		java.util.Date utlDate = cal.getTime();
-		expireddate = new java.sql.Date(utlDate.getTime());
-
-		comments = new ArrayList<>();
-		customprice = 0;
-		forsale = false;
-		finisheddate = "";
-		protect = false;
-		auctionned = false;
-		currentbidder = "";
-		currentbid = 0;
-		currentbidderId = null;
-	}
-
-	public Plot(String o, Location t, Location b, String tid, int days) {
-		owner = o;
-		ownerId = null;
-		world = t.getWorld().getName();
-		allowed = new PlayerList();
-		denied = new PlayerList();
-		biome = Biome.PLAINS;
-		id = tid;
-
-		if (days == 0) {
-			expireddate = null;
-		} else {
-			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.DAY_OF_YEAR, days);
-			java.util.Date utlDate = cal.getTime();
-			expireddate = new java.sql.Date(utlDate.getTime());
-		}
-
-		comments = new ArrayList<>();
-		customprice = 0;
-		forsale = false;
-		finisheddate = "";
-		protect = false;
-		auctionned = false;
-		currentbidder = "";
-		currentbid = 0;
-		currentbidderId = null;
-	}
-
 	public Plot(String o, UUID uuid, Location t, Location b, String tid, int days) {
 		owner = o;
 		ownerId = uuid;
@@ -114,64 +60,10 @@ public class Plot implements Comparable<Plot> {
 		currentbidderId = null;
 	}
 
-	public Plot(UUID o, Location t, Location b, String tid, int days) {
-		ownerId = o;
-		Player p = Bukkit.getPlayer(o);
-		if (p != null) {
-			owner = p.getName();
-		} else {
-			owner = "";
-		}
-		world = t.getWorld().getName();
-		allowed = new PlayerList();
-		denied = new PlayerList();
-		biome = Biome.PLAINS;
-		id = tid;
-
-		if (days == 0) {
-			expireddate = null;
-		} else {
-			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.DAY_OF_YEAR, days);
-			java.util.Date utlDate = cal.getTime();
-			expireddate = new java.sql.Date(utlDate.getTime());
-		}
-
-		comments = new ArrayList<>();
-		customprice = 0;
-		forsale = false;
-		finisheddate = "";
-		protect = false;
-		auctionned = false;
-		currentbidder = "";
-		currentbid = 0;
-		currentbidderId = null;
-	}
-
-	public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, Double bid, boolean isauctionned, PlayerList den) {
-		owner = o;
-		ownerId = null;
-		world = w;
-		biome = Biome.valueOf(bio);
-		expireddate = exp;
-		finished = fini;
-		allowed = al;
-		comments = comm;
-		id = tid;
-		customprice = custprice;
-		forsale = sale;
-		finisheddate = finishdt;
-		protect = prot;
-		auctionned = isauctionned;
-		currentbidder = bidder;
-		currentbid = bid;
-		denied = den;
-	}
-
-	Plot(String o, UUID uuid, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, UUID bidderId, Double bid, boolean isauctionned, PlayerList den) {
+	Plot(String o, UUID uuid, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, UUID bidderId, Double bid, boolean isauctionned, PlayerList den) {
 		ownerId = uuid;
 		owner = o;
-		world = w;
+		world = "plotworld";
 		biome = Biome.valueOf(bio);
 		expireddate = exp;
 		finished = fini;
@@ -436,21 +328,21 @@ public class Plot implements Comparable<Plot> {
 		@SuppressWarnings("deprecation")
 		Player p = Bukkit.getServer().getPlayerExact(name);
 		if (p != null) {
-			return isDeniedInternal(name, p.getUniqueId(), true);
+			return isDeniedInternal(name, p.getUniqueId());
 		} else {
-			return isDeniedInternal(name, null, true);
+			return isDeniedInternal(name, null);
 		}
 	}
 
 	public boolean isGroupDenied(String name) {
-		return isDeniedInternal(name, null, true);
+		return isDeniedInternal(name, null);
 	}
 
 	public boolean isDenied(UUID uuid) {
-		return isDeniedInternal("", uuid, true);
+		return isDeniedInternal("", uuid);
 	}
 
-	private boolean isDeniedInternal(String name, UUID uuid, boolean IncludeGroup) {
+	private boolean isDeniedInternal(String name, UUID uuid) {
 		Player p = null;
 
 		if (isAllowedInternal(name, uuid, false, false)) {
@@ -474,7 +366,7 @@ public class Plot implements Comparable<Plot> {
 				return true;
 			}
 
-			if (IncludeGroup && str.toLowerCase().startsWith("group:") && p != null) {
+			if (str.toLowerCase().startsWith("group:") && p != null) {
 				if (p.hasPermission("plotme.group." + str.replace("Group:", ""))) {
 					return true;
 				}
