@@ -556,7 +556,7 @@ public class PlotManager {
 
 
 					if (y == 0) {
-						block.setTypeId(pmi.BottomBlockId);
+						block.setType(Material.BEDROCK);
 					} else if (y < pmi.RoadHeight) {
 						block.setTypeId(pmi.PlotFillingBlockId);
 					} else if (y == pmi.RoadHeight) {
@@ -565,7 +565,7 @@ public class PlotManager {
 						if (y == (pmi.RoadHeight + 1) && (x == bottomX - 1 || x == topX + 1 || z == bottomZ - 1 || z == topZ + 1)) {
 							//block.setTypeId(pmi.WallBlockId);
 						} else {
-							block.setTypeIdAndData(0, (byte) 0, false); //.setType(Material.AIR);
+							block.setType(Material.AIR);
 						}
 					}
 				}

@@ -42,6 +42,10 @@
 			<id>vault-repo</id>
 			<url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
 		</repository>
+		<repository>
+			<id>onarandombox-repo</id>
+			<url>http://repo.onarandombox.com/content/groups/public</url>
+		</repository>
 	</repositories>
 
 	<dependencies>
@@ -56,6 +60,11 @@
 			<artifactId>VaultAPI</artifactId>
 			<version>1.4</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.onarandombox.multiversecore</groupId>
+			<artifactId>Multiverse-Core</artifactId>
+			<version>2.5</version>
 		</dependency>
 	</dependencies>
 </project>

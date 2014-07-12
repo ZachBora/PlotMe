@@ -44,10 +44,6 @@ public class PlotMe extends JavaPlugin {
 	private File captionFile = new File(getDataFolder(), "captions.yml");
 	private FileConfiguration captionsConfig;
 
-	public static boolean cPerms(CommandSender sender, String node) {
-		return sender.hasPermission(node);
-	}
-
 	public static int getPlotLimit(Player p) {
 		int max = -2;
 
@@ -65,9 +61,9 @@ public class PlotMe extends JavaPlugin {
 		}
 
 		if (max == -2) {
-			if (cPerms(p, "plotme.admin")) {
+			if (p.hasPermission("plotme.admin")) {
 				return -1;
-			} else if (cPerms(p, "plotme.use")) {
+			} else if (p.hasPermission("plotme.use")) {
 				return 1;
 			} else {
 				return 0;
@@ -131,6 +127,7 @@ public class PlotMe extends JavaPlugin {
 		}
 	}
 
+	@Override
 	public void onDisable() {
 		SqlManager.closeConnection();
 
@@ -148,6 +145,7 @@ public class PlotMe extends JavaPlugin {
 		initialized = null;
 	}
 
+	@Override
 	public void onEnable() {
 		self = this;
 		logger = getLogger();
@@ -172,6 +170,7 @@ public class PlotMe extends JavaPlugin {
 		SqlManager.plotConvertToUUIDAsynchronously();
 	}
 
+	@Override
 	public ChunkGenerator getDefaultWorldGenerator(String worldname, String id) {
 		if (PlotManager.isPlotWorld(worldname)) {
 			return new PlotGen(PlotManager.getMap(worldname));
@@ -205,8 +204,6 @@ public class PlotMe extends JavaPlugin {
 		tempPlotInfo.PathWidth = plotworld.getInt("PathWidth", 7);
 		tempPlotInfo.PlotSize = plotworld.getInt("PlotSize", 32);
 
-		tempPlotInfo.BottomBlockId = getBlockId(plotworld, "BottomBlockId", "7:0");
-		tempPlotInfo.BottomBlockValue = getBlockValue(plotworld, "BottomBlockId", "7:0");
 		tempPlotInfo.WallBlockId = getBlockId(plotworld, "WallBlockId", "44:0");
 		tempPlotInfo.WallBlockValue = getBlockValue(plotworld, "WallBlockId", "44:0");
 		tempPlotInfo.PlotFloorBlockId = getBlockId(plotworld, "PlotFloorBlockId", "2:0");

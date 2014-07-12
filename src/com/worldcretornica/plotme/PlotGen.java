@@ -1,6 +1,7 @@
 package com.worldcretornica.plotme;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
@@ -13,7 +14,6 @@ public class PlotGen extends ChunkGenerator {
 
 	private double plotsize;
 	private double pathsize;
-	private short bottom;
 	private short wall;
 	private short plotfloor;
 	private short filling;
@@ -25,7 +25,6 @@ public class PlotGen extends ChunkGenerator {
 	public PlotGen() {
 		plotsize = 32;
 		pathsize = 7;
-		bottom = 7;
 		wall = 44;
 		plotfloor = 2;
 		filling = 3;
@@ -39,7 +38,6 @@ public class PlotGen extends ChunkGenerator {
 	public PlotGen(PlotMapInfo pmi) {
 		plotsize = pmi.PlotSize;
 		pathsize = pmi.PathWidth;
-		bottom = pmi.BottomBlockId;
 		wall = pmi.WallBlockId;
 		plotfloor = pmi.PlotFloorBlockId;
 		filling = pmi.PlotFillingBlockId;
@@ -86,7 +84,7 @@ public class PlotGen extends ChunkGenerator {
 
 				for (int y = 0; y < height; y++) {
 					if (y == 0) {
-						setBlock(result, x, y, z, bottom);
+						setBlock(result, x, y, z, (short) Material.BEDROCK.getId());
 
 					} else if (y == roadheight) {
 						if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) // middle+3
