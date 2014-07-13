@@ -6,6 +6,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -267,7 +268,7 @@ public class PlotMe extends JavaPlugin {
 		tempPlotInfo.plots = SqlManager.getPlots();
 
 		plotmaps.put("plotworld", tempPlotInfo);
-
+		Bukkit.createWorld(WorldCreator.name("plotworld").generator(new PlotGen()));
 		loadCaptions();
 	}
 
