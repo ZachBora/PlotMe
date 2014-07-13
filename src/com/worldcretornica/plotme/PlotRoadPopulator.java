@@ -7,22 +7,22 @@ import org.bukkit.generator.BlockPopulator;
 import java.util.Random;
 
 public class PlotRoadPopulator extends BlockPopulator {
-	private double plotsize;
-	private double pathsize;
+	private final double plotsize;
+	private final double pathsize;
 
-	private byte wall;
-	private short wallid;
-	private byte floor1;
-	private short floor1id;
-	private byte floor2;
-	private short floor2id;
+	private final byte wall;
+	private final short wallid;
+	private final byte floor1;
+	private final short floor1id;
+	private final byte floor2;
+	private final short floor2id;
 
-	private byte pillarh1;
-	private short pillarh1id;
-	private byte pillarh2;
-	private short pillarh2id;
+	private final byte pillarh1;
+	private final short pillarh1id;
+	private final byte pillarh2;
+	private final short pillarh2id;
 
-	private int roadheight;
+	private final int roadheight;
 
 	public PlotRoadPopulator() {
 		plotsize = 32;
@@ -99,8 +99,7 @@ public class PlotRoadPopulator extends BlockPopulator {
 
 				int y = roadheight;
 
-				if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) //middle+3
-				{
+				if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) { //middle+3
 					boolean found = false;
 					for (double i = n2; i >= 0; i--) {
 						if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
@@ -132,16 +131,13 @@ public class PlotRoadPopulator extends BlockPopulator {
 					}
 
 
-					if ((valx - n2 + mod1) % size == 0 || (valx + n2 + mod2) % size == 0) //middle+2
-					{
-						if ((valz - n3 + mod1) % size == 0 || (valz + n3 + mod2) % size == 0
-								|| (valz - n2 + mod1) % size == 0 || (valz + n2 + mod2) % size == 0) {
+					if ((valx - n2 + mod1) % size == 0 || (valx + n2 + mod2) % size == 0) { //middle+2
+						if ((valz - n3 + mod1) % size == 0 || (valz + n3 + mod2) % size == 0 || (valz - n2 + mod1) % size == 0 || (valz + n2 + mod2) % size == 0) {
 							setBlock(w, x + xx, y, z + zz, floor1, floor1id);
 						} else {
 							setBlock(w, x + xx, y, z + zz, floor2, floor2id);
 						}
-					} else if ((valx - n1 + mod1) % size == 0 || (valx + n1 + mod2) % size == 0) //middle+2
-					{
+					} else if ((valx - n1 + mod1) % size == 0 || (valx + n1 + mod2) % size == 0) { //middle+2
 						if ((valz - n2 + mod1) % size == 0 || (valz + n2 + mod2) % size == 0 || (valz - n1 + mod1) % size == 0 || (valz + n1 + mod2) % size == 0) {
 							setBlock(w, x + xx, y, z + zz, floor2, floor2id);
 						} else {
@@ -158,32 +154,29 @@ public class PlotRoadPopulator extends BlockPopulator {
 
 						if (found) {
 							setBlock(w, x + xx, y, z + zz, floor1, floor1id);
+						} else if ((valz - n2 + mod1) % size == 0 || (valz + n2 + mod2) % size == 0) {
+							setBlock(w, x + xx, y, z + zz, floor2, floor2id);
 						} else {
-							if ((valz - n2 + mod1) % size == 0 || (valz + n2 + mod2) % size == 0) {
-								setBlock(w, x + xx, y, z + zz, floor2, floor2id);
+							boolean found2 = false;
+							for (double i = n1; i >= 0; i--) {
+								if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
+									found2 = true;
+									break;
+								}
+							}
+
+							if (found2) {
+								setBlock(w, x + xx, y, z + zz, floor1, floor1id);
 							} else {
-								boolean found2 = false;
-								for (double i = n1; i >= 0; i--) {
-									if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
-										found2 = true;
+								boolean found3 = false;
+								for (double i = n3; i >= 0; i--) {
+									if ((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0) {
+										found3 = true;
 										break;
 									}
 								}
-
-								if (found2) {
+								if (found3) {
 									setBlock(w, x + xx, y, z + zz, floor1, floor1id);
-								} else {
-									boolean found3 = false;
-									for (double i = n3; i >= 0; i--) {
-										if ((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0) {
-											found3 = true;
-											break;
-										}
-									}
-
-									if (found3) {
-										setBlock(w, x + xx, y, z + zz, floor1, floor1id);
-									}
 								}
 							}
 						}
