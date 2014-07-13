@@ -19,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.InputStream;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -34,8 +35,8 @@ public class PlotMe extends JavaPlugin {
 	public static Boolean globalUseEconomy;
 	public static Boolean allowWorldTeleport;
 	public static Boolean allowToDeny;
-	public static ConcurrentHashMap<String, PlotMapInfo> plotmaps = null;
-	public static Economy economy = null;
+	public static ConcurrentHashMap<String, PlotMapInfo> plotmaps;
+	public static Economy economy;
 	public static World worldcurrentlyprocessingexpired;
 	public static CommandSender cscurrentlyprocessingexpired;
 	public static Integer counterexpired;
@@ -52,13 +53,11 @@ public class PlotMe extends JavaPlugin {
 
 		if (p.hasPermission("plotme.limit.*")) {
 			return -1;
-		} else {
-			for (int ctr = 0; ctr < maxlimit; ctr++) {
-				if (p.hasPermission("plotme.limit." + ctr)) {
-					max = ctr;
-				}
+		}
+		for (int ctr = 0; ctr < maxlimit; ctr++) {
+			if (p.hasPermission("plotme.limit." + ctr)) {
+				max = ctr;
 			}
-
 		}
 
 		if (max == -2) {
@@ -99,7 +98,7 @@ public class PlotMe extends JavaPlugin {
 		return cal.get(Calendar.YEAR) + "-" + month + "-" + day;
 	}
 
-	public static String getDate(java.sql.Date expireddate) {
+	public static String getDate(Date expireddate) {
 		return expireddate.toString();
 	}
 
@@ -121,7 +120,7 @@ public class PlotMe extends JavaPlugin {
 		captionsConfig = YamlConfiguration.loadConfiguration(captionFile);
 
 		// Look for defaults in the jar
-		InputStream defConfigStream = this.getResource("captions.yml");
+		InputStream defConfigStream = getResource("captions.yml");
 		if (defConfigStream != null) {
 			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
 			captionsConfig.setDefaults(defConfig);
@@ -184,9 +183,9 @@ public class PlotMe extends JavaPlugin {
 	public void initialize() {
 		configpath = getDataFolder().getAbsolutePath();
 
-		if (!this.getDataFolder().exists()) {
+		if (!getDataFolder().exists()) {
 			//noinspection ResultOfMethodCallIgnored
-			this.getDataFolder().mkdirs();
+			getDataFolder().mkdirs();
 		}
 		saveDefaultConfig();
 		FileConfiguration config = getConfig();
@@ -273,7 +272,7 @@ public class PlotMe extends JavaPlugin {
 	}
 
 	private void setupEconomy() {
-		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
 		if (economyProvider != null) {
 			economy = economyProvider.getProvider();
 		}
@@ -334,7 +333,7 @@ public class PlotMe extends JavaPlugin {
 
 	private void createCapFile() {
 		if (!captionFile.exists()) {
-			this.saveResource("captions.yml", false);
+			saveResource("captions.yml", false);
 		}
 	}
 
