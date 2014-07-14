@@ -6,7 +6,6 @@ import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
 import java.sql.Date;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -14,12 +13,12 @@ public class Plot implements Comparable<Plot> {
 
 	public String owner;
 	public UUID ownerId;
-	public String world;
+	public final String world;
 	public Biome biome;
 	public Date expireddate;
 	public boolean finished;
-	public List<String[]> comments;
-	public String id;
+	public final List<String[]> comments;
+	public final String id;
 	public double customprice;
 	public boolean forsale;
 	public String finisheddate;
@@ -28,8 +27,8 @@ public class Plot implements Comparable<Plot> {
 	public String currentbidder;
 	public UUID currentbidderId;
 	public double currentbid;
-	PlayerList allowed;
-	PlayerList denied;
+	final PlayerList allowed;
+	final PlayerList denied;
 
 	public Plot(String o, UUID uuid, Location t, Location b, String tid, int days) {
 		owner = o;
@@ -103,17 +102,6 @@ public class Plot implements Comparable<Plot> {
 		}
 	}
 
-	public String getExpire() {
-		return DateFormat.getDateInstance().format(expireddate);
-	}
-
-	public void setExpire(Date date) {
-		if (!expireddate.equals(date)) {
-			expireddate = date;
-			updateField("expireddate", expireddate);
-		}
-	}
-
 	public void setFinished() {
 		finisheddate = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(Calendar.getInstance().getTime());
 		finished = true;
@@ -128,32 +116,12 @@ public class Plot implements Comparable<Plot> {
 		updateFinished(finisheddate, false);
 	}
 
-	public Biome getBiome() {
-		return biome;
-	}
-
-	public String getOwner() {
-		return owner;
-	}
-
-	public UUID getOwnerId() {
-		return ownerId;
-	}
-
 	public String getAllowed() {
 		return allowed.getPlayerList();
 	}
 
 	public String getDenied() {
 		return denied.getPlayerList();
-	}
-
-	public int getCommentsCount() {
-		return comments.size();
-	}
-
-	public String[] getComments(int i) {
-		return comments.get(i);
 	}
 
 	public void addAllowed(String name) {
@@ -377,12 +345,8 @@ public class Plot implements Comparable<Plot> {
 		return false;
 	}
 
-	public Set<String> allowed() {
+	public Collection<String> allowed() {
 		return allowed.getPlayers();
-	}
-
-	public Set<String> denied() {
-		return denied.getPlayers();
 	}
 
 	public int allowedcount() {
@@ -393,6 +357,7 @@ public class Plot implements Comparable<Plot> {
 		return denied.size();
 	}
 
+	@Override
 	public int compareTo(Plot plot) {
 		if (expireddate.compareTo(plot.expireddate) == 0) {
 			return owner.compareTo(plot.owner);

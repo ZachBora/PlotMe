@@ -68,7 +68,7 @@ public class SqlManager {
 	public static Connection initialize() {
 		try {
 			Class.forName("org.sqlite.JDBC");
-			conn = DriverManager.getConnection("jdbc:sqlite:" + PlotMe.configpath + "/plots.db");
+			conn = DriverManager.getConnection("jdbc:sqlite:" + PlotMe.self.getDataFolder().getAbsolutePath() + "/plots.db");
 			conn.setAutoCommit(false);
 		} catch (SQLException ex) {
 			logger.severe("SQL exception on initialize :");
@@ -501,7 +501,7 @@ public class SqlManager {
 						strUUID = comments[2];
 						try {
 							uuid = UUID.fromString(strUUID);
-						} catch (Exception e) {
+						} catch (Exception ignored) {
 						}
 					}
 

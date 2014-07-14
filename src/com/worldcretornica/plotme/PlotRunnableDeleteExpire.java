@@ -39,7 +39,7 @@ public class PlotRunnableDeleteExpire implements Runnable {
 
 				String ids = "";
 
-				for (int ictr = 0; ictr < PlotMe.nbperdeletionprocessingexpired && expiredplots.size() > 0; ictr++) {
+				for (int ictr = 0; ictr < PlotMe.nbperdeletionprocessingexpired && !expiredplots.isEmpty(); ictr++) {
 					expiredplot = expiredplots.get(0);
 
 					expiredplots.remove(0);

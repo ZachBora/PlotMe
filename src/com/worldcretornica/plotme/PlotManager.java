@@ -307,15 +307,15 @@ public class PlotManager {
 		String id = getPlotId(new Location(world, bottomX(plot.id, world), 0, bottomZ(plot.id, world)));
 
 		Sign sign = (Sign) bsign.getState();
-		if ((PlotMe.caption("SignId") + id).length() > 16) {
-			sign.setLine(0, (PlotMe.caption("SignId") + id).substring(0, 16));
-			if ((PlotMe.caption("SignId") + id).length() > 32) {
-				sign.setLine(1, (PlotMe.caption("SignId") + id).substring(16, 32));
+		if (("ID:" + id).length() > 16) {
+			sign.setLine(0, ("ID:" + id).substring(0, 16));
+			if (("ID:" + id).length() > 32) {
+				sign.setLine(1, ("ID:" + id).substring(16, 32));
 			} else {
-				sign.setLine(1, (PlotMe.caption("SignId") + id).substring(16));
+				sign.setLine(1, ("ID:" + id).substring(16));
 			}
 		} else {
-			sign.setLine(0, PlotMe.caption("SignId") + id);
+			sign.setLine(0, "ID:" + id);
 		}
 		if ((PlotMe.caption("SignOwner") + plot.owner).length() > 16) {
 			sign.setLine(2, (PlotMe.caption("SignOwner") + plot.owner).substring(0, 16));
@@ -676,7 +676,7 @@ public class PlotManager {
 	}
 
 
-	@SuppressWarnings("deprecation")
+/*	@SuppressWarnings("deprecation")
 	public static boolean movePlot(World w, String idFrom, String idTo) {
 		Location plot1Bottom = getPlotBottomLoc(w, idFrom);
 		Location plot2Bottom = getPlotBottomLoc(w, idTo);
@@ -869,6 +869,7 @@ public class PlotManager {
 
 		return true;
 	}
+*/
 
 	public static int getNbOwnedPlot(Player p) {
 		return getNbOwnedPlot(p.getUniqueId(), p.getWorld());
@@ -1104,7 +1105,7 @@ public class PlotManager {
 			Integer.parseInt(coords[0]);
 			Integer.parseInt(coords[1]);
 			return true;
-		} catch (NumberFormatException e) {
+		} catch (Exception e) {
 			return false;
 		}
 	}
@@ -1115,8 +1116,9 @@ public class PlotManager {
 		if (pmi != null) {
 			return new Location(w, bottomX(plot.id, w) + (topX(plot.id, w) -
 					PlotManager.bottomX(plot.id, w)) / 2, pmi.RoadHeight + 2, bottomZ(plot.id, w) - 2);
+		} else {
+			return w.getSpawnLocation();
 		}
-		return w.getSpawnLocation();
 	}
 
 	public static void UpdatePlayerNameFromId(final UUID uuid, final String name) {

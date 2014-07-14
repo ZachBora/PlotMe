@@ -20,7 +20,7 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
 	private final List<String> names;
 	private final boolean rateLimiting;
 
-	public UUIDFetcher(List<String> names, boolean rateLimiting) {
+	public UUIDFetcher(Collection<String> names, boolean rateLimiting) {
 		this.names = ImmutableList.copyOf(names);
 		this.rateLimiting = rateLimiting;
 	}
@@ -79,9 +79,9 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
 			HttpURLConnection connection = createConnection();
 			String body = JSONArray.toJSONString(names.subList(i * 100, Math.min((i + 1) * 100, names.size())));
 			writeBody(connection, body);
-			JSONArray array = (JSONArray) jsonParser.parse(new InputStreamReader(connection.getInputStream()));
+			Iterable array = (JSONArray) jsonParser.parse(new InputStreamReader(connection.getInputStream()));
 			for (Object profile : array) {
-				JSONObject jsonProfile = (JSONObject) profile;
+				Map jsonProfile = (JSONObject) profile;
 				String id = (String) jsonProfile.get("id");
 				String name = (String) jsonProfile.get("name");
 				UUID uuid = UUIDFetcher.getUUID(id);

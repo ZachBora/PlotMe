@@ -1,6 +1,6 @@
 name: Spots
 main: com.worldcretornica.plotme.PlotMe
-version: 0.2.6
+version: 0.3.0
 author: MattBDev
 website:
 loadbefore: [bPermissions, Multiverse-Core]

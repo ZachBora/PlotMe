@@ -12,7 +12,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,10 +30,9 @@ public class PlotMe extends JavaPlugin {
 
 	public static Logger logger;
 
-	public static String configpath;
-	public static Boolean globalUseEconomy;
-	public static Boolean allowWorldTeleport;
-	public static Boolean allowToDeny;
+	public static boolean globalUseEconomy;
+	public static boolean allowWorldTeleport;
+	public static boolean allowToDeny;
 	public static ConcurrentHashMap<String, PlotMapInfo> plotmaps;
 	public static Economy economy;
 	public static World worldcurrentlyprocessingexpired;
@@ -42,9 +40,11 @@ public class PlotMe extends JavaPlugin {
 	public static Integer counterexpired;
 	public static Integer nbperdeletionprocessingexpired;
 	protected static PlotMe self;
-	Boolean initialized = false;
+	public boolean initialized;
 	private File captionFile = new File(getDataFolder(), "captions.yml");
 	private FileConfiguration captionsConfig;
+	public final PlotMapInfo tempPlotInfo = new PlotMapInfo();
+
 
 	public static int getPlotLimit(Player p) {
 		int max = -2;
@@ -98,7 +98,7 @@ public class PlotMe extends JavaPlugin {
 		return cal.get(Calendar.YEAR) + "-" + month + "-" + day;
 	}
 
-	public static String getDate(Date expireddate) {
+	public static Comparable getDate(Date expireddate) {
 		return expireddate.toString();
 	}
 
@@ -106,7 +106,7 @@ public class PlotMe extends JavaPlugin {
 		return self.getCaptionFile().getString(s);
 	}
 
-	public FileConfiguration getCaptionFile() {
+	public ConfigurationSection getCaptionFile() {
 		if (captionsConfig == null) {
 			reloadCaptionFile();
 		}
@@ -131,18 +131,13 @@ public class PlotMe extends JavaPlugin {
 	public void onDisable() {
 		SqlManager.closeConnection();
 
-		globalUseEconomy = null;
-		allowWorldTeleport = null;
 		plotmaps = null;
-		configpath = null;
 		economy = null;
 		worldcurrentlyprocessingexpired = null;
 		cscurrentlyprocessingexpired = null;
 		counterexpired = null;
 		nbperdeletionprocessingexpired = null;
 		self = null;
-		allowToDeny = null;
-		initialized = null;
 	}
 
 	@Override
@@ -170,18 +165,7 @@ public class PlotMe extends JavaPlugin {
 		SqlManager.plotConvertToUUIDAsynchronously();
 	}
 
-	@Override
-	public ChunkGenerator getDefaultWorldGenerator(String worldname, String id) {
-		if (PlotManager.isPlotWorld(worldname)) {
-			return new PlotGen(PlotManager.getMap(worldname));
-		} else {
-			logger.warning("Configuration not found for PlotMe world '" + worldname + "' Using defaults");
-			return new PlotGen();
-		}
-	}
-
 	public void initialize() {
-		configpath = getDataFolder().getAbsolutePath();
 
 		if (!getDataFolder().exists()) {
 			//noinspection ResultOfMethodCallIgnored
@@ -198,7 +182,6 @@ public class PlotMe extends JavaPlugin {
 
 		plotmaps = new ConcurrentHashMap<>();
 
-		PlotMapInfo tempPlotInfo = new PlotMapInfo();
 
 		tempPlotInfo.PlotAutoLimit = plotworld.getInt("PlotAutoLimit", 100);
 		tempPlotInfo.PathWidth = plotworld.getInt("PathWidth", 7);
@@ -267,7 +250,7 @@ public class PlotMe extends JavaPlugin {
 		tempPlotInfo.plots = SqlManager.getPlots();
 
 		plotmaps.put("plotworld", tempPlotInfo);
-		Bukkit.createWorld(WorldCreator.name("plotworld").generator(new PlotGen()));
+		Bukkit.createWorld(WorldCreator.name("plotworld").generator(new PlotGen(tempPlotInfo)));
 		loadCaptions();
 	}
 
@@ -321,7 +304,7 @@ public class PlotMe extends JavaPlugin {
 	public void scheduleTask(Runnable task) {
 		PlotMe.cscurrentlyprocessingexpired.sendMessage(PlotMe.PREFIX + caption("MsgStartDeleteSession"));
 
-		for (int ctr = 0; ctr < (50 / nbperdeletionprocessingexpired); ctr++) {
+		for (int ctr = 0; ctr < 50 / nbperdeletionprocessingexpired; ctr++) {
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, task, ctr * 100);
 		}
 	}

@@ -22,19 +22,6 @@ public class PlotGen extends ChunkGenerator {
 	private final int roadheight;
 	private final PlotMapInfo temppmi;
 
-	public PlotGen() {
-		plotsize = 32;
-		pathsize = 7;
-		wall = 44;
-		plotfloor = 2;
-		filling = 3;
-		roadheight = 64;
-		floor1 = 5;
-		floor2 = 5;
-		temppmi = null;
-		PlotMe.logger.warning("Unable to find configuration, using defaults");
-	}
-
 	public PlotGen(PlotMapInfo pmi) {
 		plotsize = pmi.PlotSize;
 		pathsize = pmi.PathWidth;
@@ -157,7 +144,7 @@ public class PlotGen extends ChunkGenerator {
 								}
 							}
 						}
-					} else if (y == (roadheight + 1)) {
+					} else if (y == roadheight + 1) {
 						if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) {// middle+3
 							boolean found = false;
 							for (double i = n2; i >= 0; i--) {

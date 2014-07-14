@@ -2,8 +2,8 @@ package com.worldcretornica.plotme;
 
 import org.bukkit.Bukkit;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.UUID;
 
 public class PlayerList {
@@ -57,7 +57,7 @@ public class PlayerList {
 		return "";
 	}
 
-	public Set<String> getPlayers() {
+	public Collection<String> getPlayers() {
 		return playerlist.keySet();
 	}
 
