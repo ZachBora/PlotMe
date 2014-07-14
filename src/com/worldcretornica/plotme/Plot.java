@@ -255,9 +255,8 @@ public class Plot implements Comparable<Plot> {
 		Player p = Bukkit.getServer().getPlayerExact(name);
 		if (p != null) {
 			return isAllowedInternal(name, p.getUniqueId(), true, true);
-		} else {
-			return isAllowedInternal(name, null, true, true);
 		}
+		return isAllowedInternal(name, null, true, true);
 	}
 
 	public boolean isGroupAllowed(String name) {
@@ -292,7 +291,8 @@ public class Plot implements Comparable<Plot> {
 
 		if (uuid != null && ownerId != null && ownerId.equals(uuid)) {
 			return true;
-		} else if (uuid == null && owner.equalsIgnoreCase(name)) {
+		}
+		if (uuid == null && owner.equalsIgnoreCase(name)) {
 			return true;
 		}
 
@@ -311,7 +311,8 @@ public class Plot implements Comparable<Plot> {
 			UUID u = list.get(str);
 			if (u != null && uuid != null && u.equals(uuid)) {
 				return true;
-			} else if (uuid == null && str.equalsIgnoreCase(name)) {
+			}
+			if (uuid == null && str.equalsIgnoreCase(name)) {
 				return true;
 			}
 
@@ -329,9 +330,8 @@ public class Plot implements Comparable<Plot> {
 		Player p = Bukkit.getServer().getPlayerExact(name);
 		if (p != null) {
 			return isDeniedInternal(name, p.getUniqueId());
-		} else {
-			return isDeniedInternal(name, null);
 		}
+		return isDeniedInternal(name, null);
 	}
 
 	public boolean isGroupDenied(String name) {
@@ -362,7 +362,8 @@ public class Plot implements Comparable<Plot> {
 			UUID u = list.get(str);
 			if (u != null && uuid != null && u.equals(uuid)) {
 				return true;
-			} else if (uuid == null && str.equalsIgnoreCase(name)) {
+			}
+			if (uuid == null && str.equalsIgnoreCase(name)) {
 				return true;
 			}
 
@@ -395,9 +396,8 @@ public class Plot implements Comparable<Plot> {
 	public int compareTo(Plot plot) {
 		if (expireddate.compareTo(plot.expireddate) == 0) {
 			return owner.compareTo(plot.owner);
-		} else {
-			return expireddate.compareTo(plot.expireddate);
 		}
+		return expireddate.compareTo(plot.expireddate);
 	}
 
 	private void updateFinished(String finishtime, boolean isfinished) {

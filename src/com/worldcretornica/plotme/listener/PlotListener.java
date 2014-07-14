@@ -10,6 +10,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -45,12 +46,7 @@ public class PlotListener implements Listener {
 			} else {
 				Plot plot = PlotManager.getMap(p).plots.get(id);
 
-				if (plot == null) {
-					if (!canbuild) {
-						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-						event.setCancelled(true);
-					}
-				} else if (!plot.isAllowed(p.getUniqueId())) {
+				if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 					if (!canbuild) {
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
@@ -80,12 +76,7 @@ public class PlotListener implements Listener {
 			} else {
 				Plot plot = PlotManager.getPlotById(p, id);
 
-				if (plot == null) {
-					if (!canbuild) {
-						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-						event.setCancelled(true);
-					}
-				} else if (!plot.isAllowed(p.getUniqueId())) {
+				if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 					if (!canbuild) {
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
@@ -104,7 +95,7 @@ public class PlotListener implements Listener {
 
 		if (PlotManager.isPlotWorld(b)) {
 			if (!(e instanceof Player)) {
-				if (!(e instanceof org.bukkit.entity.FallingBlock)) {
+				if (!(e instanceof FallingBlock)) {
 					event.setCancelled(true);
 				}
 			} else {
@@ -119,11 +110,7 @@ public class PlotListener implements Listener {
 				} else {
 					Plot plot = PlotManager.getPlotById(p, id);
 
-					if (plot == null) {
-						if (!canbuild) {
-							event.setCancelled(true);
-						}
-					} else if (!plot.isAllowed(p.getUniqueId())) {
+					if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 						if (!canbuild) {
 							event.setCancelled(true);
 						}
@@ -163,10 +150,7 @@ public class PlotListener implements Listener {
 				} else {
 					Plot plot = PlotManager.getPlotById(p, id);
 
-					if (plot == null) {
-						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-						event.setCancelled(true);
-					} else if (!plot.isAllowed(p.getUniqueId())) {
+					if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
@@ -189,10 +173,7 @@ public class PlotListener implements Listener {
 				} else {
 					Plot plot = PlotManager.getPlotById(p, id);
 
-					if (plot == null) {
-						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-						event.setCancelled(true);
-					} else if (!plot.isAllowed(p.getUniqueId())) {
+					if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
 					}
@@ -290,14 +271,7 @@ public class PlotListener implements Listener {
 					} else {
 						Plot plot = PlotManager.getPlotById(p, id);
 
-						if (plot == null) {
-							if (!canbuild) {
-								if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-									p.sendMessage(PlotMe.caption("ErrCannotUse"));
-								}
-								event.setCancelled(true);
-							}
-						} else if (!plot.isAllowed(p.getName())) {
+						if (plot == null || !plot.isAllowed(p.getName())) {
 							if (!canbuild) {
 								if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 									p.sendMessage(PlotMe.caption("ErrCannotUse"));
@@ -469,9 +443,7 @@ public class PlotListener implements Listener {
 					} else {
 						Plot plot = PlotManager.getPlotById(b, id);
 
-						if (plot == null) {
-							event.setCancelled(true);
-						} else if (!plot.isAllowed(p.getUniqueId())) {
+						if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 							event.setCancelled(true);
 						}
 					}
@@ -497,12 +469,7 @@ public class PlotListener implements Listener {
 			} else {
 				Plot plot = PlotManager.getPlotById(p, id);
 
-				if (plot == null) {
-					if (!canbuild) {
-						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-						event.setCancelled(true);
-					}
-				} else if (!plot.isAllowed(p.getUniqueId())) {
+				if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 					if (!canbuild) {
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
@@ -536,12 +503,7 @@ public class PlotListener implements Listener {
 				} else {
 					Plot plot = PlotManager.getPlotById(p, id);
 
-					if (plot == null) {
-						if (!canbuild) {
-							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-							event.setCancelled(true);
-						}
-					} else if (!plot.isAllowed(p.getUniqueId())) {
+					if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 						if (!canbuild) {
 							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
@@ -571,12 +533,7 @@ public class PlotListener implements Listener {
 			} else {
 				Plot plot = PlotManager.getPlotById(p, id);
 
-				if (plot == null) {
-					if (!canbuild) {
-						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-						event.setCancelled(true);
-					}
-				} else if (!plot.isAllowed(p.getUniqueId())) {
+				if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 					if (!canbuild) {
 						p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 						event.setCancelled(true);
@@ -609,12 +566,7 @@ public class PlotListener implements Listener {
 				} else {
 					Plot plot = PlotManager.getPlotById(p, id);
 
-					if (plot == null) {
-						if (!canbuild) {
-							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
-							event.setCancelled(true);
-						}
-					} else if (!plot.isAllowed(p.getUniqueId())) {
+					if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 						if (!canbuild) {
 							p.sendMessage(PlotMe.caption("ErrCannotBuild"));
 							event.setCancelled(true);
@@ -644,12 +596,7 @@ public class PlotListener implements Listener {
 			} else {
 				Plot plot = PlotManager.getPlotById(p, id);
 
-				if (plot == null) {
-					if (!canbuild) {
-						p.sendMessage(PlotMe.caption("ErrCannotUseEggs"));
-						event.setHatching(false);
-					}
-				} else if (!plot.isAllowed(p.getUniqueId())) {
+				if (plot == null || !plot.isAllowed(p.getUniqueId())) {
 					if (!canbuild) {
 						p.sendMessage(PlotMe.caption("ErrCannotUseEggs"));
 						event.setHatching(false);

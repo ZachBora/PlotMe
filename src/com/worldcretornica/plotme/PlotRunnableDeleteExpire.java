@@ -10,6 +10,7 @@ import java.util.List;
 
 public class PlotRunnableDeleteExpire implements Runnable {
 
+	@Override
 	public void run() {
 		if (PlotMe.worldcurrentlyprocessingexpired != null) {
 			World w = PlotMe.worldcurrentlyprocessingexpired;
@@ -30,7 +31,7 @@ public class PlotRunnableDeleteExpire implements Runnable {
 				}
 			}
 
-			if (expiredplots.size() == 0) {
+			if (expiredplots.isEmpty()) {
 				PlotMe.counterexpired = 0;
 			} else {
 
