@@ -31,7 +31,6 @@ public class PlotMe extends JavaPlugin {
 	public static Logger logger;
 
 	public static boolean globalUseEconomy;
-	public static boolean allowWorldTeleport;
 	public static boolean allowToDeny;
 	public static ConcurrentHashMap<String, PlotMapInfo> plotmaps;
 	public static Economy economy;
@@ -175,7 +174,6 @@ public class PlotMe extends JavaPlugin {
 		FileConfiguration config = getConfig();
 
 		globalUseEconomy = config.getBoolean("globalUseEconomy", false);
-		allowWorldTeleport = config.getBoolean("allowWorldTeleport", true);
 		allowToDeny = config.getBoolean("allowToDeny", true);
 
 		ConfigurationSection plotworld = config.getConfigurationSection("plotworld");
