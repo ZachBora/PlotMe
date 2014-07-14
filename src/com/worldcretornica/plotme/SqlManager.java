@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.sql.*;
+import java.sql.Date;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -14,7 +15,7 @@ import static com.worldcretornica.plotme.PlotMe.logger;
 
 public class SqlManager {
 
-	private final static String PLOT_TABLE = "CREATE TABLE `plotmePlots` (" +
+	private static final String PLOT_TABLE = "CREATE TABLE `plotmePlots` (" +
 			"`idX` INTEGER," +
 			"`idZ` INTEGER," +
 			"`owner` varchar(100) NOT NULL," +
@@ -39,7 +40,7 @@ public class SqlManager {
 			"PRIMARY KEY (idX, idZ, world));";
 
 	// todo add update to table for customprice, forsale
-	private final static String COMMENT_TABLE = "CREATE TABLE `plotmeComments` (" +
+	private static final String COMMENT_TABLE = "CREATE TABLE `plotmeComments` (" +
 			"`idX` INTEGER," +
 			"`idZ` INTEGER," +
 			"`world` varchar(32) NOT NULL," +
@@ -48,21 +49,21 @@ public class SqlManager {
 			"`comment` text," +
 			"`playerid` blob(16)," +
 			"PRIMARY KEY (idX, idZ, world, commentid));";
-	private final static String ALLOWED_TABLE = "CREATE TABLE `plotmeAllowed` (" +
+	private static final String ALLOWED_TABLE = "CREATE TABLE `plotmeAllowed` (" +
 			"`idX` INTEGER," +
 			"`idZ` INTEGER," +
 			"`world` varchar(32) NOT NULL," +
 			"`player` varchar(32) NOT NULL," +
 			"`playerid` blob(16)," +
 			"PRIMARY KEY (idX, idZ, world, player));";
-	private final static String DENIED_TABLE = "CREATE TABLE `plotmeDenied` (" +
+	private static final String DENIED_TABLE = "CREATE TABLE `plotmeDenied` (" +
 			"`idX` INTEGER," +
 			"`idZ` INTEGER," +
 			"`world` varchar(32) NOT NULL," +
 			"`player` varchar(32) NOT NULL," +
 			"`playerid` blob(16)," +
 			"PRIMARY KEY (idX, idZ, world, player));";
-	private static Connection conn = null;
+	private static Connection conn;
 
 	public static Connection initialize() {
 		try {
@@ -490,7 +491,7 @@ public class SqlManager {
 				}
 			}
 
-			if (plot.comments != null && plot.comments.size() > 0) {
+			if (plot.comments != null && !plot.comments.isEmpty()) {
 				int commentid = 1;
 				for (String[] comments : plot.comments) {
 					String strUUID;
@@ -850,7 +851,7 @@ public class SqlManager {
 				int topZ = setPlots.getInt("topZ");
 				int bottomZ = setPlots.getInt("bottomZ");
 				String biome = setPlots.getString("biome");
-				java.sql.Date expireddate = setPlots.getDate("expireddate");
+				Date expireddate = setPlots.getDate("expireddate");
 				boolean finished = setPlots.getBoolean("finished");
 				PlayerList allowed = new PlayerList();
 				PlayerList denied = new PlayerList();
@@ -1050,7 +1051,7 @@ public class SqlManager {
 							e.printStackTrace();
 						}
 
-						if (response.size() > 0) {
+						if (!response.isEmpty()) {
 							psOwnerId = conn.prepareStatement("UPDATE plotmePlots SET ownerid = ? WHERE LOWER(owner) = ? AND ownerid IS NULL");
 							psCurrentBidderId = conn.prepareStatement("UPDATE plotmePlots SET currentbidderid = ? WHERE LOWER(currentbidder) = ? AND currentbidderid IS NULL");
 							psAllowedPlayerId = conn.prepareStatement("UPDATE plotmeAllowed SET playerid = ? WHERE LOWER(player) = ? AND playerid IS NULL");
@@ -1143,7 +1144,7 @@ public class SqlManager {
 					logger.severe("Conversion to UUID failed :");
 					logger.severe("  " + ex.getMessage());
 					for (StackTraceElement e : ex.getStackTrace()) {
-						logger.severe("  " + e.toString());
+						logger.severe("  " + e);
 					}
 				} finally {
 					try {
@@ -1187,7 +1188,7 @@ public class SqlManager {
 						logger.severe("Conversion to UUID failed (on close) :");
 						logger.severe("  " + ex.getMessage());
 						for (StackTraceElement e : ex.getStackTrace()) {
-							logger.severe("  " + e.toString());
+							logger.severe("  " + e);
 						}
 					}
 				}
@@ -1244,7 +1245,7 @@ public class SqlManager {
 								response = fetcher.call();
 								logger.info("Received " + response.size() + " UUIDs. Starting database update...");
 
-								if (response.size() > 0) {
+								if (!response.isEmpty()) {
 									Collection<UUID> values = response.values();
 									uuid = values.toArray(new UUID[values.size()])[0];
 									Set<String> strings = response.keySet();
@@ -1322,7 +1323,7 @@ public class SqlManager {
 						logger.severe("Conversion to UUID failed :");
 						logger.severe("  " + ex.getMessage());
 						for (StackTraceElement e : ex.getStackTrace()) {
-							logger.severe("  " + e.toString());
+							logger.severe("  " + e);
 						}
 					} finally {
 						try {
@@ -1333,7 +1334,7 @@ public class SqlManager {
 							logger.severe("Conversion to UUID failed (on close) :");
 							logger.severe("  " + ex.getMessage());
 							for (StackTraceElement e : ex.getStackTrace()) {
-								logger.severe("  " + e.toString());
+								logger.severe("  " + e);
 							}
 						}
 					}
@@ -1373,7 +1374,7 @@ public class SqlManager {
 					logger.severe("Update player in database from uuid failed :");
 					logger.severe("  " + ex.getMessage());
 					for (StackTraceElement e : ex.getStackTrace()) {
-						logger.severe("  " + e.toString());
+						logger.severe("  " + e);
 					}
 				} finally {
 					try {
@@ -1386,7 +1387,7 @@ public class SqlManager {
 						logger.severe("Update player in database from uuid failed (on close) :");
 						logger.severe("  " + ex.getMessage());
 						for (StackTraceElement e : ex.getStackTrace()) {
-							logger.severe("  " + e.toString());
+							logger.severe("  " + e);
 						}
 					}
 				}

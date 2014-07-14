@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class PlayerList {
 
-	private HashMap<String, UUID> playerlist;
+	private final HashMap<String, UUID> playerlist;
 
 	public PlayerList() {
 		playerlist = new HashMap<>();
@@ -100,7 +100,7 @@ public class PlayerList {
 
 	public void replace(UUID uuid, String newname) {
 		if (uuid != null && playerlist != null) {
-			if (this.contains(uuid)) {
+			if (contains(uuid)) {
 				for (String name : playerlist.keySet()) {
 					if (playerlist.get(name) != null && playerlist.get(name).equals(uuid)) {
 						playerlist.remove(name);
@@ -114,7 +114,7 @@ public class PlayerList {
 
 	public void replace(String name, UUID newuuid) {
 		if (newuuid != null && playerlist != null) {
-			if (this.contains(name)) {
+			if (contains(name)) {
 				for (String key : playerlist.keySet()) {
 					if (key.equalsIgnoreCase(name)) {
 						playerlist.remove(key);

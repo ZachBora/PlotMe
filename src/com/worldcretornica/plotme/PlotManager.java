@@ -34,22 +34,20 @@ public class PlotManager {
 			//int z2 = (int) Math.ceil((double)valz / size);
 
 			if (pathsize % 2 == 1) {
-				n3 = Math.ceil(((double) pathsize) / 2); //3 7
+				n3 = Math.ceil((double) pathsize / 2); //3 7
 				mod2 = -1;
 			} else {
-				n3 = Math.floor(((double) pathsize) / 2); //3 7
+				n3 = Math.floor((double) pathsize / 2); //3 7
 			}
 
 			for (double i = n3; i >= 0; i--) {
-				if ((valx - i + mod1) % size == 0 ||
-						(valx + i + mod2) % size == 0) {
+				if ((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0) {
 					road = true;
 
 					x = (int) Math.ceil((valx - n3) / size);
 					//x2 = (int) Math.ceil((double)(valx + n3) / size);
 				}
-				if ((valz - i + mod1) % size == 0 ||
-						(valz + i + mod2) % size == 0) {
+				if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
 					road = true;
 
 					z = (int) Math.ceil((valz - n3) / size);
@@ -94,7 +92,7 @@ public class PlotManager {
 		}
 	}
 
-	public static String getPlotId(Player player) {
+	public static String getPlotId(Entity player) {
 		return getPlotId(player.getLocation());
 	}
 
@@ -146,32 +144,28 @@ public class PlotManager {
 					fillroad(p21, p11, world);
 				}
 
-				if (p00 != null && p10 != null && p01 != null &&
-						p00.owner.equalsIgnoreCase(p11.owner) &&
-						p11.owner.equalsIgnoreCase(p10.owner) &&
-						p10.owner.equalsIgnoreCase(p01.owner)) {
-					fillmiddleroad(p00, p11, world);
+				if (p00 != null && p10 != null && p01 != null && p00.owner.equalsIgnoreCase(p11.owner)) {
+					if (p11.owner.equalsIgnoreCase(p10.owner) && p10.owner.equalsIgnoreCase(p01.owner)) {
+						fillmiddleroad(p00, p11, world);
+					}
 				}
 
-				if (p10 != null && p20 != null && p21 != null &&
-						p10.owner.equalsIgnoreCase(p11.owner) &&
-						p11.owner.equalsIgnoreCase(p20.owner) &&
-						p20.owner.equalsIgnoreCase(p21.owner)) {
-					fillmiddleroad(p20, p11, world);
+				if (p10 != null && p20 != null && p21 != null && p10.owner.equalsIgnoreCase(p11.owner)) {
+					if (p11.owner.equalsIgnoreCase(p20.owner) && p20.owner.equalsIgnoreCase(p21.owner)) {
+						fillmiddleroad(p20, p11, world);
+					}
 				}
 
-				if (p01 != null && p02 != null && p12 != null &&
-						p01.owner.equalsIgnoreCase(p11.owner) &&
-						p11.owner.equalsIgnoreCase(p02.owner) &&
-						p02.owner.equalsIgnoreCase(p12.owner)) {
-					fillmiddleroad(p02, p11, world);
+				if (p01 != null && p02 != null && p12 != null) {
+					if (p01.owner.equalsIgnoreCase(p11.owner) && p11.owner.equalsIgnoreCase(p02.owner) && p02.owner.equalsIgnoreCase(p12.owner)) {
+						fillmiddleroad(p02, p11, world);
+					}
 				}
 
-				if (p12 != null && p21 != null && p22 != null &&
-						p12.owner.equalsIgnoreCase(p11.owner) &&
-						p11.owner.equalsIgnoreCase(p21.owner) &&
-						p21.owner.equalsIgnoreCase(p22.owner)) {
-					fillmiddleroad(p22, p11, world);
+				if (p12 != null && p21 != null && p22 != null) {
+					if (p12.owner.equalsIgnoreCase(p11.owner) && p11.owner.equalsIgnoreCase(p21.owner) && p21.owner.equalsIgnoreCase(p22.owner)) {
+						fillmiddleroad(p22, p11, world);
+					}
 				}
 
 			}
@@ -189,7 +183,6 @@ public class PlotManager {
 		int maxX;
 		int minZ;
 		int maxZ;
-		boolean isWallX;
 
 		PlotMapInfo pmi = getMap(w);
 		int h = pmi.RoadHeight;
@@ -212,7 +205,7 @@ public class PlotManager {
 			maxX = Math.max(topPlot1.getBlockX(), topPlot2.getBlockX()) - pmi.PlotSize;
 		}
 
-		isWallX = (maxX - minX) > (maxZ - minZ);
+		boolean isWallX = maxX - minX > maxZ - minZ;
 
 		if (isWallX) {
 			minX--;
@@ -228,9 +221,7 @@ public class PlotManager {
 					if (y >= (h + 2)) {
 						w.getBlockAt(x, y, z).setType(Material.AIR);
 					} else if (y == (h + 1)) {
-						if (isWallX && (x == minX || x == maxX)) {
-							w.getBlockAt(x, y, z).setTypeIdAndData(wallId, wallValue, true);
-						} else if (!isWallX && (z == minZ || z == maxZ)) {
+						if (isWallX && (x == minX || x == maxX) || !isWallX && (z == minZ || z == maxZ)) {
 							w.getBlockAt(x, y, z).setTypeIdAndData(wallId, wallValue, true);
 						} else {
 							w.getBlockAt(x, y, z).setType(Material.AIR);
@@ -428,8 +419,8 @@ public class PlotManager {
 
 		PlotMapInfo pmi = getMap(world);
 
-		int x = px * (pmi.PlotSize + pmi.PathWidth) - (pmi.PlotSize) - ((int) Math.floor(pmi.PathWidth / 2));
-		int z = pz * (pmi.PlotSize + pmi.PathWidth) - (pmi.PlotSize) - ((int) Math.floor(pmi.PathWidth / 2));
+		int x = px * (pmi.PlotSize + pmi.PathWidth) - pmi.PlotSize - (int) Math.floor(pmi.PathWidth / 2);
+		int z = pz * (pmi.PlotSize + pmi.PathWidth) - pmi.PlotSize - (int) Math.floor(pmi.PathWidth / 2);
 
 		return new Location(world, x, 1, z);
 	}
@@ -440,8 +431,8 @@ public class PlotManager {
 
 		PlotMapInfo pmi = getMap(world);
 
-		int x = px * (pmi.PlotSize + pmi.PathWidth) - ((int) Math.floor(pmi.PathWidth / 2)) - 1;
-		int z = pz * (pmi.PlotSize + pmi.PathWidth) - ((int) Math.floor(pmi.PathWidth / 2)) - 1;
+		int x = px * (pmi.PlotSize + pmi.PathWidth) - (int) Math.floor(pmi.PathWidth / 2) - 1;
+		int z = pz * (pmi.PlotSize + pmi.PathWidth) - (int) Math.floor(pmi.PathWidth / 2) - 1;
 
 		return new Location(world, x, 255, z);
 	}
@@ -550,7 +541,7 @@ public class PlotManager {
 						//Remove once they fix the NullPointerException
 						try {
 							jukebox.setPlaying(Material.AIR);
-						} catch (Exception e) {
+						} catch (Exception ignored) {
 						}
 					}
 
@@ -561,12 +552,10 @@ public class PlotManager {
 						block.setTypeId(pmi.PlotFillingBlockId);
 					} else if (y == pmi.RoadHeight) {
 						block.setTypeId(pmi.PlotFloorBlockId);
+					} else if (y == (pmi.RoadHeight + 1) && (x == bottomX - 1 || x == topX + 1 || z == bottomZ - 1 || z == topZ + 1)) {
+						//block.setTypeId(pmi.WallBlockId);
 					} else {
-						if (y == (pmi.RoadHeight + 1) && (x == bottomX - 1 || x == topX + 1 || z == bottomZ - 1 || z == topZ + 1)) {
-							//block.setTypeId(pmi.WallBlockId);
-						} else {
-							block.setType(Material.AIR);
-						}
+						block.setType(Material.AIR);
 					}
 				}
 			}
@@ -595,7 +584,7 @@ public class PlotManager {
 			wallids.add(forsalewallid);
 		}
 
-		if (wallids.size() == 0) {
+		if (wallids.isEmpty()) {
 			wallids.add(pmi.WallBlockId + ":" + pmi.WallBlockValue);
 		}
 
@@ -613,7 +602,11 @@ public class PlotManager {
 		for (x = bottom.getBlockX() - 1; x < top.getBlockX() + 1; x++) {
 			z = bottom.getBlockZ() - 1;
 			currentblockid = wallids.get(ctr);
-			ctr = (ctr == wallids.size() - 1) ? 0 : ctr + 1;
+			if (ctr == wallids.size() - 1) {
+				ctr = 0;
+			} else {
+				ctr = ctr + 1;
+			}
 			block = w.getBlockAt(x, pmi.RoadHeight + 1, z);
 			setWall(block, currentblockid);
 		}
@@ -621,7 +614,11 @@ public class PlotManager {
 		for (z = bottom.getBlockZ() - 1; z < top.getBlockZ() + 1; z++) {
 			x = top.getBlockX() + 1;
 			currentblockid = wallids.get(ctr);
-			ctr = (ctr == wallids.size() - 1) ? 0 : ctr + 1;
+			if (ctr == wallids.size() - 1) {
+				ctr = 0;
+			} else {
+				ctr = ctr + 1;
+			}
 			block = w.getBlockAt(x, pmi.RoadHeight + 1, z);
 			setWall(block, currentblockid);
 		}
@@ -629,7 +626,11 @@ public class PlotManager {
 		for (x = top.getBlockX() + 1; x > bottom.getBlockX() - 1; x--) {
 			z = top.getBlockZ() + 1;
 			currentblockid = wallids.get(ctr);
-			ctr = (ctr == wallids.size() - 1) ? 0 : ctr + 1;
+			if (ctr == wallids.size() - 1) {
+				ctr = 0;
+			} else {
+				ctr = ctr + 1;
+			}
 			block = w.getBlockAt(x, pmi.RoadHeight + 1, z);
 			setWall(block, currentblockid);
 		}
@@ -637,7 +638,11 @@ public class PlotManager {
 		for (z = top.getBlockZ() + 1; z > bottom.getBlockZ() - 1; z--) {
 			x = bottom.getBlockX() - 1;
 			currentblockid = wallids.get(ctr);
-			ctr = (ctr == wallids.size() - 1) ? 0 : ctr + 1;
+			if (ctr == wallids.size() - 1) {
+				ctr = 0;
+			} else {
+				ctr = ctr + 1;
+			}
 			block = w.getBlockAt(x, pmi.RoadHeight + 1, z);
 			setWall(block, currentblockid);
 		}
@@ -745,7 +750,7 @@ public class PlotManager {
 						strUUID = plot2.comments.get(i)[2];
 						try {
 							uuid = UUID.fromString(strUUID);
-						} catch (Exception e) {
+						} catch (Exception ignored) {
 						}
 					}
 					SqlManager.addPlotComment(plot2.comments.get(i), i, idX, idZ, plot2.world, uuid);
@@ -769,7 +774,7 @@ public class PlotManager {
 						strUUID = plot1.comments.get(i)[2];
 						try {
 							uuid = UUID.fromString(strUUID);
-						} catch (Exception e) {
+						} catch (Exception ignored) {
 						}
 					}
 
@@ -806,7 +811,7 @@ public class PlotManager {
 						strUUID = plot.comments.get(i)[2];
 						try {
 							uuid = UUID.fromString(strUUID);
-						} catch (Exception e) {
+						} catch (Exception ignored) {
 						}
 					}
 					SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world, uuid);
@@ -845,7 +850,7 @@ public class PlotManager {
 						strUUID = plot.comments.get(i)[2];
 						try {
 							uuid = UUID.fromString(strUUID);
-						} catch (Exception e) {
+						} catch (Exception ignored) {
 						}
 					}
 					SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world, uuid);
@@ -944,15 +949,13 @@ public class PlotManager {
 	public static PlotMapInfo getMap(World w) {
 		if (w == null) {
 			return null;
-		} else {
-			String worldname = w.getName().toLowerCase();
-
-			if (PlotMe.plotmaps.containsKey(worldname)) {
-				return PlotMe.plotmaps.get(worldname);
-			} else {
-				return null;
-			}
 		}
+		String worldname = w.getName().toLowerCase();
+
+		if (PlotMe.plotmaps.containsKey(worldname)) {
+			return PlotMe.plotmaps.get(worldname);
+		}
+		return null;
 	}
 
 	public static PlotMapInfo getMap(String name) {
@@ -960,51 +963,44 @@ public class PlotManager {
 
 		if (PlotMe.plotmaps.containsKey(worldname)) {
 			return PlotMe.plotmaps.get(worldname);
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	public static PlotMapInfo getMap(Location l) {
 		if (l == null) {
 			return null;
-		} else {
-			String worldname = l.getWorld().getName().toLowerCase();
-
-			if (PlotMe.plotmaps.containsKey(worldname)) {
-				return PlotMe.plotmaps.get(worldname);
-			} else {
-				return null;
-			}
 		}
+		String worldname = l.getWorld().getName().toLowerCase();
+
+		if (PlotMe.plotmaps.containsKey(worldname)) {
+			return PlotMe.plotmaps.get(worldname);
+		}
+		return null;
 	}
 
 	public static PlotMapInfo getMap(Player p) {
 		if (p == null) {
 			return null;
-		} else {
-			String worldname = p.getWorld().getName().toLowerCase();
-
-			if (PlotMe.plotmaps.containsKey(worldname)) {
-				return PlotMe.plotmaps.get(worldname);
-			} else {
-				return null;
-			}
 		}
+		String worldname = p.getWorld().getName().toLowerCase();
+
+		if (PlotMe.plotmaps.containsKey(worldname)) {
+			return PlotMe.plotmaps.get(worldname);
+		}
+		return null;
 	}
 
 	public static PlotMapInfo getMap(Block b) {
 		if (b == null) {
 			return null;
-		} else {
-			String worldname = b.getWorld().getName().toLowerCase();
-
-			if (PlotMe.plotmaps.containsKey(worldname)) {
-				return PlotMe.plotmaps.get(worldname);
-			} else {
-				return null;
-			}
 		}
+		String worldname = b.getWorld().getName().toLowerCase();
+
+		if (PlotMe.plotmaps.containsKey(worldname)) {
+			return PlotMe.plotmaps.get(worldname);
+		}
+		return null;
 	}
 
 	public static HashMap<String, Plot> getPlots(World w) {
@@ -1012,9 +1008,8 @@ public class PlotManager {
 
 		if (pmi == null) {
 			return null;
-		} else {
-			return pmi.plots;
 		}
+		return pmi.plots;
 	}
 
 	public static HashMap<String, Plot> getPlots(String name) {
@@ -1022,9 +1017,8 @@ public class PlotManager {
 
 		if (pmi == null) {
 			return null;
-		} else {
-			return pmi.plots;
 		}
+		return pmi.plots;
 	}
 
 	public static HashMap<String, Plot> getPlots(Player p) {
@@ -1032,9 +1026,8 @@ public class PlotManager {
 
 		if (pmi == null) {
 			return null;
-		} else {
-			return pmi.plots;
 		}
+		return pmi.plots;
 	}
 
 	public static HashMap<String, Plot> getPlots(Block b) {
@@ -1042,9 +1035,8 @@ public class PlotManager {
 
 		if (pmi == null) {
 			return null;
-		} else {
-			return pmi.plots;
 		}
+		return pmi.plots;
 	}
 
 	public static HashMap<String, Plot> getPlots(Location l) {
@@ -1052,9 +1044,8 @@ public class PlotManager {
 
 		if (pmi == null) {
 			return null;
-		} else {
-			return pmi.plots;
 		}
+		return pmi.plots;
 	}
 
 	public static Plot getPlotById(String name, String id) {
@@ -1062,9 +1053,8 @@ public class PlotManager {
 
 		if (plots == null) {
 			return null;
-		} else {
-			return plots.get(id);
 		}
+		return plots.get(id);
 	}
 
 	public static Plot getPlotById(Player p, String id) {
@@ -1072,9 +1062,8 @@ public class PlotManager {
 
 		if (plots == null) {
 			return null;
-		} else {
-			return plots.get(id);
 		}
+		return plots.get(id);
 	}
 
 	public static Plot getPlotById(Location l) {
@@ -1083,9 +1072,8 @@ public class PlotManager {
 
 		if (plots == null || plotid.isEmpty()) {
 			return null;
-		} else {
-			return plots.get(plotid);
 		}
+		return plots.get(plotid);
 	}
 
 	public static Plot getPlotById(Block b, String id) {
@@ -1093,9 +1081,8 @@ public class PlotManager {
 
 		if (plots == null) {
 			return null;
-		} else {
-			return plots.get(id);
 		}
+		return plots.get(id);
 	}
 
 	public static World getFirstWorld() {
@@ -1112,14 +1099,13 @@ public class PlotManager {
 
 		if (coords.length != 2) {
 			return false;
-		} else {
-			try {
-				Integer.parseInt(coords[0]);
-				Integer.parseInt(coords[1]);
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
+		}
+		try {
+			Integer.parseInt(coords[0]);
+			Integer.parseInt(coords[1]);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
 		}
 	}
 
@@ -1129,9 +1115,8 @@ public class PlotManager {
 		if (pmi != null) {
 			return new Location(w, bottomX(plot.id, w) + (topX(plot.id, w) -
 					PlotManager.bottomX(plot.id, w)) / 2, pmi.RoadHeight + 2, bottomZ(plot.id, w) - 2);
-		} else {
-			return w.getSpawnLocation();
 		}
+		return w.getSpawnLocation();
 	}
 
 	public static void UpdatePlayerNameFromId(final UUID uuid, final String name) {
