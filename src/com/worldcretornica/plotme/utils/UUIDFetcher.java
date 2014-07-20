@@ -24,13 +24,14 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
  
     public UUIDFetcher(List<String> names, boolean rateLimiting) {
         this.names = ImmutableList.copyOf(names);
-        this.rateLimiting = rateLimiting;
+        this.rateLimiting = true;
     }
  
     public UUIDFetcher(List<String> names) {
         this(names, true);
     }
  
+    @Override
     public Map<String, UUID> call() throws Exception {
         Map<String, UUID> uuidMap = new HashMap<String, UUID>();
         int requests = (int) Math.ceil(names.size() / PROFILES_PER_REQUEST);
