@@ -17,7 +17,6 @@ import java.util.*;
 import static com.worldcretornica.plotme.PlotMe.*;
 
 public class PMCommand implements CommandExecutor {
-	public static final World PLOTWORLD = Bukkit.getWorld("plotworld");
 	private final PlotMe plugin;
 
 	public PMCommand(PlotMe instance) {
@@ -185,11 +184,11 @@ public class PMCommand implements CommandExecutor {
 			if (worldcurrentlyprocessingexpired != null) {
 				player.sendMessage(cscurrentlyprocessingexpired.getName() + " " + caption("MsgAlreadyProcessingPlots"));
 			} else {
-				if (PLOTWORLD == null) {
+				if (Bukkit.getWorld("plotworld") == null) {
 					player.sendMessage("World \"plotworld\" " + caption("MsgDoesNotExistOrNotLoaded"));
 					return false;
 				}
-				worldcurrentlyprocessingexpired = PLOTWORLD;
+				worldcurrentlyprocessingexpired = Bukkit.getWorld("plotworld");
 				cscurrentlyprocessingexpired = player;
 				counterexpired = 50;
 				nbperdeletionprocessingexpired = 5;
@@ -1213,7 +1212,7 @@ public class PMCommand implements CommandExecutor {
 				if (PlotManager.isPlotWorld(p)) {
 					w = p.getWorld();
 				} else {
-					w = PLOTWORLD;
+					w = Bukkit.getWorld("plotworld");
 				}
 
 				int maxplots = getPlotLimit(p);
@@ -1406,7 +1405,7 @@ public class PMCommand implements CommandExecutor {
 						p.sendMessage("Example: /plotme tp 5;-1 ");
 						return false;
 					}
-					World world = PLOTWORLD;
+					World world = Bukkit.getWorld("plotworld");
 
 					if (world == null) {
 						p.sendMessage(caption("MsgNoPlotworldFound"));
@@ -1428,7 +1427,7 @@ public class PMCommand implements CommandExecutor {
 				}
 				World w = p.getWorld();
 
-				if (w == null || !(w == PLOTWORLD)) {
+				if (w == null || !(w == Bukkit.getWorld("plotworld"))) {
 					Send(p, caption("MsgNoPlotworldFound"));
 					return false;
 				} else {
@@ -1451,78 +1450,69 @@ public class PMCommand implements CommandExecutor {
 			World w;
 
 			if (!PlotManager.isPlotWorld(p)) {
-				if (args.length == 2) {
-					w = Bukkit.getWorld(args[1]);
-				} else {
-					w = PLOTWORLD;
-				}
-
-				if (w == null || !(w == PLOTWORLD)) {
-					Send(p, args[1] + " " + caption("MsgWorldNotPlot"));
-					return true;
-				}
+				w = Bukkit.getWorld("plotworld");
 			} else {
 				w = p.getWorld();
 			}
 
 			if (w == null) {
-				Send(p, caption("MsgNoPlotworldFound"));
+				p.sendMessage(caption("MsgNoPlotworldFound"));
+				return false;
+			}
+			if (PlotManager.getNbOwnedPlot(p, w) >= getPlotLimit(p) && !p.hasPermission("PlotMe.admin")) {
+				Send(p, caption("MsgAlreadyReachedMaxPlots") + " (" +
+						PlotManager.getNbOwnedPlot(p, w) + "/" + getPlotLimit(p) + "). Use /plotme home " + caption("MsgToGetToIt"));
 			} else {
-				if (PlotManager.getNbOwnedPlot(p, w) >= getPlotLimit(p) && !p.hasPermission("PlotMe.admin")) {
-					Send(p, caption("MsgAlreadyReachedMaxPlots") + " (" +
-							PlotManager.getNbOwnedPlot(p, w) + "/" + getPlotLimit(p) + "). Use /plotme home " + caption("MsgToGetToIt"));
-				} else {
-					PlotMapInfo pmi = PlotManager.getMap(w);
-					int limit = pmi.PlotAutoLimit;
+				PlotMapInfo pmi = PlotManager.getMap(w);
+				int limit = pmi.PlotAutoLimit;
 
-					for (int i = 0; i < limit; i++) {
-						for (int x = -i; x <= i; x++) {
-							for (int z = -i; z <= i; z++) {
-								String id = x + ";" + z;
+				for (int i = 0; i < limit; i++) {
+					for (int x = -i; x <= i; x++) {
+						for (int z = -i; z <= i; z++) {
+							String id = x + ";" + z;
 
-								if (PlotManager.isPlotAvailable(id, w)) {
-									String name = p.getName();
-									UUID uuid = p.getUniqueId();
+							if (PlotManager.isPlotAvailable(id, w)) {
+								String name = p.getName();
+								UUID uuid = p.getUniqueId();
 
-									double price = 0;
+								double price = 0;
 
-									if (PlotManager.isEconomyEnabled(w)) {
-										price = pmi.ClaimPrice;
-										double balance = economy.getBalance(name);
+								if (PlotManager.isEconomyEnabled(w)) {
+									price = pmi.ClaimPrice;
+									double balance = economy.getBalance(name);
 
-										if (balance >= price) {
-											EconomyResponse er = economy.withdrawPlayer(name, price);
+									if (balance >= price) {
+										EconomyResponse er = economy.withdrawPlayer(name, price);
 
-											if (!er.transactionSuccess()) {
-												Send(p, er.errorMessage);
-												warn(er.errorMessage);
-												return true;
-											}
-										} else {
-											Send(p, caption("MsgNotEnoughAuto") + " Missing " + f(price - balance, false));
-											return true;
+										if (!er.transactionSuccess()) {
+											Send(p, er.errorMessage);
+											warn(er.errorMessage);
+											return false;
 										}
+									} else {
+										Send(p, caption("MsgNotEnoughAuto") + " Missing " + f(price - balance, false));
+										return false;
 									}
-
-									Plot plot = PlotManager.createPlot(w, id, name, uuid);
-
-									//PlotManager.adjustLinkedPlots(id, w);
-
-									p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) -
-											PlotManager.bottomX(plot.id, w)) / 2, pmi.RoadHeight + 2, PlotManager.bottomZ(plot.id, w) - 2));
-
-									Send(p, caption("MsgThisPlotYours") + " Use /plotme home " + caption("MsgToGetToIt") + " " + f(-price));
-
-									logger.info("[Event] " + name + " " + caption("MsgClaimedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
-
-									return true;
 								}
+
+								Plot plot = PlotManager.createPlot(w, id, name, uuid);
+
+								//PlotManager.adjustLinkedPlots(id, w);
+
+								p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) -
+										PlotManager.bottomX(plot.id, w)) / 2, pmi.RoadHeight + 2, PlotManager.bottomZ(plot.id, w) - 2));
+
+								Send(p, caption("MsgThisPlotYours") + " Use /plotme home " + caption("MsgToGetToIt") + " " + f(-price));
+
+								logger.info("[Event] " + name + " " + caption("MsgClaimedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+
+								return true;
 							}
 						}
 					}
-
-					Send(p, caption("MsgNoPlotFound1") + " " + (limit ^ 2) + " " + caption("MsgNoPlotFound2"));
 				}
+
+				Send(p, caption("MsgNoPlotFound1") + " " + (limit ^ 2) + " " + caption("MsgNoPlotFound2"));
 			}
 		} else {
 			Send(p, caption("MsgPermissionDenied"));
@@ -1614,7 +1604,7 @@ public class PMCommand implements CommandExecutor {
 			String worldname = "";
 
 			if (!PlotManager.isPlotWorld(p)) {
-				w = PLOTWORLD;
+				w = Bukkit.getWorld("plotworld");
 			} else {
 				w = p.getWorld();
 			}
@@ -1645,7 +1635,7 @@ public class PMCommand implements CommandExecutor {
 				}
 			}
 
-			if (!(w == PLOTWORLD)) {
+			if (!(w == Bukkit.getWorld("plotworld"))) {
 				Send(p, worldname + " " + caption("MsgWorldNotPlot"));
 			} else {
 				int i = nb - 1;
