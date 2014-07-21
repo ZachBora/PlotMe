@@ -21,19 +21,6 @@ public class PlotGen extends ChunkGenerator {
 	private final int roadheight;
 	private final PlotMapInfo temppmi;
 
-	public PlotGen() {
-		plotsize = 32;
-		pathsize = 7;
-		wall = 44;
-		plotfloor = 2;
-		filling = 3;
-		roadheight = 64;
-		floor1 = 5;
-		floor2 = 5;
-		temppmi = null;
-		PlotMe.logger.warning("Unable to find configuration, using defaults");
-	}
-
 	public PlotGen(PlotMapInfo pmi) {
 		plotsize = pmi.PlotSize;
 		pathsize = pmi.PathWidth;
@@ -213,11 +200,7 @@ public class PlotGen extends ChunkGenerator {
 
 	@Override
 	public List<BlockPopulator> getDefaultPopulators(World world) {
-		if (temppmi == null) {
-			return Collections.singletonList((BlockPopulator) new PlotRoadPopulator());
-		} else {
-			return Collections.singletonList((BlockPopulator) new PlotRoadPopulator(temppmi));
-		}
+		return Collections.singletonList((BlockPopulator) new PlotRoadPopulator(temppmi));
 	}
 
 	@Override

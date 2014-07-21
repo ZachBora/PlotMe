@@ -12,7 +12,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -91,16 +90,6 @@ public class PlotMe extends JavaPlugin {
 		initialized = true;
 
 		SqlManager.plotConvertToUUIDAsynchronously();
-	}
-
-	@Override
-	public ChunkGenerator getDefaultWorldGenerator(String worldname, String id) {
-		if (PlotManager.isPlotWorld(worldname)) {
-			return new PlotGen(PlotManager.getMap(worldname));
-		} else {
-			logger.warning("Configuration not found for PlotMe world '" + worldname + "' Using defaults");
-			return new PlotGen();
-		}
 	}
 
 	public static String caption(String path) {
