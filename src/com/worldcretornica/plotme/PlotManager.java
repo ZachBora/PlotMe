@@ -679,17 +679,6 @@ public class PlotManager {
 	}
 
 
-	public static boolean isBlockInPlot(Plot plot, Location blocklocation) {
-		World w = blocklocation.getWorld();
-		int lowestX = Math.min(PlotManager.bottomX(plot.id, w), PlotManager.topX(plot.id, w));
-		int highestX = Math.max(PlotManager.bottomX(plot.id, w), PlotManager.topX(plot.id, w));
-		int lowestZ = Math.min(PlotManager.bottomZ(plot.id, w), PlotManager.topZ(plot.id, w));
-		int highestZ = Math.max(PlotManager.bottomZ(plot.id, w), PlotManager.topZ(plot.id, w));
-
-		return blocklocation.getBlockX() >= lowestX && blocklocation.getBlockX() <= highestX
-				&& blocklocation.getBlockZ() >= lowestZ && blocklocation.getBlockZ() <= highestZ;
-	}
-
 	@SuppressWarnings("deprecation")
 	public static boolean movePlot(World w, String idFrom, String idTo) {
 		Location plot1Bottom = getPlotBottomLoc(w, idFrom);
@@ -925,35 +914,7 @@ public class PlotManager {
 	}
 
 	public static boolean isPlotWorld(Location l) {
-		if (l == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(l.getWorld().getName().toLowerCase());
-		}
-	}
-
-	public static boolean isPlotWorld(Player p) {
-		if (p == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(p.getWorld().getName().toLowerCase());
-		}
-	}
-
-	public static boolean isPlotWorld(Block b) {
-		if (b == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
-		}
-	}
-
-	public static boolean isPlotWorld(BlockState b) {
-		if (b == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(b.getWorld().getName().toLowerCase());
-		}
+		return l.getWorld() == Bukkit.getWorld("plotworld");
 	}
 
 	public static boolean isEconomyEnabled(World w) {
@@ -1004,10 +965,9 @@ public class PlotManager {
 		if (w == null) {
 			return null;
 		} else {
-			String worldname = w.getName().toLowerCase();
 
-			if (PlotMe.plotmaps.containsKey(worldname)) {
-				return PlotMe.plotmaps.get(worldname);
+			if (PlotMe.plotmaps.containsKey("plotworld")) {
+				return PlotMe.plotmaps.get("plotworld");
 			} else {
 				return null;
 			}

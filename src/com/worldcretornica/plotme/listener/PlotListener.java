@@ -4,6 +4,7 @@ import com.worldcretornica.plotme.Plot;
 import com.worldcretornica.plotme.PlotManager;
 import com.worldcretornica.plotme.PlotMapInfo;
 import com.worldcretornica.plotme.PlotMe;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -28,11 +29,15 @@ import java.util.List;
 
 public class PlotListener implements Listener {
 
+	private static boolean isPlotWorld(Block b) {
+		return b.getWorld() == Bukkit.getWorld("plotworld");
+	}
+
 	@EventHandler(priority = EventPriority.HIGH) //, ignoreCancelled = true
 	public void onBlockBreak(BlockBreakEvent event) {
 		Block b = event.getBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			Player p = event.getPlayer();
 			boolean canbuild = event.getPlayer().hasPermission("plotme.admin.buildanywhere");
 			String id = PlotManager.getPlotId(b.getLocation());
@@ -62,7 +67,7 @@ public class PlotListener implements Listener {
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Block b = event.getBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			Player p = event.getPlayer();
 			boolean canbuild = p.hasPermission("plotme.admin.buildanywhere");
 			String id = PlotManager.getPlotId(b.getLocation());
@@ -92,7 +97,7 @@ public class PlotListener implements Listener {
 		Block b = event.getBlock();
 		Entity e = event.getEntity();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			if (!(e instanceof Player)) {
 				if (!(e instanceof org.bukkit.entity.FallingBlock)) {
 					event.setCancelled(true);
@@ -126,7 +131,7 @@ public class PlotListener implements Listener {
 		Block b = event.getBlock();
 		Entity e = event.getEntity();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			if (!(e instanceof Player)) {
 				event.setCancelled(true);
 			}
@@ -139,7 +144,7 @@ public class PlotListener implements Listener {
 		if (!event.getPlayer().hasPermission("plotme.admin.buildanywhere")) {
 			BlockFace bf = event.getBlockFace();
 			Block b = event.getBlockClicked().getLocation().add(bf.getModX(), bf.getModY(), bf.getModZ()).getBlock();
-			if (PlotManager.isPlotWorld(b)) {
+			if (isPlotWorld(b)) {
 				String id = PlotManager.getPlotId(b.getLocation());
 				Player p = event.getPlayer();
 
@@ -162,7 +167,7 @@ public class PlotListener implements Listener {
 	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
 		if (!event.getPlayer().hasPermission("plotme.admin.buildanywhere")) {
 			Block b = event.getBlockClicked();
-			if (PlotManager.isPlotWorld(b)) {
+			if (isPlotWorld(b)) {
 				String id = PlotManager.getPlotId(b.getLocation());
 				Player p = event.getPlayer();
 
@@ -187,7 +192,7 @@ public class PlotListener implements Listener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Block b = event.getClickedBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			PlotMapInfo pmi = PlotManager.getMap(b);
 			boolean blocked = false;
 			Player player = event.getPlayer();
@@ -288,7 +293,7 @@ public class PlotListener implements Listener {
 	public void onBlockSpread(BlockSpreadEvent event) {
 		Block b = event.getBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			String id = PlotManager.getPlotId(b.getLocation());
 
 			if (id.equalsIgnoreCase("")) {
@@ -301,7 +306,7 @@ public class PlotListener implements Listener {
 	public void onBlockForm(BlockFormEvent event) {
 		Block b = event.getBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			String id = PlotManager.getPlotId(b.getLocation());
 
 			if (id.equalsIgnoreCase("")) {
@@ -315,7 +320,7 @@ public class PlotListener implements Listener {
 	public void onBlockDamage(BlockDamageEvent event) {
 		Block b = event.getBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			String id = PlotManager.getPlotId(b.getLocation());
 
 			if (id.equalsIgnoreCase("")) {
@@ -328,7 +333,7 @@ public class PlotListener implements Listener {
 	public void onBlockFade(BlockFadeEvent event) {
 		Block b = event.getBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			String id = PlotManager.getPlotId(b.getLocation());
 
 			if (id.equalsIgnoreCase("")) {
@@ -341,7 +346,7 @@ public class PlotListener implements Listener {
 	public void onBlockFromTo(BlockFromToEvent event) {
 		Block b = event.getToBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			String id = PlotManager.getPlotId(b.getLocation());
 
 			if (id.equalsIgnoreCase("")) {
@@ -354,7 +359,7 @@ public class PlotListener implements Listener {
 	public void onBlockGrow(BlockGrowEvent event) {
 		Block b = event.getBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			String id = PlotManager.getPlotId(b.getLocation());
 
 			if (id.equalsIgnoreCase("")) {
@@ -365,7 +370,7 @@ public class PlotListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onBlockPistonExtend(BlockPistonExtendEvent event) {
-		if (PlotManager.isPlotWorld(event.getBlock())) {
+		if (isPlotWorld(event.getBlock())) {
 			BlockFace face = event.getDirection();
 
 			for (Block b : event.getBlocks()) {
@@ -383,7 +388,7 @@ public class PlotListener implements Listener {
 	public void onBlockPistonRetract(BlockPistonRetractEvent event) {
 		Block b = event.getRetractLocation().getBlock();
 
-		if (PlotManager.isPlotWorld(b) && event.getBlock().getType() == Material.PISTON_STICKY_BASE) {
+		if (isPlotWorld(b) && event.getBlock().getType() == Material.PISTON_STICKY_BASE) {
 			String id = PlotManager.getPlotId(b.getLocation());
 
 			if (id.equalsIgnoreCase("")) {
@@ -398,7 +403,7 @@ public class PlotListener implements Listener {
 		boolean found = false;
 
 		for (int i = 0; i < blocks.size(); i++) {
-			if (found || PlotManager.isPlotWorld(blocks.get(i))) {
+			if (found || blocks.get(i).getWorld() == Bukkit.getWorld("plotworld")) {
 				found = true;
 				String id = PlotManager.getPlotId(blocks.get(i).getLocation());
 
@@ -455,7 +460,7 @@ public class PlotListener implements Listener {
 	public void onHangingPlace(HangingPlaceEvent event) {
 		Block b = event.getBlock();
 
-		if (PlotManager.isPlotWorld(b)) {
+		if (isPlotWorld(b)) {
 			String id = PlotManager.getPlotId(b.getLocation());
 			Player p = event.getPlayer();
 			boolean canbuild = event.getPlayer().hasPermission("plotme.admin.buildanywhere");

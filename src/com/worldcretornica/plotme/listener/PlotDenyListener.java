@@ -2,6 +2,7 @@ package com.worldcretornica.plotme.listener;
 
 import com.worldcretornica.plotme.Plot;
 import com.worldcretornica.plotme.PlotManager;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,7 +18,7 @@ public class PlotDenyListener implements Listener {
 	public void onPlayerMove(PlayerMoveEvent event) {
 		Player p = event.getPlayer();
 
-		if (PlotManager.isPlotWorld(p) && !p.hasPermission("plotme.admin.bypassdeny")) {
+		if (p.getWorld() == Bukkit.getWorld("plotworld") && !p.hasPermission("plotme.admin.bypassdeny")) {
 			Location to = event.getTo();
 
 			String idTo = PlotManager.getPlotId(to);
@@ -36,7 +37,7 @@ public class PlotDenyListener implements Listener {
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		Player p = event.getPlayer();
 
-		if (PlotManager.isPlotWorld(p) && !p.hasPermission("plotme.admin.bypassdeny")) {
+		if (p.getWorld() == Bukkit.getWorld("plotworld") && !p.hasPermission("plotme.admin.bypassdeny")) {
 			Location to = event.getTo();
 
 			String idTo = PlotManager.getPlotId(to);
@@ -55,7 +56,7 @@ public class PlotDenyListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
 
-		if (PlotManager.isPlotWorld(p) && !p.hasPermission("plotme.admin.bypassdeny")) {
+		if (p.getWorld() == Bukkit.getWorld("plotworld") && !p.hasPermission("plotme.admin.bypassdeny")) {
 			String id = PlotManager.getPlotId(p);
 
 			if (!id.equalsIgnoreCase("")) {

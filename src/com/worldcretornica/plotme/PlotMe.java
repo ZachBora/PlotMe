@@ -19,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.InputStream;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -244,7 +245,6 @@ public class PlotMe extends JavaPlugin {
 
 	public static int getPlotLimit(Player p) {
 		int max = -2;
-
 		int maxlimit = 255;
 
 		if (p.hasPermission("plotme.limit.*")) {
@@ -255,7 +255,6 @@ public class PlotMe extends JavaPlugin {
 				max = ctr;
 			}
 		}
-
 		if (max == -2) {
 			if (p.hasPermission("plotme.admin")) {
 				return -1;
@@ -265,7 +264,6 @@ public class PlotMe extends JavaPlugin {
 				return 0;
 			}
 		}
-
 		return max;
 	}
 
@@ -294,7 +292,7 @@ public class PlotMe extends JavaPlugin {
 		return cal.get(Calendar.YEAR) + "-" + month + "-" + day;
 	}
 
-	public static String getDate(java.sql.Date expireddate) {
+	public static String getDate(Date expireddate) {
 		return expireddate.toString();
 	}
 
