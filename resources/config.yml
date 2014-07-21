@@ -2,7 +2,6 @@ plotworld:
   PlotAutoLimit: 1000
   PathWidth: 7
   PlotSize: 32
-  BottomBlockId: '7'
   WallBlockId: '44'
   PlotFloorBlockId: '2'
   PlotFillingBlockId: '3'
@@ -64,5 +63,4 @@ economy:
   ProtectPrice: 0.0
   DisposePrice: 0.0
 globalUseEconomy: false
-allowWorldTeleport: true
 allowToDeny: true

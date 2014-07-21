@@ -31,7 +31,7 @@ public class PlotGen extends ChunkGenerator {
 		floor1 = 5;
 		floor2 = 5;
 		temppmi = null;
-		PlotMe.logger.warning(PlotMe.PREFIX + " Unable to find configuration, using defaults");
+		PlotMe.logger.warning("Unable to find configuration, using defaults");
 	}
 
 	public PlotGen(PlotMapInfo pmi) {

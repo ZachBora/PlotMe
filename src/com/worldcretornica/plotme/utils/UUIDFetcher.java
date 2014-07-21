@@ -1,11 +1,9 @@
 package com.worldcretornica.plotme.utils;
- 
-import com.google.common.collect.ImmutableList;
 
+import com.google.common.collect.ImmutableList;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
- 
 
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -33,8 +31,8 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
  
     @Override
     public Map<String, UUID> call() throws Exception {
-        Map<String, UUID> uuidMap = new HashMap<String, UUID>();
-        int requests = (int) Math.ceil(names.size() / PROFILES_PER_REQUEST);
+	    Map<String, UUID> uuidMap = new HashMap<>();
+	    int requests = (int) Math.ceil(names.size() / PROFILES_PER_REQUEST);
         for (int i = 0; i < requests; i++) {
             HttpURLConnection connection = createConnection();
             String body = JSONArray.toJSONString(names.subList(i * 100, Math.min((i + 1) * 100, names.size())));

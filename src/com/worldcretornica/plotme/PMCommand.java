@@ -17,6 +17,7 @@ import java.util.*;
 import static com.worldcretornica.plotme.PlotMe.*;
 
 public class PMCommand implements CommandExecutor {
+	public static final World PLOTWORLD = Bukkit.getWorld("plotworld");
 	private final PlotMe plugin;
 
 	public PMCommand(PlotMe instance) {
@@ -25,24 +26,26 @@ public class PMCommand implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (label.equalsIgnoreCase("plotme") || label.equalsIgnoreCase("plot") || label.equalsIgnoreCase("p")) {
+		if (label.equalsIgnoreCase("plotme")) {
 			if (!(sender instanceof Player)) {
-				if (args.length == 0 || args[0].equalsIgnoreCase("1")) {
-					sender.sendMessage(caption("ConsoleHelpMain"));
-					sender.sendMessage(" - /plotme reload");
-					sender.sendMessage(caption("ConsoleHelpReload"));
+				//<editor-fold desc="Console Reload Help Message">
+				if (args.length == 0) {
+					sender.sendMessage("To reload PlotMe use the command : \"plotme reload\"");
 					return true;
-				} else {
-					String a0 = args[0];
-					if (a0.equalsIgnoreCase("reload")) {
-						return reload(sender, args);
+				}
+				// </editor-fold>
+				// <editor-fold desc="Reload from console">
+				else {
+					if (args[0].equalsIgnoreCase("reload")) {
+						return reload(sender);
 					}
 				}
+				//</editor-fold>
 			} else {
-				Player p = (Player) sender;
+				Player player = (Player) sender;
 
 				if (args.length == 0) {
-					return showhelp(p, 1);
+					return showhelp(player, 1);
 				} else {
 					String a0 = args[0];
 					int ipage = -1;
@@ -53,7 +56,7 @@ public class PMCommand implements CommandExecutor {
 					}
 
 					if (ipage != -1) {
-						return showhelp(p, ipage);
+						return showhelp(player, ipage);
 					} else {
 						if (a0.equalsIgnoreCase(caption("CommandHelp"))) {
 							ipage = -1;
@@ -69,144 +72,133 @@ public class PMCommand implements CommandExecutor {
 							}
 
 							if (ipage != -1) {
-								return showhelp(p, ipage);
+								return showhelp(player, ipage);
 							} else {
-								return showhelp(p, 1);
+								return showhelp(player, 1);
 							}
 						}
 						if (a0.equalsIgnoreCase(caption("CommandClaim"))) {
-							return claim(p, args);
+							return claim(player, args);
 						}
 						if (a0.equalsIgnoreCase("auto")) {
-							return auto(p, args);
+							return auto(player, args);
 						}
 						if (a0.equalsIgnoreCase("info") || a0.equalsIgnoreCase("i")) {
-							return info(p);
+							return info(player);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandComment"))) {
-							return comment(p, args);
+							return comment(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandComments")) || a0.equalsIgnoreCase("command")) {
-							return comments(p, args);
+							return comments(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandBiome")) || a0.equalsIgnoreCase("b")) {
-							return biome(p, args);
+							return biome(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandBiomelist"))) {
-							return biomelist(p, args);
+							return biomelist(player);
 						}
 						if (a0.equalsIgnoreCase("id")) {
-							return id(p, args);
+							return id(player);
 						}
-						if (a0.equalsIgnoreCase(caption("CommandTp"))) {
-							return tp(p, args);
+						if (a0.equalsIgnoreCase("tp")) {
+							return tp(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandClear"))) {
-							return clear(p, args);
+							return clear(player);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandReset"))) {
-							return reset(p, args);
+							return reset(player);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandAdd")) || a0.equalsIgnoreCase("+")) {
-							return add(p, args);
+							return add(player, args);
 						}
 						if (allowToDeny) {
-							if (a0.equalsIgnoreCase(caption("CommandDeny"))) {
-								return deny(p, args);
+							if (a0.equalsIgnoreCase("deny")) {
+								return deny(player, args);
 							}
-							if (a0.equalsIgnoreCase(caption("CommandUndeny"))) {
-								return undeny(p, args);
+							if (a0.equalsIgnoreCase("undeny")) {
+								return undeny(player, args);
 							}
 						}
 						if (a0.equalsIgnoreCase(caption("CommandRemove")) || a0.equalsIgnoreCase("-")) {
-							return remove(p, args);
+							return remove(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandSetowner")) || a0.equalsIgnoreCase("o")) {
-							return setowner(p, args);
+							return setowner(player, args);
 						}
-						if (a0.equalsIgnoreCase(caption("CommandMove")) || a0.equalsIgnoreCase("m")) {
-							return move(p, args);
+						if (a0.equalsIgnoreCase("move") || a0.equalsIgnoreCase("m")) {
+							return move(player, args);
 						}
 						if (a0.equalsIgnoreCase("reload")) {
-							return reload(sender, args);
+							return reload(sender);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandList"))) {
-							return plotlist(p, args);
+							return plotlist(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandExpired"))) {
-							return expired(p, args);
+							return expired(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandAddtime"))) {
-							return addtime(p, args);
+							return addtime(player);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandDone"))) {
-							return done(p, args);
+							return done(player);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandDoneList"))) {
-							return donelist(p, args);
+							return donelist(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandProtect"))) {
-							return protect(p, args);
+							return protect(player);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandSell"))) {
-							return sell(p, args);
+							return sell(player, args);
 						}
 						if (a0.equalsIgnoreCase(caption("CommandDispose"))) {
-							return dispose(p, args);
+							return dispose(player);
 						}
-						if (a0.equalsIgnoreCase(caption("CommandAuction"))) {
-							return auction(p, args);
+						if (a0.equalsIgnoreCase("auction")) {
+							return auction(player, args);
 						}
-						if (a0.equalsIgnoreCase(caption("CommandBuy"))) {
-							return buy(p);
+						if (a0.equalsIgnoreCase("buy")) {
+							return buy(player);
 						}
 						if (a0.equalsIgnoreCase("bid")) {
-							return bid(p, args);
+							return bid(player, args);
 						}
 						if (a0.startsWith("home")) {
-							return home(p, args);
+							return home(player, args);
 						}
 						if (a0.equalsIgnoreCase("resetexpired")) {
-							return resetexpired(p, args);
+							return resetexpired(player);
 						}
 					}
 				}
 			}
+			//</editor-fold>
 		}
 		return false;
 	}
 
-	private boolean resetexpired(Player player, String[] args) {
+	private boolean resetexpired(Player player) {
 		if (player.hasPermission("PlotMe.admin.resetexpired")) {
-			if (args.length <= 1) {
-				player.sendMessage("Usage: /plotme resetexpired <world>");
-				player.sendMessage("Example: /plotme resetexpired plotworld");
+			if (worldcurrentlyprocessingexpired != null) {
+				player.sendMessage(cscurrentlyprocessingexpired.getName() + " " + caption("MsgAlreadyProcessingPlots"));
 			} else {
-				if (worldcurrentlyprocessingexpired != null) {
-					player.sendMessage(cscurrentlyprocessingexpired.getName() + " "+ caption("MsgAlreadyProcessingPlots"));
-				} else {
-					World w = player.getServer().getWorld(args[1]);
-
-					if (w == null) {
-						player.sendMessage("World \"" + args[1] + "\" " + caption("MsgDoesNotExistOrNotLoaded"));
-						return true;
-					} else {
-						if (!PlotManager.isPlotWorld(w)) {
-							player.sendMessage(caption("MsgNotPlotworld"));
-							return true;
-						} else {
-							worldcurrentlyprocessingexpired = w;
-							cscurrentlyprocessingexpired = player;
-							counterexpired = 50;
-							nbperdeletionprocessingexpired = 5;
-
-							plugin.scheduleTask(new PlotRunnableDeleteExpire());
-						}
-					}
+				if (PLOTWORLD == null) {
+					player.sendMessage("World \"plotworld\" " + caption("MsgDoesNotExistOrNotLoaded"));
+					return false;
 				}
+				worldcurrentlyprocessingexpired = PLOTWORLD;
+				cscurrentlyprocessingexpired = player;
+				counterexpired = 50;
+				nbperdeletionprocessingexpired = 5;
+
+				plugin.scheduleTask(new PlotRunnableDeleteExpire());
 			}
 		} else {
 			player.sendMessage(caption("MsgPermissionDenied"));
+			return false;
 		}
 		return true;
 	}
@@ -218,82 +210,78 @@ public class PMCommand implements CommandExecutor {
 
 				if (id.isEmpty()) {
 					p.sendMessage(caption("MsgNoPlotFound"));
-				} else {
-					if (!PlotManager.isPlotAvailable(id, p)) {
-						Plot plot = PlotManager.getPlotById(p, id);
+				} else if (!PlotManager.isPlotAvailable(id, p)) {
+					Plot plot = PlotManager.getPlotById(p, id);
 
-						if (plot.auctionned) {
-							String bidder = p.getName();
+					if (plot.auctionned) {
+						String bidder = p.getName();
 
-							if (plot.owner.equalsIgnoreCase(bidder)) {
-								p.sendMessage(caption("MsgCannotBidOwnPlot"));
+						if (plot.owner.equalsIgnoreCase(bidder)) {
+							p.sendMessage(caption("MsgCannotBidOwnPlot"));
+						} else if (args.length == 2) {
+							double bid = 0;
+							double currentbid = plot.currentbid;
+							String currentbidder = plot.currentbidder;
+
+							try {
+								bid = Double.parseDouble(args[1]);
+							} catch (NumberFormatException ignored) {
+							}
+
+							if (bid < currentbid || (bid == currentbid && !currentbidder.isEmpty())) {
+								p.sendMessage(caption("MsgInvalidBidMustBeAbove") + " " + f(plot.currentbid, false));
 							} else {
-								if (args.length == 2) {
-									double bid = 0;
-									double currentbid = plot.currentbid;
-									String currentbidder = plot.currentbidder;
+								double balance = economy.getBalance(bidder);
 
-									try {
-										bid = Double.parseDouble(args[1]);
-									} catch (NumberFormatException ignored) {
-									}
+								if (bid >= balance && !currentbidder.equals(bidder) ||
+										currentbidder.equals(bidder) && bid > (balance + currentbid)) {
+									p.sendMessage(caption("MsgNotEnoughBid"));
+								} else {
+									EconomyResponse er = economy.withdrawPlayer(bidder, bid);
 
-									if (bid < currentbid || (bid == currentbid && !currentbidder.isEmpty())) {
-										p.sendMessage(caption("MsgInvalidBidMustBeAbove") + " " + f(plot.currentbid, false));
-									} else {
-										double balance = economy.getBalance(bidder);
+									if (er.transactionSuccess()) {
+										if (!currentbidder.isEmpty()) {
+											EconomyResponse er2 = economy.depositPlayer(currentbidder, currentbid);
 
-										if (bid >= balance && !currentbidder.equals(bidder) ||
-												currentbidder.equals(bidder) && bid > (balance + currentbid)) {
-											p.sendMessage(caption("MsgNotEnoughBid"));
-										} else {
-											EconomyResponse er = economy.withdrawPlayer(bidder, bid);
-
-											if (er.transactionSuccess()) {
-												if (!currentbidder.isEmpty()) {
-													EconomyResponse er2 = economy.depositPlayer(currentbidder, currentbid);
-
-													if (!er2.transactionSuccess()) {
-														p.sendMessage(er2.errorMessage);
-														warn(er2.errorMessage);
-													} else {
-														for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-															if (player.getName().equalsIgnoreCase(currentbidder)) {
-																player.sendMessage(caption("MsgOutbidOnPlot") + " " + id + " " + caption("MsgOwnedBy") + " " + plot.owner + ". " + f(bid));
-																break;
-															}
-														}
+											if (!er2.transactionSuccess()) {
+												p.sendMessage(er2.errorMessage);
+												warn(er2.errorMessage);
+											} else {
+												for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+													if (player.getName().equalsIgnoreCase(currentbidder)) {
+														player.sendMessage(caption("MsgOutbidOnPlot") + " " + id + " " + caption("MsgOwnedBy") + " " + plot.owner + ". " + f(bid));
+														break;
 													}
 												}
-
-												plot.currentbidder = bidder;
-												plot.currentbid = bid;
-
-												plot.updateField("currentbidder", bidder);
-												plot.updateField("currentbid", bid);
-
-												PlotManager.setSellSign(p.getWorld(), plot);
-
-												p.sendMessage(caption("MsgBidAccepted") + " " + f(-bid));
-
-												logger.info("[PlotMe Event] " + bidder + " bid " + bid + " on plot " + id);
-											} else {
-												p.sendMessage(er.errorMessage);
-												warn(er.errorMessage);
 											}
 										}
+
+										plot.currentbidder = bidder;
+										plot.currentbid = bid;
+
+										plot.updateField("currentbidder", bidder);
+										plot.updateField("currentbid", bid);
+
+										PlotManager.setSellSign(p.getWorld(), plot);
+
+										p.sendMessage(caption("MsgBidAccepted") + " " + f(-bid));
+
+										logger.info("[Event] " + bidder + " bid " + bid + " on plot " + id);
+									} else {
+										p.sendMessage(er.errorMessage);
+										warn(er.errorMessage);
 									}
-								} else {
-									p.sendMessage("Usage: /plotme bid <amount> ");
-									p.sendMessage("Example: /plotme bid 100");
 								}
 							}
 						} else {
-							p.sendMessage(caption("MsgPlotNotAuctionned"));
+							p.sendMessage("Usage: /plotme bid <amount> ");
+							p.sendMessage("Example: /plotme bid 100");
 						}
 					} else {
-						p.sendMessage("This plot(" + id + ") " + caption("MsgHasNoOwner"));
+						p.sendMessage(caption("MsgPlotNotAuctionned"));
 					}
+				} else {
+					p.sendMessage("This plot(" + id + ") " + caption("MsgHasNoOwner"));
 				}
 			} else {
 				p.sendMessage(caption("MsgPermissionDenied"));
@@ -374,7 +362,7 @@ public class PMCommand implements CommandExecutor {
 
 											Send(p, caption("MsgPlotBought") + " " + f(-cost));
 
-											logger.info("[PlotMe Event] " + buyer + " " + caption("MsgBoughtPlot") + " " + id + " for " + cost);
+											logger.info("[Event] " + buyer + " " + caption("MsgBoughtPlot") + " " + id + " for " + cost);
 										} else {
 											Send(p, er.errorMessage);
 											warn(er.errorMessage);
@@ -447,7 +435,7 @@ public class PMCommand implements CommandExecutor {
 
 										Send(p, caption("MsgAuctionCancelled"));
 
-										logger.info("[PlotMe Event] " + name + " " + caption("MsgStoppedTheAuctionOnPlot") + " " + id);
+										logger.info("[Event] " + name + " " + caption("MsgStoppedTheAuctionOnPlot") + " " + id);
 									}
 								} else {
 									double bid = 1;
@@ -472,7 +460,7 @@ public class PMCommand implements CommandExecutor {
 
 										Send(p, caption("MsgAuctionStarted"));
 
-										logger.info("[PlotMe Event] " + name + " " + caption("MsgStartedAuctionOnPlot") + " " + id + " at " + bid);
+										logger.info("[Event] " + name + " " + caption("MsgStartedAuctionOnPlot") + " " + id + " at " + bid);
 									}
 								}
 							} else {
@@ -494,7 +482,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean dispose(Player p, String[] args) {
+	private boolean dispose(Player p) {
 		if (p.hasPermission("PlotMe.admin.dispose") || p.hasPermission("PlotMe.use.dispose")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, caption("MsgNotPlotWorld"));
@@ -564,7 +552,7 @@ public class PMCommand implements CommandExecutor {
 
 								Send(p, caption("MsgPlotDisposedAnyoneClaim"));
 
-								logger.info("[PlotMe Event] " + name + " " + caption("MsgDisposedPlot") + " " + id);
+								logger.info("[Event] " + name + " " + caption("MsgDisposedPlot") + " " + id);
 							} else {
 								Send(p, "This plot(" + id + ") " + caption("MsgNotYoursCannotDispose"));
 							}
@@ -611,7 +599,7 @@ public class PMCommand implements CommandExecutor {
 
 									Send(p, caption("MsgPlotNoLongerSale"));
 
-									logger.info("[PlotMe Event] " + name + " " + caption("MsgRemovedPlot") + " " + id + " " + caption("MsgFromBeingSold"));
+									logger.info("[Event] " + name + " " + caption("MsgRemovedPlot") + " " + id + " " + caption("MsgFromBeingSold"));
 								} else {
 									double price = pmi.SellToPlayerPrice;
 									boolean bank = false;
@@ -690,7 +678,7 @@ public class PMCommand implements CommandExecutor {
 
 												Send(p, caption("MsgPlotSold") + " " + f(sellprice));
 
-												logger.info("[PlotMe Event] " + name + " " + caption("MsgSoldToBankPlot") + " " + id + " for " + sellprice);
+												logger.info("[Event] " + name + " " + caption("MsgSoldToBankPlot") + " " + id + " for " + sellprice);
 											} else {
 												Send(p, " " + er.errorMessage);
 												warn(er.errorMessage);
@@ -711,7 +699,7 @@ public class PMCommand implements CommandExecutor {
 
 											Send(p, caption("MsgPlotForSale"));
 
-											logger.info("[PlotMe Event] " + name + " " + caption("MsgPutOnSalePlot") + " " + id + " for " + price);
+											logger.info("[Event] " + name + " " + caption("MsgPutOnSalePlot") + " " + id + " for " + price);
 										}
 									}
 								}
@@ -734,7 +722,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean protect(Player p, String[] args) {
+	private boolean protect(Player p) {
 		if (p.hasPermission("PlotMe.admin.protect") || p.hasPermission("PlotMe.use.protect")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, caption("MsgNotPlotWorld"));
@@ -759,7 +747,7 @@ public class PMCommand implements CommandExecutor {
 
 								Send(p, caption("MsgPlotNoLongerProtected"));
 
-								logger.info("[PlotMe Event] " + name + " " + caption("MsgUnprotectedPlot") + " " + id);
+								logger.info("[Event] " + name + " " + caption("MsgUnprotectedPlot") + " " + id);
 							} else {
 								PlotMapInfo pmi = PlotManager.getMap(p);
 
@@ -790,7 +778,7 @@ public class PMCommand implements CommandExecutor {
 
 								Send(p, caption("MsgPlotNowProtected") + " " + f(-cost));
 
-								logger.info("[PlotMe Event] " + name + " " + caption("MsgProtectedPlot") + " " + id);
+								logger.info("[Event] " + name + " " + caption("MsgProtectedPlot") + " " + id);
 
 							}
 						} else {
@@ -826,7 +814,7 @@ public class PMCommand implements CommandExecutor {
 				if (args.length == 2) {
 					try {
 						page = Integer.parseInt(args[1]);
-					} catch (NumberFormatException ex) {
+					} catch (NumberFormatException ignored) {
 					}
 				}
 
@@ -867,7 +855,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean done(Player p, String[] args) {
+	private boolean done(Player p) {
 		if (p.hasPermission("PlotMe.use.done") || p.hasPermission("PlotMe.admin.done")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, caption("MsgNotPlotWorld"));
@@ -887,12 +875,12 @@ public class PMCommand implements CommandExecutor {
 								plot.setUnfinished();
 								Send(p, caption("MsgUnmarkFinished"));
 
-								logger.info("[PlotMe Event] " + name + " " + caption("WordMarked") + " " + id + " " + caption("WordFinished"));
+								logger.info("[Event] " + name + " marked " + id + " finished");
 							} else {
 								plot.setFinished();
 								Send(p, caption("MsgMarkFinished"));
 
-								logger.info("[PlotMe Event] " + name + " " + caption("WordMarked") + " " + id + " " + caption("WordUnfinished"));
+								logger.info("[Event] " + name + " marked " + id + " unfinished");
 							}
 						}
 					} else {
@@ -906,7 +894,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean addtime(Player p, String[] args) {
+	private boolean addtime(Player p) {
 		if (p.hasPermission("PlotMe.admin.addtime")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, caption("MsgNotPlotWorld"));
@@ -926,7 +914,7 @@ public class PMCommand implements CommandExecutor {
 							plot.resetExpire(PlotManager.getMap(p).DaysToExpiration);
 							Send(p, caption("MsgPlotExpirationReset"));
 
-							logger.info("[PlotMe Event] " + name + " reset expiration on plot " + id);
+							logger.info("[Event] " + name + " reset expiration on plot " + id);
 						}
 					} else {
 						Send(p, "This plot(" + id + ") " + caption("MsgHasNoOwner"));
@@ -1048,9 +1036,9 @@ public class PMCommand implements CommandExecutor {
 							}
 
 							if (name.equalsIgnoreCase(pname)) {
-								p.sendMessage("  " + plot.id + " -> Yours" + addition + ", " + caption("WordHelpers") + ": " + helpers);
+								p.sendMessage("  " + plot.id + " -> Yours" + addition + ", Helpers: " + helpers);
 							} else {
-								p.sendMessage("  " + plot.id + " -> " + plot.owner + addition + ", " + caption("WordHelpers") + ": " + helpers);
+								p.sendMessage("  " + plot.id + " -> " + plot.owner + addition + ", Helpers: " + helpers);
 							}
 						}
 					} else if (plot.isAllowedConsulting(name)) {
@@ -1071,9 +1059,9 @@ public class PMCommand implements CommandExecutor {
 						}
 
 						if (plot.owner.equalsIgnoreCase(pname)) {
-							p.sendMessage("  " + plot.id + " -> Yours" + addition + ", " + caption("WordHelpers") + ": " + helpers);
+							p.sendMessage("  " + plot.id + " -> Yours" + addition + ", Helpers: " + helpers);
 						} else {
-							p.sendMessage("  " + plot.id + " -> " + plot.owner + caption("WordPossessive") + addition + ", " + caption("WordHelpers") + ": " + helpers);
+							p.sendMessage("  " + plot.id + " -> " + plot.owner + "'s" + addition + ", Helpers: " + helpers);
 						}
 					}
 				}
@@ -1220,73 +1208,57 @@ public class PMCommand implements CommandExecutor {
 			String allowedcmd = allowed_commands.get(ctr);
 
 			if (allowedcmd.equalsIgnoreCase("limit")) {
-				if (PlotManager.isPlotWorld(p) || allowWorldTeleport) {
-					World w = null;
+				World w;
 
-					if (PlotManager.isPlotWorld(p)) {
-						w = p.getWorld();
-					} else if (allowWorldTeleport) {
-						w = PlotManager.getFirstWorld();
-					}
-
-					int maxplots = getPlotLimit(p);
-					int ownedplots = PlotManager.getNbOwnedPlot(p, w);
-
-					if (maxplots == -1) {
-						p.sendMessage(caption("HelpYourPlotLimitWorld") + " : " + ownedplots + " " + caption("HelpUsedOf") + " " + caption("WordInfinite"));
-					} else {
-						p.sendMessage(caption("HelpYourPlotLimitWorld") + " : " + ownedplots + " " + caption("HelpUsedOf") + " " + maxplots);
-					}
+				if (PlotManager.isPlotWorld(p)) {
+					w = p.getWorld();
 				} else {
-					p.sendMessage(caption("HelpYourPlotLimitWorld") + " : " + caption("MsgNotPlotWorld"));
+					w = PLOTWORLD;
+				}
+
+				int maxplots = getPlotLimit(p);
+				int ownedplots = PlotManager.getNbOwnedPlot(p, w);
+
+				if (maxplots == -1) {
+					p.sendMessage(caption("HelpYourPlotLimitWorld") + " : " + ownedplots + " " + caption("HelpUsedOf") + " Infinite");
+				} else {
+					p.sendMessage(caption("HelpYourPlotLimitWorld") + " : " + ownedplots + " " + caption("HelpUsedOf") + " " + maxplots);
 				}
 			} else if (allowedcmd.equalsIgnoreCase("claim")) {
 				p.sendMessage(" /plotme " + caption("CommandClaim"));
 				if (ecoon && pmi != null && pmi.ClaimPrice != 0) {
-					p.sendMessage(" " + caption("HelpClaim") + " " + caption("WordPrice") + " : " + round(pmi.ClaimPrice));
+					p.sendMessage(" " + caption("HelpClaim") + " Price : " + round(pmi.ClaimPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpClaim"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("claim.other")) {
-				p.sendMessage(" /plotme " + caption("CommandClaim") + " <" + caption("WordPlayer") + ">");
+				p.sendMessage(" /plotme " + caption("CommandClaim") + " <Player>");
 				if (ecoon && pmi != null && pmi.ClaimPrice != 0) {
-					p.sendMessage(" " + caption("HelpClaimOther") + " " + caption("WordPrice") + " : " + round(pmi.ClaimPrice));
+					p.sendMessage(" " + caption("HelpClaimOther") + " Price : " + round(pmi.ClaimPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpClaimOther"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("auto")) {
-				if (allowWorldTeleport) {
-					p.sendMessage(" /plotme auto [World]");
-				} else {
-					p.sendMessage(" /plotme auto");
-				}
+				p.sendMessage(" /plotme auto");
 
 				if (ecoon && pmi != null && pmi.ClaimPrice != 0) {
-					p.sendMessage(" " + caption("HelpAuto") + " " + caption("WordPrice") + " : " + round(pmi.ClaimPrice));
+					p.sendMessage(" " + caption("HelpAuto") + " Price : " + round(pmi.ClaimPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpAuto"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("home")) {
-				if (allowWorldTeleport) {
-					p.sendMessage(" /plotme home[:#] [World]");
-				} else {
-					p.sendMessage(" /plotme home[:#]");
-				}
+				p.sendMessage(" /plotme home[:#]");
 
 				if (ecoon && pmi != null && pmi.PlotHomePrice != 0) {
-					p.sendMessage(" " + caption("HelpHome") + " " + caption("WordPrice") + " : " + round(pmi.PlotHomePrice));
+					p.sendMessage(" " + caption("HelpHome") + " Price : " + round(pmi.PlotHomePrice));
 				} else {
 					p.sendMessage(" " + caption("HelpHome"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("home.other")) {
-				if (allowWorldTeleport) {
-					p.sendMessage(" /plotme home[:#] <" + caption("WordPlayer") + "> [World]");
-				} else {
-					p.sendMessage(" /plotme home[:#] <" + caption("WordPlayer") + ">");
-				}
+				p.sendMessage(" /plotme home[:#] <Player>");
 
 				if (ecoon && pmi != null && pmi.PlotHomePrice != 0) {
-					p.sendMessage(" " + caption("HelpHomeOther") + " " + caption("WordPrice") + " : " + round(pmi.PlotHomePrice));
+					p.sendMessage(" " + caption("HelpHomeOther") + " Price : " + round(pmi.PlotHomePrice));
 				} else {
 					p.sendMessage(" " + caption("HelpHomeOther"));
 				}
@@ -1294,9 +1266,9 @@ public class PMCommand implements CommandExecutor {
 				p.sendMessage(" /plotme info");
 				p.sendMessage(" " + caption("HelpInfo"));
 			} else if (allowedcmd.equalsIgnoreCase("comment")) {
-				p.sendMessage(" /plotme " + caption("CommandComment") + " <" + caption("WordComment") + ">");
+				p.sendMessage(" /plotme " + caption("CommandComment") + " <comment>");
 				if (ecoon && pmi != null && pmi.AddCommentPrice != 0) {
-					p.sendMessage(" " + caption("HelpComment") + " " + caption("WordPrice") + " : " + round(pmi.AddCommentPrice));
+					p.sendMessage(" " + caption("HelpComment") + " Price : " + round(pmi.AddCommentPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpComment"));
 				}
@@ -1307,15 +1279,15 @@ public class PMCommand implements CommandExecutor {
 				p.sendMessage(" /plotme " + caption("CommandList"));
 				p.sendMessage(" " + caption("HelpList"));
 			} else if (allowedcmd.equalsIgnoreCase("listother")) {
-				p.sendMessage(" /plotme " + caption("CommandList") + " <" + caption("WordPlayer") + ">");
+				p.sendMessage(" /plotme " + caption("CommandList") + " <Player>");
 				p.sendMessage(" " + caption("HelpListOther"));
 			} else if (allowedcmd.equalsIgnoreCase("biomeinfo")) {
 				p.sendMessage(" /plotme " + caption("CommandBiome"));
 				p.sendMessage(" " + caption("HelpBiomeInfo"));
 			} else if (allowedcmd.equalsIgnoreCase("biome")) {
-				p.sendMessage(" /plotme " + caption("CommandBiome") + " <" + caption("WordBiome") + ">");
+				p.sendMessage(" /plotme " + caption("CommandBiome") + " <biome>");
 				if (ecoon && pmi != null && pmi.BiomeChangePrice != 0) {
-					p.sendMessage(" " + caption("HelpBiome") + " " + caption("WordPrice") + " : " + round(pmi.BiomeChangePrice));
+					p.sendMessage(" " + caption("HelpBiome") + " Price : " + round(pmi.BiomeChangePrice));
 				} else {
 					p.sendMessage(" " + caption("HelpBiome"));
 				}
@@ -1326,12 +1298,7 @@ public class PMCommand implements CommandExecutor {
 				p.sendMessage(" /plotme " + caption("CommandDone"));
 				p.sendMessage(" " + caption("HelpDone"));
 			} else if (allowedcmd.equalsIgnoreCase("tp")) {
-				if (allowWorldTeleport) {
-					p.sendMessage(" /plotme " + caption("CommandTp") + " <id> [World]");
-				} else {
-					p.sendMessage(" /plotme " + caption("CommandTp") + " <id>");
-				}
-
+				p.sendMessage(" /plotme tp <id>");
 				p.sendMessage(" " + caption("HelpTp"));
 			} else if (allowedcmd.equalsIgnoreCase("id")) {
 				p.sendMessage(" /plotme id");
@@ -1339,7 +1306,7 @@ public class PMCommand implements CommandExecutor {
 			} else if (allowedcmd.equalsIgnoreCase("clear")) {
 				p.sendMessage(" /plotme " + caption("CommandClear"));
 				if (ecoon && pmi != null && pmi.ClearPrice != 0) {
-					p.sendMessage(" " + caption("HelpId") + " " + caption("WordPrice") + " : " + round(pmi.ClearPrice));
+					p.sendMessage(" " + caption("HelpId") + " Price : " + round(pmi.ClearPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpClear"));
 				}
@@ -1347,38 +1314,38 @@ public class PMCommand implements CommandExecutor {
 				p.sendMessage(" /plotme " + caption("CommandReset"));
 				p.sendMessage(" " + caption("HelpReset"));
 			} else if (allowedcmd.equalsIgnoreCase("add")) {
-				p.sendMessage(" /plotme " + caption("CommandAdd") + " <" + caption("WordPlayer") + ">");
+				p.sendMessage(" /plotme " + caption("CommandAdd") + " <Player>");
 				if (ecoon && pmi != null && pmi.AddPlayerPrice != 0) {
-					p.sendMessage(" " + caption("HelpAdd") + " " + caption("WordPrice") + " : " + round(pmi.AddPlayerPrice));
+					p.sendMessage(" " + caption("HelpAdd") + " Price : " + round(pmi.AddPlayerPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpAdd"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("deny")) {
-				p.sendMessage(" /plotme " + caption("CommandDeny") + " <" + caption("WordPlayer") + ">");
+				p.sendMessage(" /plotme deny <Player>");
 				if (ecoon && pmi != null && pmi.DenyPlayerPrice != 0) {
-					p.sendMessage(" " + caption("HelpDeny") + " " + caption("WordPrice") + " : " + round(pmi.DenyPlayerPrice));
+					p.sendMessage(" " + caption("HelpDeny") + " Price : " + round(pmi.DenyPlayerPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpDeny"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("remove")) {
-				p.sendMessage(" /plotme " + caption("CommandRemove") + " <" + caption("WordPlayer") + ">");
+				p.sendMessage(" /plotme " + caption("CommandRemove") + " <Player>");
 				if (ecoon && pmi != null && pmi.RemovePlayerPrice != 0) {
-					p.sendMessage(" " + caption("HelpRemove") + " " + caption("WordPrice") + " : " + round(pmi.RemovePlayerPrice));
+					p.sendMessage(" " + caption("HelpRemove") + " Price : " + round(pmi.RemovePlayerPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpRemove"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("undeny")) {
-				p.sendMessage(" /plotme " + caption("CommandUndeny") + " <" + caption("WordPlayer") + ">");
+				p.sendMessage(" /plotme undeny <Player>");
 				if (ecoon && pmi != null && pmi.UndenyPlayerPrice != 0) {
-					p.sendMessage(" " + caption("HelpUndeny") + " " + caption("WordPrice") + " : " + round(pmi.UndenyPlayerPrice));
+					p.sendMessage(" " + caption("HelpUndeny") + " Price : " + round(pmi.UndenyPlayerPrice));
 				} else {
 					p.sendMessage(" " + caption("HelpUndeny"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("setowner")) {
-				p.sendMessage(" /plotme " + caption("CommandSetowner") + " <" + caption("WordPlayer") + ">");
+				p.sendMessage(" /plotme " + caption("CommandSetowner") + " <Player>");
 				p.sendMessage(" " + caption("HelpSetowner"));
 			} else if (allowedcmd.equalsIgnoreCase("move")) {
-				p.sendMessage(" /plotme " + caption("CommandMove") + " <" + caption("WordIdFrom") + "> <" + caption("WordIdTo") + ">");
+				p.sendMessage(" /plotme move <id-from> <id-to>");
 				p.sendMessage(" " + caption("HelpMove"));
 			} else if (allowedcmd.equalsIgnoreCase("expired")) {
 				p.sendMessage(" /plotme " + caption("CommandExpired") + " [page]");
@@ -1400,22 +1367,22 @@ public class PMCommand implements CommandExecutor {
 			} else if (allowedcmd.equalsIgnoreCase("dispose")) {
 				p.sendMessage(" /plotme " + caption("CommandDispose"));
 				if (ecoon && pmi != null && pmi.DisposePrice != 0) {
-					p.sendMessage(" " + caption("HelpDispose") + " " + caption("WordPrice") + " : " + round(pmi.DisposePrice));
+					p.sendMessage(" " + caption("HelpDispose") + " Price : " + round(pmi.DisposePrice));
 				} else {
 					p.sendMessage(" " + caption("HelpDispose"));
 				}
 			} else if (allowedcmd.equalsIgnoreCase("buy")) {
-				p.sendMessage(" /plotme " + caption("CommandBuy"));
+				p.sendMessage(" /plotme buy");
 				p.sendMessage(" " + caption("HelpBuy"));
 			} else if (allowedcmd.equalsIgnoreCase("sell")) {
 				p.sendMessage(" /plotme " + caption("CommandSell") + " [amount]");
-				p.sendMessage(" " + caption("HelpSell") + " " + caption("WordDefault") + " : " + round(pmi.SellToPlayerPrice));
+				p.sendMessage(" " + caption("HelpSell") + " Default : " + round(pmi.SellToPlayerPrice));
 			} else if (allowedcmd.equalsIgnoreCase("sellbank")) {
 				p.sendMessage(" /plotme " + caption("CommandSellBank"));
 				p.sendMessage(" " + caption("HelpSellBank") + " " + round(pmi.SellToBankPrice));
 			} else if (allowedcmd.equalsIgnoreCase("auction")) {
-				p.sendMessage(" /plotme " + caption("CommandAuction") + " [amount]");
-				p.sendMessage(" " + caption("HelpAuction") + " " + caption("WordDefault") + " : 1");
+				p.sendMessage(" /plotme auction [amount]");
+				p.sendMessage(" " + caption("HelpAuction") + " Default : 1");
 			} else if (allowedcmd.equalsIgnoreCase("resetexpired")) {
 				p.sendMessage(" /plotme resetexpired <World>");
 				p.sendMessage(" " + caption("HelpResetExpired"));
@@ -1430,50 +1397,48 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean tp(Player p, String[] args) {
 		if (p.hasPermission("PlotMe.admin.tp")) {
-			if (!PlotManager.isPlotWorld(p) && !allowWorldTeleport) {
-				Send(p, caption("MsgNotPlotWorld"));
-			} else {
-				if (args.length == 2 || (args.length == 3 && allowWorldTeleport)) {
+			if (!PlotManager.isPlotWorld(p)) {
+				if (args.length == 2) {
 					String id = args[1];
 
 					if (!PlotManager.isValidId(id)) {
-						if (allowWorldTeleport) {
-							Send(p, "Usage: /plotme " + caption("CommandTp") + " <id> [World] Example: /plotme " + caption("CommandTp") + " 5;-1 ");
-						} else {
-							Send(p, "Usage: /plotme " + caption("CommandTp") + " <id> Example: /plotme " + caption("CommandTp") + " 5;-1 ");
-						}
-						return true;
+						p.sendMessage("Usage: /plotme tp <id>");
+						p.sendMessage("Example: /plotme tp 5;-1 ");
+						return false;
+					}
+					World world = PLOTWORLD;
+
+					if (world == null) {
+						p.sendMessage(caption("MsgNoPlotworldFound"));
 					} else {
-						World w;
+						Location bottom = PlotManager.getPlotBottomLoc(world, id);
+						Location top = PlotManager.getPlotTopLoc(world, id);
 
-						if (args.length == 3) {
-							String world = args[2];
-
-							w = Bukkit.getWorld(world);
-						} else {
-							if (!PlotManager.isPlotWorld(p)) {
-								w = PlotManager.getFirstWorld();
-							} else {
-								w = p.getWorld();
-							}
-						}
-
-						if (w == null || !PlotManager.isPlotWorld(w)) {
-							Send(p, caption("MsgNoPlotworldFound"));
-						} else {
-							Location bottom = PlotManager.getPlotBottomLoc(w, id);
-							Location top = PlotManager.getPlotTopLoc(w, id);
-
-							p.teleport(new Location(w, bottom.getX() + (top.getBlockX() - bottom.getBlockX()) / 2, PlotManager.getMap(w).RoadHeight + 2, bottom.getZ() - 2));
-						}
+						p.teleport(new Location(world, bottom.getX() + (top.getBlockX() - bottom.getBlockX()) / 2, PlotManager.getMap(world).RoadHeight + 2, bottom.getZ() - 2));
 					}
 				} else {
-					if (allowWorldTeleport) {
-						Send(p, "Usage: /plotme " + caption("CommandTp") + " <id> [World] Example: /plotme " + caption("CommandTp") + " 5;-1 ");
-					} else {
-						Send(p, "Usage: /plotme " + caption("CommandTp") + " <id> Example: /plotme " + caption("CommandTp") + " 5;-1 ");
-					}
+					Send(p, "Usage: /plotme tp <id> Example: /plotme tp 5;-1 ");
 				}
+			} else if (args.length == 2) {
+				String id = args[1];
+
+				if (!PlotManager.isValidId(id)) {
+					Send(p, "Usage: /plotme tp <id> Example: /plotme tp 5;-1 ");
+					return false;
+				}
+				World w = p.getWorld();
+
+				if (w == null || !(w == PLOTWORLD)) {
+					Send(p, caption("MsgNoPlotworldFound"));
+					return false;
+				} else {
+					Location bottom = PlotManager.getPlotBottomLoc(w, id);
+					Location top = PlotManager.getPlotTopLoc(w, id);
+
+					p.teleport(new Location(w, bottom.getX() + (top.getBlockX() - bottom.getBlockX()) / 2, PlotManager.getMap(w).RoadHeight + 2, bottom.getZ() - 2));
+				}
+			} else {
+				Send(p, "Usage: /plotme tp <id> Example: /plotme tp 5;-1 ");
 			}
 		} else {
 			Send(p, caption("MsgPermissionDenied"));
@@ -1483,84 +1448,80 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean auto(Player p, String[] args) {
 		if (p.hasPermission("PlotMe.use.auto")) {
-			if (!PlotManager.isPlotWorld(p) && !allowWorldTeleport) {
-				Send(p, caption("MsgNotPlotWorld"));
-			} else {
-				World w;
+			World w;
 
-				if (!PlotManager.isPlotWorld(p) && allowWorldTeleport) {
-					if (args.length == 2) {
-						w = Bukkit.getWorld(args[1]);
-					} else {
-						w = PlotManager.getFirstWorld();
-					}
-
-					if (w == null || !PlotManager.isPlotWorld(w)) {
-						Send(p, args[1] + " " + caption("MsgWorldNotPlot"));
-						return true;
-					}
+			if (!PlotManager.isPlotWorld(p)) {
+				if (args.length == 2) {
+					w = Bukkit.getWorld(args[1]);
 				} else {
-					w = p.getWorld();
+					w = PLOTWORLD;
 				}
 
-				if (w == null) {
-					Send(p, caption("MsgNoPlotworldFound"));
+				if (w == null || !(w == PLOTWORLD)) {
+					Send(p, args[1] + " " + caption("MsgWorldNotPlot"));
+					return true;
+				}
+			} else {
+				w = p.getWorld();
+			}
+
+			if (w == null) {
+				Send(p, caption("MsgNoPlotworldFound"));
+			} else {
+				if (PlotManager.getNbOwnedPlot(p, w) >= getPlotLimit(p) && !p.hasPermission("PlotMe.admin")) {
+					Send(p, caption("MsgAlreadyReachedMaxPlots") + " (" +
+							PlotManager.getNbOwnedPlot(p, w) + "/" + getPlotLimit(p) + "). Use /plotme home " + caption("MsgToGetToIt"));
 				} else {
-					if (PlotManager.getNbOwnedPlot(p, w) >= getPlotLimit(p) && !p.hasPermission("PlotMe.admin")) {
-						Send(p, caption("MsgAlreadyReachedMaxPlots") + " (" +
-								PlotManager.getNbOwnedPlot(p, w) + "/" + getPlotLimit(p) + "). Use /plotme home " + caption("MsgToGetToIt"));
-					} else {
-						PlotMapInfo pmi = PlotManager.getMap(w);
-						int limit = pmi.PlotAutoLimit;
+					PlotMapInfo pmi = PlotManager.getMap(w);
+					int limit = pmi.PlotAutoLimit;
 
-						for (int i = 0; i < limit; i++) {
-							for (int x = -i; x <= i; x++) {
-								for (int z = -i; z <= i; z++) {
-									String id = x + ";" + z;
+					for (int i = 0; i < limit; i++) {
+						for (int x = -i; x <= i; x++) {
+							for (int z = -i; z <= i; z++) {
+								String id = x + ";" + z;
 
-									if (PlotManager.isPlotAvailable(id, w)) {
-										String name = p.getName();
-										UUID uuid = p.getUniqueId();
+								if (PlotManager.isPlotAvailable(id, w)) {
+									String name = p.getName();
+									UUID uuid = p.getUniqueId();
 
-										double price = 0;
+									double price = 0;
 
-										if (PlotManager.isEconomyEnabled(w)) {
-											price = pmi.ClaimPrice;
-											double balance = economy.getBalance(name);
+									if (PlotManager.isEconomyEnabled(w)) {
+										price = pmi.ClaimPrice;
+										double balance = economy.getBalance(name);
 
-											if (balance >= price) {
-												EconomyResponse er = economy.withdrawPlayer(name, price);
+										if (balance >= price) {
+											EconomyResponse er = economy.withdrawPlayer(name, price);
 
-												if (!er.transactionSuccess()) {
-													Send(p, er.errorMessage);
-													warn(er.errorMessage);
-													return true;
-												}
-											} else {
-												Send(p, caption("MsgNotEnoughAuto") + " " + caption("WordMissing") + " " + f(price - balance, false));
+											if (!er.transactionSuccess()) {
+												Send(p, er.errorMessage);
+												warn(er.errorMessage);
 												return true;
 											}
+										} else {
+											Send(p, caption("MsgNotEnoughAuto") + " Missing " + f(price - balance, false));
+											return true;
 										}
-
-										Plot plot = PlotManager.createPlot(w, id, name, uuid);
-
-										//PlotManager.adjustLinkedPlots(id, w);
-
-										p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) -
-												PlotManager.bottomX(plot.id, w)) / 2, pmi.RoadHeight + 2, PlotManager.bottomZ(plot.id, w) - 2));
-
-										Send(p, caption("MsgThisPlotYours") + " Use /plotme home " + caption("MsgToGetToIt") + " " + f(-price));
-
-										logger.info("[PlotMe Event] " + name + " " + caption("MsgClaimedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
-
-										return true;
 									}
+
+									Plot plot = PlotManager.createPlot(w, id, name, uuid);
+
+									//PlotManager.adjustLinkedPlots(id, w);
+
+									p.teleport(new Location(w, PlotManager.bottomX(plot.id, w) + (PlotManager.topX(plot.id, w) -
+											PlotManager.bottomX(plot.id, w)) / 2, pmi.RoadHeight + 2, PlotManager.bottomZ(plot.id, w) - 2));
+
+									Send(p, caption("MsgThisPlotYours") + " Use /plotme home " + caption("MsgToGetToIt") + " " + f(-price));
+
+									logger.info("[Event] " + name + " " + caption("MsgClaimedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+
+									return true;
 								}
 							}
 						}
-
-						Send(p, caption("MsgNoPlotFound1") + " " + (limit ^ 2) + " " + caption("MsgNoPlotFound2"));
 					}
+
+					Send(p, caption("MsgNoPlotFound1") + " " + (limit ^ 2) + " " + caption("MsgNoPlotFound2"));
 				}
 			}
 		} else {
@@ -1615,7 +1576,7 @@ public class PMCommand implements CommandExecutor {
 									return true;
 								}
 							} else {
-								Send(p, caption("MsgNotEnoughBuy") + " " + caption("WordMissing") + " " + (price - balance) + " " + economy.currencyNamePlural());
+								Send(p, caption("MsgNotEnoughBuy") + " Missing " + (price - balance) + " " + economy.currencyNamePlural());
 								return true;
 							}
 						}
@@ -1630,10 +1591,10 @@ public class PMCommand implements CommandExecutor {
 							if (playername.equalsIgnoreCase(p.getName())) {
 								Send(p, caption("MsgThisPlotYours") + " Use /plotme home " + caption("MsgToGetToIt") + " " + f(-price));
 							} else {
-								Send(p, caption("MsgThisPlotIsNow") + " " + playername + caption("WordPossessive") + ". Use /plotme home " + caption("MsgToGetToIt") + " " + f(-price));
+								Send(p, "This plot now belongs to " + playername + ". Use /plotme home " + caption("MsgToGetToIt") + " " + f(-price));
 							}
 
-							logger.info("[PlotMe Event] " + playername + " " + caption("MsgClaimedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+							logger.info("[Event] " + playername + " " + caption("MsgClaimedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
 						}
 					}
 				}
@@ -1646,116 +1607,95 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean home(Player p, String[] args) {
 		if (p.hasPermission("PlotMe.use.home") || p.hasPermission("PlotMe.admin.home.other")) {
-			if (!PlotManager.isPlotWorld(p) && !allowWorldTeleport) {
-				Send(p, caption("MsgNotPlotWorld"));
+			String playername = p.getName();
+			UUID uuid = p.getUniqueId();
+			int nb = 1;
+			World w;
+			String worldname = "";
+
+			if (!PlotManager.isPlotWorld(p)) {
+				w = PLOTWORLD;
 			} else {
-				String playername = p.getName();
-				UUID uuid = p.getUniqueId();
-				int nb = 1;
-				World w;
-				String worldname = "";
+				w = p.getWorld();
+			}
 
-				if (!PlotManager.isPlotWorld(p) && allowWorldTeleport) {
-					w = PlotManager.getFirstWorld();
-				} else {
-					w = p.getWorld();
-				}
+			if (w != null) {
+				worldname = w.getName();
+			}
 
-				if (w != null) {
-					worldname = w.getName();
-				}
-
-				if (args[0].contains(":")) {
-					try {
-						if (args[0].split(":").length == 1 || args[0].split(":")[1].isEmpty()) {
-							Send(p, "Usage: /plotme home:# " +
-									"Example: /plotme home:1");
-							return true;
-						} else {
-							nb = Integer.parseInt(args[0].split(":")[1]);
-						}
-					} catch (Exception ex) {
-						Send(p, "Usage: /plotme home:# " +
-								"Example: /plotme home:1");
+			if (args[0].contains(":")) {
+				try {
+					if (args[0].split(":").length == 1 || args[0].split(":")[1].isEmpty()) {
+						p.sendMessage("Usage: /plotme home:#");
+						p.sendMessage("Example: /plotme home:1");
 						return true;
 					}
+					nb = Integer.parseInt(args[0].split(":")[1]);
+				} catch (NumberFormatException ex) {
+					p.sendMessage("Usage: /plotme home:#");
+					p.sendMessage("Example: /plotme home:1");
+					return true;
 				}
+			}
 
-				if (args.length == 2) {
-					if (Bukkit.getWorld(args[1]) == null) {
-						if (p.hasPermission("PlotMe.admin.home.other")) {
-							playername = args[1];
-							uuid = null;
-						}
-					} else {
-						w = Bukkit.getWorld(args[1]);
-						worldname = args[1];
-					}
+			if (args.length == 2) {
+				if (p.hasPermission("PlotMe.admin.home.other")) {
+					playername = args[1];
+					uuid = null;
 				}
+			}
 
-				if (args.length == 3) {
-					if (Bukkit.getWorld(args[2]) == null) {
-						Send(p, args[2] + " " + caption("MsgWorldNotPlot"));
-						return true;
-					} else {
-						w = Bukkit.getWorld(args[2]);
-						worldname = args[2];
-					}
-				}
+			if (!(w == PLOTWORLD)) {
+				Send(p, worldname + " " + caption("MsgWorldNotPlot"));
+			} else {
+				int i = nb - 1;
 
-				if (!PlotManager.isPlotWorld(w)) {
-					Send(p, worldname + " " + caption("MsgWorldNotPlot"));
-				} else {
-					int i = nb - 1;
+				for (Plot plot : PlotManager.getPlots(w).values()) {
+					if (uuid == null && plot.owner.equalsIgnoreCase(playername) || uuid != null && plot.ownerId != null && plot.ownerId.equals(uuid)) {
+						if (i == 0) {
+							PlotMapInfo pmi = PlotManager.getMap(w);
 
-					for (Plot plot : PlotManager.getPlots(w).values()) {
-						if (uuid == null && plot.owner.equalsIgnoreCase(playername) || uuid != null && plot.ownerId != null && plot.ownerId.equals(uuid)) {
-							if (i == 0) {
-								PlotMapInfo pmi = PlotManager.getMap(w);
+							double price = 0;
 
-								double price = 0;
+							if (PlotManager.isEconomyEnabled(w)) {
+								price = pmi.PlotHomePrice;
+								double balance = economy.getBalance(playername);
 
-								if (PlotManager.isEconomyEnabled(w)) {
-									price = pmi.PlotHomePrice;
-									double balance = economy.getBalance(playername);
+								if (balance >= price) {
+									EconomyResponse er = economy.withdrawPlayer(playername, price);
 
-									if (balance >= price) {
-										EconomyResponse er = economy.withdrawPlayer(playername, price);
-
-										if (!er.transactionSuccess()) {
-											Send(p, er.errorMessage);
-											return true;
-										}
-									} else {
-										Send(p, caption("MsgNotEnoughTp") + " " + caption("WordMissing") + " " + f(price - balance, false));
+									if (!er.transactionSuccess()) {
+										Send(p, er.errorMessage);
 										return true;
 									}
+								} else {
+									Send(p, caption("MsgNotEnoughTp") + " Missing " + f(price - balance, false));
+									return true;
 								}
-
-								p.teleport(PlotManager.getPlotHome(w, plot));
-
-								if (price != 0) {
-									Send(p, f(-price));
-								}
-
-								return true;
-							} else {
-								i--;
 							}
-						}
-					}
 
-					if (nb > 0) {
-						if (!playername.equalsIgnoreCase(p.getName())) {
-							Send(p, playername + " " + caption("MsgDoesNotHavePlot") + " #" + nb);
-						} else {
-							Send(p, caption("MsgPlotNotFound") + " #" + nb);
+							p.teleport(PlotManager.getPlotHome(w, plot));
+
+							if (price != 0) {
+								Send(p, f(-price));
+							}
+
+							return true;
 						}
-					} else if (!playername.equalsIgnoreCase(p.getName())) {
-						Send(p, playername + " " + caption("MsgDoesNotHavePlot"));
-					} else {
-						Send(p, caption("MsgYouHaveNoPlot"));
+						i--;
 					}
+				}
+
+				if (nb > 0) {
+					if (!playername.equalsIgnoreCase(p.getName())) {
+						Send(p, playername + " " + caption("MsgDoesNotHavePlot") + " #" + nb);
+					} else {
+						Send(p, caption("MsgPlotNotFound") + " #" + nb);
+					}
+				} else if (!playername.equalsIgnoreCase(p.getName())) {
+					Send(p, playername + " " + caption("MsgDoesNotHavePlot"));
+				} else {
+					Send(p, caption("MsgYouHaveNoPlot"));
 				}
 			}
 		} else {
@@ -1777,8 +1717,7 @@ public class PMCommand implements CommandExecutor {
 					if (!PlotManager.isPlotAvailable(id, p)) {
 						Plot plot = PlotManager.getPlotById(p, id);
 
-						p.sendMessage(caption("InfoId") + ": " + id + " " + caption("InfoOwner") + ": " + plot.owner +
-								" " + caption("InfoBiome") + ": " + FormatBiome(plot.biome.name()));
+						p.sendMessage(caption("InfoId") + ": " + id + " " + caption("InfoOwner") + ": " + plot.owner + " " + caption("InfoBiome") + ": " + FormatBiome(plot.biome.name()));
 
 						p.sendMessage(caption("InfoExpire") + ": " + ((plot.expireddate == null) ? "Never" : plot.expireddate.toString()) +
 								" " + caption("InfoFinished") + ": " + ((plot.finished) ? "Yes" : "No") + " " + caption("InfoProtected") + ": " + ((plot.protect) ? "Yes" : "No"));
@@ -1847,7 +1786,7 @@ public class PMCommand implements CommandExecutor {
 										return true;
 									}
 								} else {
-									Send(p, caption("MsgNotEnoughComment") + " " + caption("WordMissing") + " " + f(price - balance, false));
+									Send(p, caption("MsgNotEnoughComment") + " Missing " + f(price - balance, false));
 									return true;
 								}
 							}
@@ -1867,7 +1806,7 @@ public class PMCommand implements CommandExecutor {
 
 							Send(p, caption("MsgCommentAdded") + " " + f(-price));
 
-							logger.info("[PlotMe Event] " + playername + " " + caption("MsgCommentedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+							logger.info("[Event] " + playername + " " + caption("MsgCommentedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
 						} else {
 							Send(p, "This plot(" + id + ") " + caption("MsgHasNoOwner"));
 						}
@@ -1898,8 +1837,7 @@ public class PMCommand implements CommandExecutor {
 								if (plot.comments.isEmpty()) {
 									Send(p, caption("MsgNoComments"));
 								} else {
-									Send(p, caption("MsgYouHave") + " " +
-											plot.comments.size() + " " + caption("MsgComments"));
+									Send(p, caption("MsgYouHave") + " " + plot.comments.size() + " " + caption("MsgComments"));
 
 									for (String[] comment : plot.comments) {
 										p.sendMessage("From : " + comment[0]);
@@ -1967,7 +1905,7 @@ public class PMCommand implements CommandExecutor {
 												return true;
 											}
 										} else {
-											Send(p, caption("MsgNotEnoughBiome") + " " + caption("WordMissing") + " " + f(price - balance, false));
+											Send(p, caption("MsgNotEnoughBiome") + " Missing " + f(price - balance, false));
 											return true;
 										}
 									}
@@ -1976,7 +1914,7 @@ public class PMCommand implements CommandExecutor {
 
 									Send(p, caption("MsgBiomeSet") + " " + FormatBiome(biome.name()) + " " + f(-price));
 
-									logger.info("[PlotMe Event] " + playername + " " + caption("MsgChangedBiome") + " " + id + " to " +
+									logger.info("[Event] " + playername + " " + caption("MsgChangedBiome") + " " + id + " to " +
 											FormatBiome(biome.name()) + ((price != 0) ? " for " + price : ""));
 								} else {
 									Send(p, "This plot(" + id + ") " + caption("MsgNotYoursNotAllowedBiome"));
@@ -1998,80 +1936,61 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean biomelist(CommandSender s, String[] args) {
-		if (!(s instanceof Player) || s.hasPermission("PlotMe.use.biome")) {
-			Send(s, caption("WordBiomes") + " : ");
+	private boolean biomelist(Player player) {
+		player.sendMessage("Biomes : ");
+		//int i = 0;
+		StringBuilder line = new StringBuilder();
+		List<String> biomes = new ArrayList<>();
 
-			//int i = 0;
-			StringBuilder line = new StringBuilder();
-			List<String> biomes = new ArrayList<>();
+		for (Biome biome : Biome.values()) {
+			biomes.add(biome.name());
+		}
 
-			for (Biome b : Biome.values()) {
-				biomes.add(b.name());
+		Collections.sort(biomes);
+
+		List<String> column1 = new ArrayList<>();
+		List<String> column2 = new ArrayList<>();
+		List<String> column3 = new ArrayList<>();
+
+		for (int ctr = 0; ctr < biomes.size(); ctr++) {
+			if (ctr < biomes.size() / 3) {
+				column1.add(biomes.get(ctr));
+			} else if (ctr < biomes.size() * 2 / 3) {
+				column2.add(biomes.get(ctr));
+			} else {
+				column3.add(biomes.get(ctr));
 			}
-
-			Collections.sort(biomes);
-
-			List<String> column1 = new ArrayList<>();
-			List<String> column2 = new ArrayList<>();
-			List<String> column3 = new ArrayList<>();
-
-			for (int ctr = 0; ctr < biomes.size(); ctr++) {
-				if (ctr < biomes.size() / 3) {
-					column1.add(biomes.get(ctr));
-				} else if (ctr < biomes.size() * 2 / 3) {
-					column2.add(biomes.get(ctr));
-				} else {
-					column3.add(biomes.get(ctr));
-				}
-			}
+		}
 
 
-			for (int ctr = 0; ctr < column1.size(); ctr++) {
-				String b;
-				int nameLength;
+		for (int ctr = 0; ctr < column1.size(); ctr++) {
+			String b;
+			int nameLength;
 
-				b = FormatBiome(column1.get(ctr));
+			b = FormatBiome(column1.get(ctr));
+			nameLength = MinecraftFontWidthCalculator.getStringWidth(b);
+			line.append(b).append(whitespace(432 - nameLength));
+
+			if (ctr < column2.size()) {
+				b = FormatBiome(column2.get(ctr));
 				nameLength = MinecraftFontWidthCalculator.getStringWidth(b);
 				line.append(b).append(whitespace(432 - nameLength));
-
-				if (ctr < column2.size()) {
-					b = FormatBiome(column2.get(ctr));
-					nameLength = MinecraftFontWidthCalculator.getStringWidth(b);
-					line.append(b).append(whitespace(432 - nameLength));
-				}
-
-				if (ctr < column3.size()) {
-					b = FormatBiome(column3.get(ctr));
-					line.append(b);
-				}
-
-				s.sendMessage("" + line);
-				//i = 0;
-				line = new StringBuilder();
-								
-				/*int nameLength = MinecraftFontWidthCalculator.getStringWidth(b);
-				
-				i += 1;
-				if(i == 3)
-				{
-					line.append(b);
-					s.sendMessage("" + BLUE + line);
-					i = 0;
-					line = new StringBuilder();
-				}
-				else
-				{
-					line.append(b).append(whitespace(318 - nameLength));
-				}*/
 			}
-		} else {
-			Send(s, caption("MsgPermissionDenied"));
+
+			if (ctr < column3.size()) {
+				b = FormatBiome(column3.get(ctr));
+				line.append(b);
+			}
+
+			player.sendMessage("" + line);
+			//i = 0;
+			line = new StringBuilder();
+
 		}
 		return true;
 	}
 
-	private boolean reset(Player p, String[] args) {
+	private boolean reset(Player p) {
 		if (p.hasPermission("PlotMe.admin.reset")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, caption("MsgNotPlotWorld"));
@@ -2085,11 +2004,10 @@ public class PMCommand implements CommandExecutor {
 						Send(p, caption("MsgPlotProtectedCannotReset"));
 					} else {
 						String id = plot.id;
-						World w = p.getWorld();
+						World world = p.getWorld();
 
-						PlotManager.setBiome(w, id, plot, Biome.PLAINS);
-						PlotManager.clear(w, plot);
-						//RemoveLWC(w, plot);
+						PlotManager.setBiome(world, id, plot, Biome.PLAINS);
+						PlotManager.clear(world, plot);
 
 						if (PlotManager.isEconomyEnabled(p)) {
 							if (plot.auctionned) {
@@ -2138,14 +2056,14 @@ public class PMCommand implements CommandExecutor {
 
 						String name = p.getName();
 
-						PlotManager.removeOwnerSign(w, id);
-						PlotManager.removeSellSign(w, id);
+						PlotManager.removeOwnerSign(world, id);
+						PlotManager.removeSellSign(world, id);
 
-						SqlManager.deletePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), w.getName().toLowerCase());
+						SqlManager.deletePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world.getName().toLowerCase());
 
 						Send(p, caption("MsgPlotReset"));
 
-						logger.info("[PlotMe Event] " + name + " " + caption("MsgResetPlot") + " " + id);
+						logger.info("[Event] " + name + " " + caption("MsgResetPlot") + " " + id);
 					}
 				}
 			}
@@ -2155,7 +2073,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean clear(Player p, String[] args) {
+	private boolean clear(Player p) {
 		if (p.hasPermission("PlotMe.admin.clear") || p.hasPermission("PlotMe.use.clear")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, caption("MsgNotPlotWorld"));
@@ -2192,7 +2110,7 @@ public class PMCommand implements CommandExecutor {
 											return true;
 										}
 									} else {
-										Send(p, caption("MsgNotEnoughClear") + " " + caption("WordMissing") + " " + (price - balance) + " " + economy.currencyNamePlural());
+										Send(p, caption("MsgNotEnoughClear") + " Missing " + (price - balance) + " " + economy.currencyNamePlural());
 										return true;
 									}
 								}
@@ -2203,7 +2121,7 @@ public class PMCommand implements CommandExecutor {
 
 								Send(p, caption("MsgPlotCleared") + " " + f(-price));
 
-								logger.info("[PlotMe Event] " + playername + " " + caption("MsgClearedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+								logger.info("[Event] " + playername + " " + caption("MsgClearedPlot") + " " + id + ((price != 0) ? " for " + price : ""));
 							} else {
 								Send(p, "This plot(" + id + ") " + caption("MsgNotYoursNotAllowedClear"));
 							}
@@ -2230,7 +2148,7 @@ public class PMCommand implements CommandExecutor {
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
 						if (args.length < 2 || args[1].equalsIgnoreCase("")) {
-							Send(p, "Usage /plotme " + caption("CommandAdd") + " <" + caption("WordPlayer") + ">");
+							Send(p, "Usage /plotme " + caption("CommandAdd") + " <Player>");
 						} else {
 
 							Plot plot = PlotManager.getPlotById(p, id);
@@ -2239,7 +2157,7 @@ public class PMCommand implements CommandExecutor {
 
 							if (plot.owner.equalsIgnoreCase(playername) || p.hasPermission("PlotMe.admin.add")) {
 								if (plot.isAllowedConsulting(allowed) || plot.isGroupAllowed(allowed)) {
-									Send(p, caption("WordPlayer") + " " + args[1] + " " + caption("MsgAlreadyAllowed"));
+									Send(p, "Player " + args[1] + " " + caption("MsgAlreadyAllowed"));
 								} else {
 									World w = p.getWorld();
 
@@ -2260,7 +2178,7 @@ public class PMCommand implements CommandExecutor {
 												return true;
 											}
 										} else {
-											Send(p, caption("MsgNotEnoughAdd") + " " + caption("WordMissing") + " " + f(price - balance, false));
+											Send(p, caption("MsgNotEnoughAdd") + " Missing " + f(price - balance, false));
 											return true;
 										}
 									}
@@ -2268,9 +2186,9 @@ public class PMCommand implements CommandExecutor {
 									plot.addAllowed(allowed);
 									plot.removeDenied(allowed);
 
-									Send(p, caption("WordPlayer") + " " + allowed + " " + caption("MsgNowAllowed") + " " + f(-price));
+									Send(p, "Player " + allowed + " " + caption("MsgNowAllowed") + " " + f(-price));
 
-									logger.info("[PlotMe Event] " + playername + " " + caption("MsgAddedPlayer") + " " + allowed + " " + caption("MsgToPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+									logger.info("[Event] " + playername + " " + caption("MsgAddedPlayer") + " " + allowed + " " + caption("MsgToPlot") + " " + id + ((price != 0) ? " for " + price : ""));
 								}
 							} else {
 								Send(p, "This plot(" + id + ") " + caption("MsgNotYoursNotAllowedAdd"));
@@ -2298,7 +2216,7 @@ public class PMCommand implements CommandExecutor {
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
 						if (args.length < 2 || args[1].equalsIgnoreCase("")) {
-							Send(p, "Usage /plotme " + caption("CommandDeny") + " <" + caption("WordPlayer") + ">");
+							Send(p, "Usage /plotme deny <Player>");
 						} else {
 
 							Plot plot = PlotManager.getPlotById(p, id);
@@ -2307,7 +2225,7 @@ public class PMCommand implements CommandExecutor {
 
 							if (plot.owner.equalsIgnoreCase(playername) || p.hasPermission("PlotMe.admin.deny")) {
 								if (plot.isDeniedConsulting(denied) || plot.isGroupDenied(denied)) {
-									Send(p, caption("WordPlayer") + " " + args[1] + " " + caption("MsgAlreadyDenied"));
+									Send(p, "Player " + args[1] + " " + caption("MsgAlreadyDenied"));
 								} else {
 									World w = p.getWorld();
 
@@ -2328,7 +2246,7 @@ public class PMCommand implements CommandExecutor {
 												return true;
 											}
 										} else {
-											Send(p, caption("MsgNotEnoughDeny") + " " + caption("WordMissing") + " " + f(price - balance, false));
+											Send(p, caption("MsgNotEnoughDeny") + " Missing " + f(price - balance, false));
 											return true;
 										}
 									}
@@ -2359,9 +2277,9 @@ public class PMCommand implements CommandExecutor {
 										}
 									}
 
-									Send(p, caption("WordPlayer") + " " + denied + " " + caption("MsgNowDenied") + " " + f(-price));
+									Send(p, "Player " + denied + " " + caption("MsgNowDenied") + " " + f(-price));
 
-									logger.info("[PlotMe Event] " + playername + " " + caption("MsgDeniedPlayer") + " " + denied + " " + caption("MsgToPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+									logger.info("[Event] " + playername + " " + caption("MsgDeniedPlayer") + " " + denied + " " + caption("MsgToPlot") + " " + id + ((price != 0) ? " for " + price : ""));
 								}
 							} else {
 								Send(p, "This plot(" + id + ") " + caption("MsgNotYoursNotAllowedDeny"));
@@ -2389,7 +2307,7 @@ public class PMCommand implements CommandExecutor {
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
 						if (args.length < 2 || args[1].equalsIgnoreCase("")) {
-							Send(p, "Usage: /plotme " + caption("CommandRemove") + " <" + caption("WordPlayer") + ">");
+							Send(p, "Usage: /plotme " + caption("CommandRemove") + " <Player>");
 						} else {
 							Plot plot = PlotManager.getPlotById(p, id);
 							String playername = p.getName();
@@ -2417,7 +2335,7 @@ public class PMCommand implements CommandExecutor {
 												return true;
 											}
 										} else {
-											Send(p, caption("MsgNotEnoughRemove") + " " + caption("WordMissing") + " " + f(price - balance, false));
+											Send(p, caption("MsgNotEnoughRemove") + " Missing " + f(price - balance, false));
 											return true;
 										}
 									}
@@ -2428,11 +2346,11 @@ public class PMCommand implements CommandExecutor {
 										plot.removeAllowed(allowed);
 									}
 
-									Send(p, caption("WordPlayer") + " " + allowed + " " + caption("WordRemoved") + ". " + f(-price));
+									Send(p, "Player " + allowed + " removed. " + f(-price));
 
-									logger.info("[PlotMe Event] " + p.getName() + " " + caption("MsgRemovedPlayer") + " " + allowed + " " + caption("MsgFromPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+									logger.info("[Event] " + p.getName() + " " + caption("MsgRemovedPlayer") + " " + allowed + " " + caption("MsgFromPlot") + " " + id + ((price != 0) ? " for " + price : ""));
 								} else {
-									Send(p, caption("WordPlayer") + " " + args[1] + " " + caption("MsgWasNotAllowed"));
+									Send(p, "Player " + args[1] + " " + caption("MsgWasNotAllowed"));
 								}
 							} else {
 								Send(p, "This plot(" + id + ") " + caption("MsgNotYoursNotAllowedRemove"));
@@ -2460,7 +2378,7 @@ public class PMCommand implements CommandExecutor {
 				} else {
 					if (!PlotManager.isPlotAvailable(id, p)) {
 						if (args.length < 2 || args[1].equalsIgnoreCase("")) {
-							Send(p, "Usage: /plotme " + caption("CommandUndeny") + " <" + caption("WordPlayer") + ">");
+							Send(p, "Usage: /plotme undeny <Player>");
 						} else {
 							Plot plot = PlotManager.getPlotById(p, id);
 							String playername = p.getName();
@@ -2488,7 +2406,7 @@ public class PMCommand implements CommandExecutor {
 												return true;
 											}
 										} else {
-											Send(p, caption("MsgNotEnoughUndeny") + " " + caption("WordMissing") + " " + f(price - balance, false));
+											Send(p, caption("MsgNotEnoughUndeny") + " Missing " + f(price - balance, false));
 											return true;
 										}
 									}
@@ -2499,11 +2417,11 @@ public class PMCommand implements CommandExecutor {
 										plot.removeDenied(denied);
 									}
 
-									Send(p, caption("WordPlayer") + " " + denied + " " + caption("MsgNowUndenied") + " " + f(-price));
+									Send(p, "Player " + denied + " " + caption("MsgNowUndenied") + " " + f(-price));
 
-									logger.info("[PlotMe Event] " + playername + " " + caption("MsgUndeniedPlayer") + " " + denied + " " + caption("MsgFromPlot") + " " + id + ((price != 0) ? " for " + price : ""));
+									logger.info("[Event] " + playername + " " + caption("MsgUndeniedPlayer") + " " + denied + " " + caption("MsgFromPlot") + " " + id + ((price != 0) ? " for " + price : ""));
 								} else {
-									Send(p, caption("WordPlayer") + " " + args[1] + " " + caption("MsgWasNotDenied"));
+									Send(p, "Player " + args[1] + " " + caption("MsgWasNotDenied"));
 								}
 							} else {
 								Send(p, "This plot(" + id + ") " + caption("MsgNotYoursNotAllowedUndeny"));
@@ -2530,10 +2448,10 @@ public class PMCommand implements CommandExecutor {
 					Send(p, caption("MsgNoPlotFound"));
 				} else {
 					if (args.length < 2 || args[1].isEmpty()) {
-						Send(p, "Usage: /plotme " + caption("CommandSetowner") + " <" + caption("WordPlayer") + ">");
+						Send(p, "Usage: /plotme " + caption("CommandSetowner") + " <Player>");
 					} else {
 						String newowner = args[1];
-						String oldowner = "<" + caption("WordNotApplicable") + ">";
+						String oldowner = "<N/A>";
 						String playername = p.getName();
 
 						if (!PlotManager.isPlotAvailable(id, p)) {
@@ -2602,7 +2520,7 @@ public class PMCommand implements CommandExecutor {
 
 						Send(p, caption("MsgOwnerChangedTo") + " " + newowner);
 
-						logger.info("[PlotMe Event] " + playername + " " + caption("MsgChangedOwnerOf") + " " + id + " From " + oldowner + " to " + newowner);
+						logger.info("[Event] " + playername + " " + caption("MsgChangedOwnerOf") + " " + id + " From " + oldowner + " to " + newowner);
 					}
 				}
 			}
@@ -2612,7 +2530,7 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean id(Player p, String[] args) {
+	private boolean id(Player p) {
 		if (p.hasPermission("PlotMe.admin.id")) {
 			if (!PlotManager.isPlotWorld(p)) {
 				Send(p, caption("MsgNotPlotWorld"));
@@ -2627,8 +2545,8 @@ public class PMCommand implements CommandExecutor {
 					Location bottom = PlotManager.getPlotBottomLoc(p.getWorld(), plotid);
 					Location top = PlotManager.getPlotTopLoc(p.getWorld(), plotid);
 
-					p.sendMessage(caption("WordBottom") + ": " + bottom.getBlockX() + "," + bottom.getBlockZ());
-					p.sendMessage(caption("WordTop") + ": " + top.getBlockX() + "," + top.getBlockZ());
+					p.sendMessage("Bottom: " + bottom.getBlockX() + "," + bottom.getBlockZ());
+					p.sendMessage("Top: " + top.getBlockX() + "," + top.getBlockZ());
 				}
 			}
 		} else {
@@ -2643,21 +2561,21 @@ public class PMCommand implements CommandExecutor {
 				Send(p, caption("MsgNotPlotWorld"));
 			} else {
 				if (args.length < 3 || args[1].equalsIgnoreCase("") || args[2].equalsIgnoreCase("")) {
-					Send(p, "Usage: /plotme " + caption("CommandMove") + " <" + caption("WordIdFrom") + "> <" + caption("WordIdTo") + "> " +
-							"Example: /plotme " + caption("CommandMove") + " 0;1 2;-1");
+					Send(p, "Usage: /plotme move <id-from> <id-to> " +
+							"Example: /plotme move 0;1 2;-1");
 				} else {
 					String plot1 = args[1];
 					String plot2 = args[2];
 
 					if (!PlotManager.isValidId(plot1) || !PlotManager.isValidId(plot2)) {
-						Send(p, "Usage: /plotme " + caption("CommandMove") + " <" + caption("WordIdFrom") + "> <" + caption("WordIdTo") + "> " +
-								"Example: /plotme " + caption("CommandMove") + " 0;1 2;-1");
+						Send(p, "Usage: /plotme move <id-from> <id-to> " +
+								"Example: /plotme move 0;1 2;-1");
 						return true;
 					} else {
 						if (PlotManager.movePlot(p.getWorld(), plot1, plot2)) {
 							Send(p, caption("MsgPlotMovedSuccess"));
 
-							logger.info("[PlotMe Event] " + p.getName() + " " + caption("MsgExchangedPlot") + " " + plot1 + " " + caption("MsgAndPlot") + " " + plot2);
+							logger.info("[Event] " + p.getName() + " " + caption("MsgExchangedPlot") + " " + plot1 + " " + caption("MsgAndPlot") + " " + plot2);
 						} else {
 							Send(p, caption("ErrMovingPlot"));
 						}
@@ -2670,14 +2588,14 @@ public class PMCommand implements CommandExecutor {
 		return true;
 	}
 
-	private boolean reload(CommandSender s, String[] args) {
-		if (!(s instanceof Player) || s.hasPermission("PlotMe.admin.reload")) {
+	private boolean reload(CommandSender sender) {
+		if (!(sender instanceof Player) || sender.hasPermission("PlotMe.admin.reload")) {
 			plugin.initialize();
-			Send(s, caption("MsgReloadedSuccess"));
+			Send(sender, caption("MsgReloadedSuccess"));
 
-			logger.info("[PlotMe Event] " + s.getName() + " " + caption("MsgReloadedConfigurations"));
+			logger.info("[Event] " + sender.getName() + " " + caption("MsgReloadedConfigurations"));
 		} else {
-			Send(s, caption("MsgPermissionDenied"));
+			Send(sender, caption("MsgPermissionDenied"));
 		}
 		return true;
 	}
@@ -2699,7 +2617,7 @@ public class PMCommand implements CommandExecutor {
 	}
 
 	private void warn(String msg) {
-		logger.warning("[PlotMe Event] " + msg);
+		logger.warning("[Event] " + msg);
 	}
 
 	private String f(double price) {

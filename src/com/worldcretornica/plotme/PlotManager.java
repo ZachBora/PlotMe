@@ -456,23 +456,23 @@ public class PlotManager {
 		return new Location(world, x, 255, z);
 	}
 
-	public static void setBiome(World w, String id, Plot plot, Biome b) {
-		int bottomX = PlotManager.bottomX(plot.id, w) - 1;
-		int topX = PlotManager.topX(plot.id, w) + 1;
-		int bottomZ = PlotManager.bottomZ(plot.id, w) - 1;
-		int topZ = PlotManager.topZ(plot.id, w) + 1;
+	public static void setBiome(World world, String id, Plot plot, Biome biome) {
+		int bottomX = PlotManager.bottomX(plot.id, world) - 1;
+		int topX = PlotManager.topX(plot.id, world) + 1;
+		int bottomZ = PlotManager.bottomZ(plot.id, world) - 1;
+		int topZ = PlotManager.topZ(plot.id, world) + 1;
 
 		for (int x = bottomX; x <= topX; x++) {
 			for (int z = bottomZ; z <= topZ; z++) {
-				w.getBlockAt(x, 0, z).setBiome(b);
+				world.getBlockAt(x, 0, z).setBiome(biome);
 			}
 		}
 
-		plot.biome = b;
+		plot.biome = biome;
 
-		refreshPlotChunks(w, plot);
+		refreshPlotChunks(world, plot);
 
-		SqlManager.updatePlot(getIdX(id), getIdZ(id), plot.world, "biome", b.name());
+		SqlManager.updatePlot(getIdX(id), getIdZ(id), plot.world, "biome", biome.name());
 	}
 
 	public static void refreshPlotChunks(World w, Plot plot) {
@@ -501,10 +501,8 @@ public class PlotManager {
 		return new Location(w, PlotManager.bottomX(plot.id, w), 0, PlotManager.bottomZ(plot.id, w));
 	}
 
-	public static void clear(World w, Plot plot) {
-		clear(getBottom(w, plot), getTop(w, plot));
-
-		//regen(w, plot);
+	public static void clear(World world, Plot plot) {
+		clear(getBottom(world, plot), getTop(world, plot));
 	}
 
 	@SuppressWarnings("deprecation")
@@ -572,14 +570,10 @@ public class PlotManager {
 					} else if (y == pmi.RoadHeight) {
 						block.setTypeId(pmi.PlotFloorBlockId);
 					} else {
-						if (y == (pmi.RoadHeight + 1) &&
-								(x == bottomX - 1 ||
-										x == topX + 1 ||
-										z == bottomZ - 1 ||
-										z == topZ + 1)) {
+						if (y == (pmi.RoadHeight + 1) && (x == bottomX - 1 || x == topX + 1 || z == bottomZ - 1 || z == topZ + 1)) {
 							//block.setTypeId(pmi.WallBlockId);
 						} else {
-							block.setTypeIdAndData(0, (byte) 0, false); //.setType(Material.AIR);
+							block.setType(Material.AIR);
 						}
 					}
 				}
@@ -926,14 +920,6 @@ public class PlotManager {
 		return getPlotTopLoc(w, id).getBlockZ();
 	}
 
-	public static boolean isPlotWorld(World w) {
-		if (w == null) {
-			return false;
-		} else {
-			return PlotMe.plotmaps.containsKey(w.getName().toLowerCase());
-		}
-	}
-
 	public static boolean isPlotWorld(String name) {
 		return PlotMe.plotmaps.containsKey(name.toLowerCase());
 	}
@@ -1231,30 +1217,6 @@ public class PlotManager {
 		removeSellSign(w, id);
 
 		SqlManager.deletePlot(getIdX(id), getIdZ(id), w.getName().toLowerCase());
-	}
-
-	public static World getFirstWorld() {
-		if (PlotMe.plotmaps != null) {
-			if (PlotMe.plotmaps.keySet().toArray().length > 0) {
-				return Bukkit.getWorld((String) PlotMe.plotmaps.keySet().toArray()[0]);
-			}
-		}
-		return null;
-	}
-
-	public static World getFirstWorld(UUID uuid) {
-		if (PlotMe.plotmaps != null) {
-			if (PlotMe.plotmaps.keySet().toArray().length > 0) {
-				for (String mapkey : PlotMe.plotmaps.keySet()) {
-					for (String id : PlotMe.plotmaps.get(mapkey).plots.keySet()) {
-						if (PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid)) {
-							return Bukkit.getWorld(mapkey);
-						}
-					}
-				}
-			}
-		}
-		return null;
 	}
 
 	public static Plot getFirstPlot(UUID uuid) {
