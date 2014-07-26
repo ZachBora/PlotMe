@@ -1,27 +1,16 @@
 package com.worldcretornica.plotme;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
+import com.worldcretornica.plotme.utils.UUIDFetcher;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.worldcretornica.plotme.utils.UUIDFetcher;
+import java.io.File;
+import java.io.IOException;
+import java.sql.*;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class SqlManager {
 
@@ -93,11 +82,11 @@ public class SqlManager {
                 conn.setAutoCommit(false);
             }
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + "SQL exception on initialize :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("SQL exception on initialize :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } catch (ClassNotFoundException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + "You need the SQLite/MySQL library. :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("You need the SQLite/MySQL library. :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         }
 
         createTable();
@@ -449,14 +438,13 @@ public class SqlManager {
                     conn.commit();
                 }
                 set.close();
-                found = false;
 
                 /*** END Version 0.13d changes ***/
 
             }
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Update table exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Update table exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (statement != null)
@@ -464,8 +452,8 @@ public class SqlManager {
                 if (set != null)
                     set.close();
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Update table exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Update table exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
@@ -478,8 +466,8 @@ public class SqlManager {
                 if (!conn.isValid(10))
                     conn = initialize();
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + "Failed to check SQL status :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Failed to check SQL status :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
         return conn;
@@ -498,8 +486,8 @@ public class SqlManager {
                     conn = null;
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + "Error on Connection close :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Error on Connection close :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
@@ -511,20 +499,18 @@ public class SqlManager {
 
             DatabaseMetaData dbm = conn.getMetaData();
             rs = dbm.getTables(null, null, name, null);
-            if (!rs.next())
-                return false;
-            return true;
+	        return rs.next();
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Table Check Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Table Check Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
             return false;
         } finally {
             try {
                 if (rs != null)
                     rs.close();
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Table Check SQL Exception (on closing) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Table Check SQL Exception (on closing) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
@@ -559,151 +545,142 @@ public class SqlManager {
 
             if (PlotMe.usemySQL) {
                 File sqlitefile = new File(PlotMe.configpath + sqlitedb);
-                if (!sqlitefile.exists()) {
-                    return;
-                } else {
-                    PlotMe.logger.info(PlotMe.NAME + " Modifying database for MySQL support");
-                    PlotMe.logger.info(PlotMe.NAME + " Trying to import plots from plots.db");
-                    Class.forName("org.sqlite.JDBC");
-                    Connection sqliteconn = DriverManager.getConnection("jdbc:sqlite:" + PlotMe.configpath + sqlitedb);
-                    sqliteconn.setAutoCommit(false);
-                    Statement slstatement = sqliteconn.createStatement();
-                    ResultSet setPlots = slstatement.executeQuery("SELECT * FROM plotmePlots");
-                    Statement slAllowed = sqliteconn.createStatement();
-                    ResultSet setAllowed = null;
-                    Statement slDenied = sqliteconn.createStatement();
-                    ResultSet setDenied = null;
-                    Statement slComments = sqliteconn.createStatement();
-                    ResultSet setComments = null;
+	            if (sqlitefile.exists()) {
+		            PlotMe.logger.info("Modifying database for MySQL support");
+		            PlotMe.logger.info("Trying to import plots from plots.db");
+		            Class.forName("org.sqlite.JDBC");
+		            Connection sqliteconn = DriverManager.getConnection("jdbc:sqlite:" + PlotMe.configpath + sqlitedb);
+		            sqliteconn.setAutoCommit(false);
+		            Statement slstatement = sqliteconn.createStatement();
+		            ResultSet setPlots = slstatement.executeQuery("SELECT * FROM plotmePlots");
+		            Statement slAllowed = sqliteconn.createStatement();
+		            ResultSet setAllowed = null;
+		            Statement slDenied = sqliteconn.createStatement();
+		            ResultSet setDenied;
+		            Statement slComments = sqliteconn.createStatement();
+		            ResultSet setComments = null;
 
-                    int size = 0;
-                    while (setPlots.next()) {
-                        int idX = setPlots.getInt("idX");
-                        int idZ = setPlots.getInt("idZ");
-                        String owner = setPlots.getString("owner");
-                        String world = setPlots.getString("world").toLowerCase();
-                        int topX = setPlots.getInt("topX");
-                        int bottomX = setPlots.getInt("bottomX");
-                        int topZ = setPlots.getInt("topZ");
-                        int bottomZ = setPlots.getInt("bottomZ");
-                        String biome = setPlots.getString("biome");
-                        java.sql.Date expireddate = setPlots.getDate("expireddate");
-                        boolean finished = setPlots.getBoolean("finished");
-                        PlayerList allowed = new PlayerList();
-                        PlayerList denied = new PlayerList();
-                        List<String[]> comments = new ArrayList<String[]>();
-                        double customprice = setPlots.getDouble("customprice");
-                        boolean forsale = setPlots.getBoolean("forsale");
-                        String finisheddate = setPlots.getString("finisheddate");
-                        boolean protect = setPlots.getBoolean("protected");
-                        boolean auctionned = setPlots.getBoolean("auctionned");
-                        String currentbidder = setPlots.getString("currentbidder");
-                        double currentbid = setPlots.getDouble("currentbid");
+		            int size = 0;
+		            while (setPlots.next()) {
+			            int idX = setPlots.getInt("idX");
+			            int idZ = setPlots.getInt("idZ");
+			            String owner = setPlots.getString("owner");
+			            String world = setPlots.getString("world").toLowerCase();
+			            int topX = setPlots.getInt("topX");
+			            int bottomX = setPlots.getInt("bottomX");
+			            int topZ = setPlots.getInt("topZ");
+			            int bottomZ = setPlots.getInt("bottomZ");
+			            String biome = setPlots.getString("biome");
+			            java.sql.Date expireddate = setPlots.getDate("expireddate");
+			            boolean finished = setPlots.getBoolean("finished");
+			            PlayerList allowed = new PlayerList();
+			            PlayerList denied = new PlayerList();
+			            List<String[]> comments = new ArrayList<>();
+			            double customprice = setPlots.getDouble("customprice");
+			            boolean forsale = setPlots.getBoolean("forsale");
+			            String finisheddate = setPlots.getString("finisheddate");
+			            boolean protect = setPlots.getBoolean("protected");
+			            boolean auctionned = setPlots.getBoolean("auctionned");
+			            String currentbidder = setPlots.getString("currentbidder");
+			            double currentbid = setPlots.getDouble("currentbid");
 
-                        byte[] byOwner = setPlots.getBytes("ownerId");
-                        byte[] byBidder = setPlots.getBytes("currentbidderid");
+			            byte[] byOwner = setPlots.getBytes("ownerId");
+			            byte[] byBidder = setPlots.getBytes("currentbidderid");
 
-                        UUID ownerId = null;
-                        UUID currentbidderid = null;
+			            UUID ownerId = null;
+			            UUID currentbidderid = null;
 
-                        if (byOwner != null) {
-                            ownerId = UUIDFetcher.fromBytes(byOwner);
-                        }
-                        if (byBidder != null) {
-                            currentbidderid = UUIDFetcher.fromBytes(byBidder);
-                        }
+			            if (byOwner != null) {
+				            ownerId = UUIDFetcher.fromBytes(byOwner);
+			            }
+			            if (byBidder != null) {
+				            currentbidderid = UUIDFetcher.fromBytes(byBidder);
+			            }
 
-                        setAllowed = slAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
+			            setAllowed = slAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
 
-                        while (setAllowed.next()) {
-                            byte[] byPlayerId = setAllowed.getBytes("playerid");
-                            if (byPlayerId == null) {
-                                allowed.put(setAllowed.getString("player"));
-                            } else {
-                                allowed.put(setAllowed.getString("player"), UUIDFetcher.fromBytes(byPlayerId));
-                            }
-                        }
+			            while (setAllowed.next()) {
+				            byte[] byPlayerId = setAllowed.getBytes("playerid");
+				            if (byPlayerId == null) {
+					            allowed.put(setAllowed.getString("player"));
+				            } else {
+					            allowed.put(setAllowed.getString("player"), UUIDFetcher.fromBytes(byPlayerId));
+				            }
+			            }
 
-                        if (setAllowed != null) {
-                            setAllowed.close();
-                        }
+			            setAllowed.close();
 
-                        setDenied = slDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
+			            setDenied = slDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
 
-                        while (setDenied.next()) {
-                            byte[] byPlayerId = setDenied.getBytes("playerid");
-                            if (byPlayerId == null) {
-                                denied.put(setDenied.getString("player"));
-                            } else {
-                                denied.put(setDenied.getString("player"), UUIDFetcher.fromBytes(byPlayerId));
-                            }
-                        }
+			            while (setDenied.next()) {
+				            byte[] byPlayerId = setDenied.getBytes("playerid");
+				            if (byPlayerId == null) {
+					            denied.put(setDenied.getString("player"));
+				            } else {
+					            denied.put(setDenied.getString("player"), UUIDFetcher.fromBytes(byPlayerId));
+				            }
+			            }
 
-                        if (setDenied != null) {
-                            setDenied.close();
-                        }
+			            setDenied.close();
 
-                        setComments = slComments.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
+			            setComments = slComments.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND world = '" + world + "'");
 
-                        while (setComments.next()) {
-                            String[] comment = new String[3];
+			            while (setComments.next()) {
+				            String[] comment = new String[3];
 
-                            byte[] byPlayerId = setComments.getBytes("playerid");
-                            if (byPlayerId != null) {
-                                comment[2] = UUIDFetcher.fromBytes(byPlayerId).toString();
-                            } else {
-                                comment[2] = null;
-                            }
+				            byte[] byPlayerId = setComments.getBytes("playerid");
+				            if (byPlayerId != null) {
+					            comment[2] = UUIDFetcher.fromBytes(byPlayerId).toString();
+				            } else {
+					            comment[2] = null;
+				            }
 
-                            comment[0] = setComments.getString("player");
-                            comment[1] = setComments.getString("comment");
-                            comments.add(comment);
-                        }
+				            comment[0] = setComments.getString("player");
+				            comment[1] = setComments.getString("comment");
+				            comments.add(comment);
+			            }
 
-                        Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
-                        addPlot(plot, idX, idZ, topX, bottomX, topZ, bottomZ);
+			            Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
+			            addPlot(plot, idX, idZ, topX, bottomX, topZ, bottomZ);
 
-                        size++;
-                    }
-                    PlotMe.logger.info(PlotMe.NAME + " Imported " + size + " plots from " + sqlitedb);
-                    if (slstatement != null)
-                        slstatement.close();
-                    if (slAllowed != null)
-                        slAllowed.close();
-                    if (slComments != null)
-                        slComments.close();
-                    if (slDenied != null)
-                        slDenied.close();
-                    if (setPlots != null)
-                        setPlots.close();
-                    if (setComments != null)
-                        setComments.close();
-                    if (setAllowed != null)
-                        setAllowed.close();
-                    if (sqliteconn != null)
-                        sqliteconn.close();
+			            size++;
+		            }
+		            PlotMe.logger.info("Imported " + size + " plots from " + sqlitedb);
+		            slstatement.close();
+		            if (slAllowed != null)
+			            slAllowed.close();
+		            if (slComments != null)
+			            slComments.close();
+		            if (slDenied != null)
+			            slDenied.close();
+		            setPlots.close();
+		            if (setComments != null)
+			            setComments.close();
+		            if (setAllowed != null)
+			            setAllowed.close();
+		            sqliteconn.close();
 
-                    PlotMe.logger.info(PlotMe.NAME + " Renaming " + sqlitedb + " to " + sqlitedb + ".old");
-                    if (!sqlitefile.renameTo(new File(PlotMe.configpath, sqlitedb + ".old"))) {
-                        PlotMe.logger.warning(PlotMe.NAME + " Failed to rename " + sqlitedb + "! Please rename this manually!");
-                    }
-                }
+		            PlotMe.logger.info("Renaming " + sqlitedb + " to " + sqlitedb + ".old");
+		            if (!sqlitefile.renameTo(new File(PlotMe.configpath, sqlitedb + ".old"))) {
+			            PlotMe.logger.warning("Failed to rename " + sqlitedb + "! Please rename this manually!");
+		            }
+	            }
             }
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Create Table Exception :");
-            //PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Create Table Exception :");
+	        //PlotMe.logger.severe("  " + ex.getMessage());
             ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " You need the SQLite library :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("You need the SQLite library :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (st != null) {
                     st.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Could not create the table (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Could not create the table (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
@@ -777,14 +754,14 @@ public class SqlManager {
             if (plot.comments != null && plot.comments.size() > 0) {
                 int commentid = 1;
                 for (String[] comments : plot.comments) {
-                    String strUUID = "";
-                    UUID uuid = null;
+	                String strUUID;
+	                UUID uuid = null;
 
                     if (comments.length >= 3) {
                         strUUID = comments[2];
                         try {
                             uuid = UUID.fromString(strUUID);
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                         }
                     }
 
@@ -802,16 +779,16 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Insert Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Insert Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
@@ -845,69 +822,22 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Insert Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Insert Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
 
-    public static void updateTable(String tablename, int idX, int idZ, String world, String field, Object value) {
-        PreparedStatement ps = null;
-        Connection conn;
-
-        // Plots
-        try {
-            conn = getConnection();
-
-            ps = conn.prepareStatement("UPDATE " + tablename + " SET " + field + " = ? " + "WHERE idX = ? AND idZ = ? AND world = ?");
-
-            if (value instanceof UUID) {
-                ps.setBytes(1, UUIDFetcher.toBytes((UUID) value));
-            } else {
-                ps.setObject(1, value);
-            }
-            ps.setInt(2, idX);
-            ps.setInt(3, idZ);
-            ps.setString(4, world.toLowerCase());
-
-            ps.executeUpdate();
-            conn.commit();
-
-            if (field.equalsIgnoreCase("owner")) {
-                fetchOwnerUUIDAsync(idX, idZ, world, value.toString());
-            } else if (field.equalsIgnoreCase("currentbidder")) {
-                fetchBidderUUIDAsync(idX, idZ, world, value.toString());
-            } else if (field.equalsIgnoreCase("player")) {
-                if (tablename.equalsIgnoreCase("plotmeallowed")) {
-
-                }
-            }
-
-        } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
-        } finally {
-            try {
-                if (ps != null) {
-                    ps.close();
-                }
-            } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
-            }
-        }
-    }
-
-    public static void addPlotAllowed(String player, int idX, int idZ, String world) {
-        addPlotAllowed(player, null, idX, idZ, world);
+	public static void addPlotAllowed(String player, int idX, int idZ, String world) {
+		addPlotAllowed(player, null, idX, idZ, world);
     }
 
     public static void addPlotAllowed(String player, UUID playerid, int idX, int idZ, String world) {
@@ -938,32 +868,22 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Insert Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Insert Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
 
-    @Deprecated
-    public static void addPlotDenied(String player, int idX, int idZ, String world) {
-        OfflinePlayer op = Bukkit.getOfflinePlayer(player);
-        if (op == null) {
-            addPlotDenied(player, null, idX, idZ, world);
-        } else {
-            addPlotDenied(player, op.getUniqueId(), idX, idZ, world);
-        }
-    }
-
-    public static void addPlotDenied(String player, UUID playerid, int idX, int idZ, String world) {
-        PreparedStatement ps = null;
+	public static void addPlotDenied(String player, UUID playerid, int idX, int idZ, String world) {
+		PreparedStatement ps = null;
         Connection conn;
 
         // Denied
@@ -990,16 +910,16 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Insert Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Insert Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
@@ -1009,7 +929,8 @@ public class SqlManager {
         if(comment.length > 2) {
             try{
                 uuid = UUID.fromString(comment[2]);
-            }catch(IllegalArgumentException e){}
+            } catch (IllegalArgumentException ignored) {
+            }
         }
         addPlotComment(comment, commentid, idX, idZ, world, uuid);
     }
@@ -1040,25 +961,24 @@ public class SqlManager {
             conn.commit();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Insert Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Insert Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
 
     public static void deletePlot(int idX, int idZ, String world) {
         PreparedStatement ps = null;
-        ResultSet set = null;
-        try {
-            Connection conn = getConnection();
+	    try {
+		    Connection conn = getConnection();
 
             ps = conn.prepareStatement("DELETE FROM plotmeComments WHERE idX = ? and idZ = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
@@ -1093,28 +1013,24 @@ public class SqlManager {
             ps.close();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Delete Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
-                if (set != null) {
-                    set.close();
-                }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Delete Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
 
     public static void deletePlotComment(int idX, int idZ, int commentid, String world) {
         PreparedStatement ps = null;
-        ResultSet set = null;
-        try {
-            Connection conn = getConnection();
+	    try {
+		    Connection conn = getConnection();
 
             ps = conn.prepareStatement("DELETE FROM plotmeComments WHERE idX = ? and idZ = ? and commentid = ? and LOWER(world) = ?");
             ps.setInt(1, idX);
@@ -1125,19 +1041,16 @@ public class SqlManager {
             conn.commit();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Delete Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
-                if (set != null) {
-                    set.close();
-                }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Delete Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
@@ -1154,10 +1067,9 @@ public class SqlManager {
 
     public static void deletePlotAllowed(int idX, int idZ, String player, UUID playerid, String world) {
         PreparedStatement ps = null;
-        ResultSet set = null;
 
-        try {
-            Connection conn = getConnection();
+	    try {
+		    Connection conn = getConnection();
 
             if (playerid == null) {
                 ps = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE idX = ? and idZ = ? and player = ? and LOWER(world) = ?");
@@ -1173,19 +1085,16 @@ public class SqlManager {
             conn.commit();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Delete Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
-                if (set != null) {
-                    set.close();
-                }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Delete Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
@@ -1202,10 +1111,9 @@ public class SqlManager {
 
     public static void deletePlotDenied(int idX, int idZ, String player, UUID playerid, String world) {
         PreparedStatement ps = null;
-        ResultSet set = null;
 
-        try {
-            Connection conn = getConnection();
+	    try {
+		    Connection conn = getConnection();
 
             if (playerid == null) {
                 ps = conn.prepareStatement("DELETE FROM plotmeDenied WHERE idX = ? and idZ = ? and player = ? and LOWER(world) = ?");
@@ -1221,40 +1129,37 @@ public class SqlManager {
             conn.commit();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Delete Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
                 if (ps != null) {
                     ps.close();
                 }
-                if (set != null) {
-                    set.close();
-                }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Delete Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
     }
 
-    public static HashMap<String, Plot> getPlots(String world) {
-        HashMap<String, Plot> ret = new HashMap<String, Plot>();
-        Statement statementPlot = null;
+	public static HashMap<String, Plot> getPlots() {
+		HashMap<String, Plot> ret = new HashMap<>();
+		Statement statementPlot = null;
         Statement statementAllowed = null;
-        Statement statementDenied = null;
-        Statement statementComment = null;
+		Statement statementDenied;
+		Statement statementComment = null;
         ResultSet setPlots = null;
         ResultSet setAllowed = null;
-        ResultSet setDenied = null;
-        ResultSet setComments = null;
+		ResultSet setDenied;
+		ResultSet setComments = null;
 
         try {
             Connection conn = getConnection();
 
             statementPlot = conn.createStatement();
-            setPlots = statementPlot.executeQuery("SELECT * FROM plotmePlots WHERE LOWER(world) = '" + world + "'");
-            int size = 0;
+	        setPlots = statementPlot.executeQuery("SELECT * FROM plotmePlots WHERE LOWER(world) = '" + "plotworld" + "'");
+	        int size = 0;
             while (setPlots.next()) {
                 size++;
                 int idX = setPlots.getInt("idX");
@@ -1269,8 +1174,8 @@ public class SqlManager {
                 boolean finished = setPlots.getBoolean("finished");
                 PlayerList allowed = new PlayerList();
                 PlayerList denied = new PlayerList();
-                List<String[]> comments = new ArrayList<String[]>();
-                double customprice = setPlots.getDouble("customprice");
+	            List<String[]> comments = new ArrayList<>();
+	            double customprice = setPlots.getDouble("customprice");
                 boolean forsale = setPlots.getBoolean("forsale");
                 String finisheddate = setPlots.getString("finisheddate");
                 boolean protect = setPlots.getBoolean("protected");
@@ -1292,7 +1197,7 @@ public class SqlManager {
                 }
 
                 statementAllowed = conn.createStatement();
-                setAllowed = statementAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+	            setAllowed = statementAllowed.executeQuery("SELECT * FROM plotmeAllowed WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + "plotworld" + "'");
 
                 while (setAllowed.next()) {
                     byte[] byPlayerId = setAllowed.getBytes("playerid");
@@ -1303,11 +1208,10 @@ public class SqlManager {
                     }
                 }
 
-                if (setAllowed != null)
-                    setAllowed.close();
+	            setAllowed.close();
 
                 statementDenied = conn.createStatement();
-                setDenied = statementDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+	            setDenied = statementDenied.executeQuery("SELECT * FROM plotmeDenied WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + "plotworld" + "'");
 
                 while (setDenied.next()) {
                     byte[] byPlayerId = setDenied.getBytes("playerid");
@@ -1318,11 +1222,10 @@ public class SqlManager {
                     }
                 }
 
-                if (setDenied != null)
-                    setDenied.close();
+	            setDenied.close();
 
                 statementComment = conn.createStatement();
-                setComments = statementComment.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + world + "'");
+	            setComments = statementComment.executeQuery("SELECT * FROM plotmeComments WHERE idX = '" + idX + "' AND idZ = '" + idZ + "' AND LOWER(world) = '" + "plotworld" + "'");
 
                 while (setComments.next()) {
                     String[] comment = new String[3];
@@ -1337,13 +1240,13 @@ public class SqlManager {
                     comments.add(comment);
                 }
 
-                Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
-                ret.put("" + idX + ";" + idZ, plot);
+	            Plot plot = new Plot(owner, ownerId, "plotworld", topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
+	            ret.put("" + idX + ";" + idZ, plot);
             }
-            PlotMe.logger.info(PlotMe.NAME + " " + size + " plots loaded");
+	        PlotMe.logger.info(" " + size + " plots loaded");
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Load Exception :");
-            PlotMe.logger.severe("  " + ex.getMessage());
+	        PlotMe.logger.severe("Load Exception :");
+	        PlotMe.logger.severe("  " + ex.getMessage());
             ex.printStackTrace();
         } finally {
             try {
@@ -1360,8 +1263,8 @@ public class SqlManager {
                 if (setAllowed != null)
                     setAllowed.close();
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Load Exception (on close) :");
-                PlotMe.logger.severe("  " + ex.getMessage());
+	            PlotMe.logger.severe("Load Exception (on close) :");
+	            PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
         return ret;
@@ -1389,8 +1292,8 @@ public class SqlManager {
                 
                 ResultSet setPlayers = null;
                 int nbConverted = 0;
-                String sql = "";
-                int count = 0;
+	            String sql;
+	            int count;
 
                 try {
                     Connection conn = getConnection();
@@ -1410,9 +1313,9 @@ public class SqlManager {
 
                     if (setPlayers.next()) {
 
-                        List<String> names = new ArrayList<String>();
-                        
-                        //Prepare delete statements
+	                    List<String> names = new ArrayList<>();
+
+	                    //Prepare delete statements
                         psDeleteOwner = conn.prepareStatement("UPDATE plotmePlots SET owner = '' WHERE owner = ? ");
                         psDeleteCurrentBidder = conn.prepareStatement("UPDATE plotmePlots SET currentbidder = null WHERE currentbidder = ? ");
                         psDeleteAllowed = conn.prepareStatement("DELETE FROM plotmeAllowed WHERE player = ? ");
@@ -1642,22 +1545,24 @@ public class SqlManager {
                             uuid = p.getUniqueId();
                             newname = p.getName();
                         } else {
-                            List<String> names = new ArrayList<String>();
-    
-                            names.add(name);
+	                        List<String> names = new ArrayList<>();
+
+	                        names.add(name);
     
                             UUIDFetcher fetcher = new UUIDFetcher(names);
-    
-                            Map<String, UUID> response = null;
-    
-                            try {
+
+	                        Map<String, UUID> response;
+
+	                        try {
                                 PlotMe.logger.info("Fetching " + names.size() + " UUIDs from Mojang servers...");
                                 response = fetcher.call();
                                 PlotMe.logger.info("Received " + response.size() + " UUIDs. Starting database update...");
                                 
                                 if (response.size() > 0) {
-                                    uuid = response.values().toArray(new UUID[0])[0];
-                                    newname = response.keySet().toArray(new String[0])[0];
+	                                Collection<UUID> values = response.values();
+	                                uuid = values.toArray(new UUID[values.size()])[0];
+	                                Set<String> strings = response.keySet();
+	                                newname = strings.toArray(new String[strings.size()])[0];
                                 }
                             } catch (IOException e) {
                                 PlotMe.logger.warning("Unable to connect to Mojang server!");

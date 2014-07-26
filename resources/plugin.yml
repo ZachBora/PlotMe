@@ -1,16 +1,15 @@
 name: PlotMe
 main: com.worldcretornica.plotme.PlotMe
-version: '0.13g'
-author: ZachBora
-load: startup
-website: http://dev.bukkit.org/server-mods/plotme/
+version: 0.3.3
+author: MattBDev
+website:
 loadbefore: [bPermissions, Multiverse-Core]
-softdepend: [WorldEdit, Vault, LWC]
+softdepend: [Vault]
 description: >
              Handles plot creation, management and protection
 commands:
     plotme:
-      description: List PlotMe commands
+      description: List Plot commands
       usage: /plotme
       aliases: [p,plot]
 permissions:
@@ -48,7 +47,6 @@ permissions:
         plotme.admin.remove: true
         plotme.admin.setowner: true
         plotme.admin.move: true
-        plotme.admin.weanywhere: true
         plotme.admin.list: true
         plotme.admin.reload: true
         plotme.admin.buy: true
@@ -143,8 +141,6 @@ permissions:
       description: Gives the setowner command
     plotme.admin.move:
       description: Gives the move command
-    plotme.admin.weanywhere:
-      description: Gives the weanywhere command
     plotme.admin.list:
       description: Gives the list command for any players
     plotme.admin.reload:
