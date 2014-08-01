@@ -140,11 +140,12 @@ public class PlotWorldEditListener implements Listener
 		
 		if(PlotManager.isPlotWorld(p) && !PlotMe.isIgnoringWELimit(p))
 		{
-			if(event.getMessage().startsWith("//gmask"))
+                        String lowerCaseMessage = event.getMessage().toLowerCase();
+			if(lowerCaseMessage.startsWith("/gmask") || lowerCaseMessage.startsWith("//gmask") || lowerCaseMessage.startsWith("/worldedit:gmask") || lowerCaseMessage.startsWith("/worldedit:/gmask"))
 			{
 				event.setCancelled(true);
 			}
-			else if(event.getMessage().startsWith("//up"))
+                        else if(lowerCaseMessage.startsWith("/up") || lowerCaseMessage.startsWith("//up") || lowerCaseMessage.startsWith("/worldedit:up") || lowerCaseMessage.startsWith("/worldedit:/up"))
 			{
 				Plot plot = PlotManager.getPlotById(p);
 				
