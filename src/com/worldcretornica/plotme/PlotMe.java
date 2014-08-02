@@ -218,7 +218,7 @@ public class PlotMe extends JavaPlugin
 		}
 		else
 		{
-			logger.warning(PREFIX + "Configuration not found for PlotMe world '" + worldname + "' Using defaults");
+			logger.warning("Configuration not found for PlotMe world '" + worldname + "' Using defaults");
 			return new PlotGen();
 		}
 	}
@@ -251,12 +251,12 @@ public class PlotMe extends JavaPlugin
 		catch (FileNotFoundException e) {} 
 		catch (IOException e) 
 		{
-			logger.severe(PREFIX + "can't read configuration file");
+			logger.severe("Can't read configuration file");
 			e.printStackTrace();
 		} 
 		catch (InvalidConfigurationException e) 
 		{
-			logger.severe(PREFIX + "invalid configuration format");
+			logger.severe("Invalid configuration format");
 			e.printStackTrace();
 		}
         
@@ -362,7 +362,7 @@ public class PlotMe extends JavaPlugin
 			tempPlotInfo.RoadHeight = currworld.getInt("RoadHeight", currworld.getInt("WorldHeight", 64));
 			if(tempPlotInfo.RoadHeight > 250)
 			{
-				logger.severe(PREFIX + "RoadHeight above 250 is unsafe. This is the height at which your road is located. Setting it to 64.");
+				logger.severe("RoadHeight above 250 is unsafe. This is the height at which your road is located. Setting it to 64.");
 				tempPlotInfo.RoadHeight = 64;
 			}
 			tempPlotInfo.DaysToExpiration = currworld.getInt("DaysToExpiration", 7);
@@ -495,7 +495,7 @@ public class PlotMe extends JavaPlugin
 		} 
 		catch (IOException e) 
 		{
-			logger.severe(PREFIX + "error writting configurations");
+			logger.severe("Error writing configurations");
 			e.printStackTrace();
 		}
 		
@@ -972,10 +972,10 @@ public class PlotMe extends JavaPlugin
 				}
 		    }
 		} catch (FileNotFoundException e) {
-			logger.severe("[" + NAME + "] File not found: " + e.getMessage());
+			logger.severe("File not found: " + e.getMessage());
 			e.printStackTrace();
 		} catch (Exception e) {
-			logger.severe("[" + NAME + "] Error with configuration: " + e.getMessage());
+			logger.severe("Error with configuration: " + e.getMessage());
 			e.printStackTrace();
 		} finally {                      
 			if (input != null) try {
@@ -1004,7 +1004,7 @@ public class PlotMe extends JavaPlugin
 				
 				writer.close();
 			}catch (IOException e){
-				logger.severe("[" + NAME + "] Unable to create config file : " + Title + "!");
+				logger.severe("Unable to create config file : " + Title + "!");
 				logger.severe(e.getMessage());
 			} finally {                      
 				if (writer != null) try {
@@ -1040,10 +1040,10 @@ public class PlotMe extends JavaPlugin
 					input.close();
 			    }
 			} catch (FileNotFoundException e) {
-				logger.severe("[" + NAME + "] File not found: " + e.getMessage());
+				logger.severe("File not found: " + e.getMessage());
 				e.printStackTrace();
 			} catch (Exception e) {
-				logger.severe("[" + NAME + "] Error with configuration: " + e.getMessage());
+				logger.severe("Error with configuration: " + e.getMessage());
 				e.printStackTrace();
 			} finally {                      
 				if (writer != null) try {
@@ -1062,7 +1062,7 @@ public class PlotMe extends JavaPlugin
 		{
 			return addColor(captions.get(s));
 		}else{
-			logger.warning("[" + NAME + "] Missing caption: " + s);
+			logger.warning("Missing caption: " + s);
 			return "ERROR:Missing caption '" + s + "'";
 		}
 	}

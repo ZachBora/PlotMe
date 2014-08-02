@@ -1,13 +1,13 @@
 package com.worldcretornica.plotme;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 public class PlotGen extends ChunkGenerator {
 
@@ -33,7 +33,7 @@ public class PlotGen extends ChunkGenerator {
         floor1 = 5;
         floor2 = 5;
         temppmi = null;
-        PlotMe.logger.warning(PlotMe.PREFIX + " Unable to find configuration, using defaults");
+        PlotMe.logger.warning("Unable to find configuration, using defaults");
     }
 
     public PlotGen(PlotMapInfo pmi) {
