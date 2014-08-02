@@ -460,9 +460,8 @@ public class PMCommand implements CommandExecutor {
 							World w = p.getWorld();
 
 							if (plot.auctionned) {
-								boolean b = plot.currentbidder.equalsIgnoreCase("");
 								if (plot.currentbidder != null) {
-									if (!b) {
+									if (!plot.currentbidder.equalsIgnoreCase("")) {
 										if (!PlotMe.cPerms(p, "PlotMe.admin.auction")) {
 											Send(p, RED + C("MsgPlotHasBidsAskAdmin"));
 										} else {
@@ -517,23 +516,6 @@ public class PMCommand implements CommandExecutor {
 										}
 									}
 								} else {
-									if (plot.currentbidder != null && !b) {
-										EconomyResponse er = PlotMe.economy.depositPlayer(plot.currentbidder, plot.currentbid);
-
-										if (!er.transactionSuccess()) {
-											Send(p, RED + er.errorMessage);
-											warn(er.errorMessage);
-										} else {
-											for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-												if (plot.currentbidder != null && player.getName().equalsIgnoreCase(plot.currentbidder)) {
-													Send(player, C("MsgAuctionCancelledOnPlot") +
-															             " " + id + " " + C("MsgOwnedBy") + " " + plot.owner + ". " + f(plot.currentbid));
-													break;
-												}
-											}
-										}
-									}
-
 									plot.auctionned = false;
 									PlotManager.adjustWall(p.getLocation());
 									PlotManager.setSellSign(w, plot);
@@ -1583,9 +1565,8 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean tp(Player p, String[] args) {
 		if (PlotMe.cPerms(p, "PlotMe.admin.tp")) {
-			Boolean allowWorldTeleport = PlotMe.allowWorldTeleport;
 			if (!PlotManager.isPlotWorld(p)) {
-				if (!allowWorldTeleport) {
+				if (!PlotMe.allowWorldTeleport) {
 					Send(p, RED + C("MsgNotPlotWorld"));
 				} else if (args.length == 2 || (args.length == 3)) {
 					String id = args[1];
@@ -1618,11 +1599,11 @@ public class PMCommand implements CommandExecutor {
 				} else {
 					Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandTp") + " <" + C("WordId") + "> [" + C("WordWorld") + "] " + RESET + C("WordExample") + ": " + RED + "/plotme " + C("CommandTp") + " 5;-1 ");
 				}
-			} else if (args.length == 2 || (args.length == 3 && allowWorldTeleport)) {
+			} else if (args.length == 2 || (args.length == 3 && PlotMe.allowWorldTeleport)) {
 				String id = args[1];
 
 				if (!PlotManager.isValidId(id)) {
-					if (allowWorldTeleport) {
+					if (PlotMe.allowWorldTeleport) {
 						Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandTp") + " <" + C("WordId") + "> [" + C("WordWorld") + "] " + RESET + C("WordExample") + ": " + RED + "/plotme " + C("CommandTp") + " 5;-1 ");
 					} else {
 						Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandTp") + " <" + C("WordId") + "> " + RESET + C("WordExample") + ": " + RED + "/plotme " + C("CommandTp") + " 5;-1 ");
@@ -1650,7 +1631,7 @@ public class PMCommand implements CommandExecutor {
 						p.teleport(new Location(w, bottom.getX() + (top.getBlockX() - bottom.getBlockX()) / 2, PlotManager.getMap(w).RoadHeight + 2, bottom.getZ() - 2));
 					}
 				}
-			} else if (allowWorldTeleport) {
+			} else if (PlotMe.allowWorldTeleport) {
 				Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandTp") + " <" + C("WordId") + "> [" + C("WordWorld") + "] " + RESET + C("WordExample") + ": " + RED + "/plotme " + C("CommandTp") + " 5;-1 ");
 			} else {
 				Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandTp") + " <" + C("WordId") + "> " + RESET + C("WordExample") + ": " + RED + "/plotme " + C("CommandTp") + " 5;-1 ");
@@ -1663,9 +1644,8 @@ public class PMCommand implements CommandExecutor {
 
 	private boolean auto(Player p, String[] args) {
 		if (PlotMe.cPerms(p, "PlotMe.use.auto")) {
-			Boolean allowWorldTeleport = PlotMe.allowWorldTeleport;
 			if (!PlotManager.isPlotWorld(p)) {
-				if (!allowWorldTeleport) {
+				if (!PlotMe.allowWorldTeleport) {
 					Send(p, RED + C("MsgNotPlotWorld"));
 				} else {
 					World w;
@@ -1748,7 +1728,7 @@ public class PMCommand implements CommandExecutor {
 			} else {
 				World w;
 				if (!PlotManager.isPlotWorld(p)) {
-					if (allowWorldTeleport) {
+					if (PlotMe.allowWorldTeleport) {
 						if (args.length == 2) {
 							w = Bukkit.getWorld(args[1]);
 						} else {
@@ -1856,7 +1836,7 @@ public class PMCommand implements CommandExecutor {
 
 					int plotlimit = PlotMe.getPlotLimit(p);
 
-					if (playername == p.getName() && plotlimit != -1 && PlotManager.getNbOwnedPlot(p) >= plotlimit) {
+					if (playername.equals(p.getName()) && plotlimit != -1 && PlotManager.getNbOwnedPlot(p) >= plotlimit) {
 						Send(p, RED + C("MsgAlreadyReachedMaxPlots") + " (" +
 								        PlotManager.getNbOwnedPlot(p) + "/" + PlotMe.getPlotLimit(p) + "). " + C("WordUse") + " " + RED + "/plotme " + C("CommandHome") + RESET + " " + C("MsgToGetToIt"));
 					} else {
