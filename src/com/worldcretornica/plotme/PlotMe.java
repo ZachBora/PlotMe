@@ -1,31 +1,12 @@
 package com.worldcretornica.plotme;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.TreeMap;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
+import com.griefcraft.model.Protection;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.worldcretornica.plotme.listener.PlotDenyListener;
+import com.worldcretornica.plotme.listener.PlotListener;
+import com.worldcretornica.plotme.listener.PlotWorldEditListener;
 import net.milkbowl.vault.economy.Economy;
-
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -42,19 +23,17 @@ import org.mcstats.Metrics;
 import org.mcstats.Metrics.Graph;
 import org.yaml.snakeyaml.Yaml;
 
-import com.griefcraft.model.Protection;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.worldcretornica.plotme.listener.PlotDenyListener;
-import com.worldcretornica.plotme.listener.PlotListener;
-import com.worldcretornica.plotme.listener.PlotWorldEditListener;
+import java.io.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 public class PlotMe extends JavaPlugin
 {
 	public static String NAME;
 	public static String PREFIX;
-	public static String VERSION;
-	public static String WEBSITE;
-	
+
 	public static Logger logger = null;
 		
 	public static Boolean usemySQL;
@@ -93,9 +72,8 @@ public class PlotMe extends JavaPlugin
 		SqlManager.closeConnection();
 		NAME = null;
 		PREFIX = null;
-		VERSION = null;
-		WEBSITE = null;
-		
+
+
 		logger = null;
 		
 		usemySQL = null;
@@ -255,10 +233,8 @@ public class PlotMe extends JavaPlugin
 		PluginDescriptionFile pdfFile = this.getDescription();
 		NAME = pdfFile.getName();
 		PREFIX = ChatColor.BLUE + "[" + NAME + "] " + ChatColor.RESET;
-		VERSION = pdfFile.getVersion();
-		WEBSITE = pdfFile.getWebsite();
 		configpath = getDataFolder().getAbsolutePath();
-		playersignoringwelimit = new HashSet<String>();
+		playersignoringwelimit = new HashSet<>();
 
 		if(!this.getDataFolder().exists()) 
 		{
