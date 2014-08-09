@@ -1,27 +1,16 @@
 package com.worldcretornica.plotme;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.UUID;
-
+import com.worldcretornica.plotme.utils.UUIDFetcher;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.worldcretornica.plotme.utils.UUIDFetcher;
+import java.io.File;
+import java.io.IOException;
+import java.sql.*;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class SqlManager {
 
@@ -93,10 +82,10 @@ public class SqlManager {
                 conn.setAutoCommit(false);
             }
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + "SQL exception on initialize :");
+            PlotMe.logger.severe("SQL exception on initialize :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } catch (ClassNotFoundException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + "You need the SQLite/MySQL library. :");
+            PlotMe.logger.severe("You need the SQLite/MySQL library. :");
             PlotMe.logger.severe("  " + ex.getMessage());
         }
 
@@ -455,7 +444,7 @@ public class SqlManager {
 
             }
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Update table exception :");
+            PlotMe.logger.severe("Update table exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -464,7 +453,7 @@ public class SqlManager {
                 if (set != null)
                     set.close();
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Update table exception (on close) :");
+                PlotMe.logger.severe("Update table exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -478,7 +467,7 @@ public class SqlManager {
                 if (!conn.isValid(10))
                     conn = initialize();
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + "Failed to check SQL status :");
+                PlotMe.logger.severe("Failed to check SQL status :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -498,7 +487,7 @@ public class SqlManager {
                     conn = null;
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + "Error on Connection close :");
+                PlotMe.logger.severe("Error on Connection close :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -515,7 +504,7 @@ public class SqlManager {
                 return false;
             return true;
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Table Check Exception :");
+            PlotMe.logger.severe("Table Check Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
             return false;
         } finally {
@@ -523,7 +512,7 @@ public class SqlManager {
                 if (rs != null)
                     rs.close();
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Table Check SQL Exception (on closing) :");
+                PlotMe.logger.severe("Table Check SQL Exception (on closing) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -562,8 +551,8 @@ public class SqlManager {
                 if (!sqlitefile.exists()) {
                     return;
                 } else {
-                    PlotMe.logger.info(PlotMe.NAME + " Modifying database for MySQL support");
-                    PlotMe.logger.info(PlotMe.NAME + " Trying to import plots from plots.db");
+                    PlotMe.logger.info("Modifying database for MySQL support");
+                    PlotMe.logger.info("Trying to import plots from plots.db");
                     Class.forName("org.sqlite.JDBC");
                     Connection sqliteconn = DriverManager.getConnection("jdbc:sqlite:" + PlotMe.configpath + sqlitedb);
                     sqliteconn.setAutoCommit(false);
@@ -665,7 +654,7 @@ public class SqlManager {
 
                         size++;
                     }
-                    PlotMe.logger.info(PlotMe.NAME + " Imported " + size + " plots from " + sqlitedb);
+                    PlotMe.logger.info("Imported " + size + " plots from " + sqlitedb);
                     if (slstatement != null)
                         slstatement.close();
                     if (slAllowed != null)
@@ -683,18 +672,18 @@ public class SqlManager {
                     if (sqliteconn != null)
                         sqliteconn.close();
 
-                    PlotMe.logger.info(PlotMe.NAME + " Renaming " + sqlitedb + " to " + sqlitedb + ".old");
+                    PlotMe.logger.info("Renaming " + sqlitedb + " to " + sqlitedb + ".old");
                     if (!sqlitefile.renameTo(new File(PlotMe.configpath, sqlitedb + ".old"))) {
-                        PlotMe.logger.warning(PlotMe.NAME + " Failed to rename " + sqlitedb + "! Please rename this manually!");
+                        PlotMe.logger.warning("Failed to rename " + sqlitedb + "! Please rename this manually!");
                     }
                 }
             }
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Create Table Exception :");
+            PlotMe.logger.severe("Create Table Exception :");
             //PlotMe.logger.severe("  " + ex.getMessage());
             ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " You need the SQLite library :");
+            PlotMe.logger.severe("You need the SQLite library :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -702,7 +691,7 @@ public class SqlManager {
                     st.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Could not create the table (on close) :");
+                PlotMe.logger.severe("Could not create the table (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -802,7 +791,7 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
+            PlotMe.logger.severe("Insert Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -810,7 +799,7 @@ public class SqlManager {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
+                PlotMe.logger.severe("Insert Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -845,7 +834,7 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
+            PlotMe.logger.severe("Insert Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -853,7 +842,7 @@ public class SqlManager {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
+                PlotMe.logger.severe("Insert Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -892,7 +881,7 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
+            PlotMe.logger.severe("Insert Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -900,7 +889,7 @@ public class SqlManager {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
+                PlotMe.logger.severe("Insert Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -938,7 +927,7 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
+            PlotMe.logger.severe("Insert Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -946,7 +935,7 @@ public class SqlManager {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
+                PlotMe.logger.severe("Insert Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -990,7 +979,7 @@ public class SqlManager {
             }
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
+            PlotMe.logger.severe("Insert Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -998,7 +987,7 @@ public class SqlManager {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
+                PlotMe.logger.severe("Insert Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -1040,7 +1029,7 @@ public class SqlManager {
             conn.commit();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Insert Exception :");
+            PlotMe.logger.severe("Insert Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -1048,7 +1037,7 @@ public class SqlManager {
                     ps.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Insert Exception (on close) :");
+                PlotMe.logger.severe("Insert Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -1093,7 +1082,7 @@ public class SqlManager {
             ps.close();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
+            PlotMe.logger.severe("Delete Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -1104,7 +1093,7 @@ public class SqlManager {
                     set.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
+                PlotMe.logger.severe("Delete Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -1125,7 +1114,7 @@ public class SqlManager {
             conn.commit();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
+            PlotMe.logger.severe("Delete Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -1136,7 +1125,7 @@ public class SqlManager {
                     set.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
+                PlotMe.logger.severe("Delete Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -1173,7 +1162,7 @@ public class SqlManager {
             conn.commit();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
+            PlotMe.logger.severe("Delete Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -1184,7 +1173,7 @@ public class SqlManager {
                     set.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
+                PlotMe.logger.severe("Delete Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -1221,7 +1210,7 @@ public class SqlManager {
             conn.commit();
 
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Delete Exception :");
+            PlotMe.logger.severe("Delete Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
         } finally {
             try {
@@ -1232,7 +1221,7 @@ public class SqlManager {
                     set.close();
                 }
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Delete Exception (on close) :");
+                PlotMe.logger.severe("Delete Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
@@ -1340,9 +1329,9 @@ public class SqlManager {
                 Plot plot = new Plot(owner, ownerId, world, topX, bottomX, topZ, bottomZ, biome, expireddate, finished, allowed, comments, "" + idX + ";" + idZ, customprice, forsale, finisheddate, protect, currentbidder, currentbidderid, currentbid, auctionned, denied);
                 ret.put("" + idX + ";" + idZ, plot);
             }
-            PlotMe.logger.info(PlotMe.NAME + " " + size + " plots loaded");
+            PlotMe.logger.info(" " + size + " plots loaded");
         } catch (SQLException ex) {
-            PlotMe.logger.severe(PlotMe.NAME + " Load Exception :");
+            PlotMe.logger.severe("Load Exception :");
             PlotMe.logger.severe("  " + ex.getMessage());
             ex.printStackTrace();
         } finally {
@@ -1360,7 +1349,7 @@ public class SqlManager {
                 if (setAllowed != null)
                     setAllowed.close();
             } catch (SQLException ex) {
-                PlotMe.logger.severe(PlotMe.NAME + " Load Exception (on close) :");
+                PlotMe.logger.severe("Load Exception (on close) :");
                 PlotMe.logger.severe("  " + ex.getMessage());
             }
         }
