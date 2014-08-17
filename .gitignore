@@ -33,3 +33,14 @@ com_crashlytics_export_strings.xml
 
 .idea/
 PlotMe.iml
+/bin
+/target
+
+dependency-reduced-pom.xml
+worldedit-6.0.0-SNAPSHOT.jar
+.settings/org.eclipse.m2e.core.prefs
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.core.resources.prefs
+.project
+.classpath
+worldedit-5.7-SNAPSHOT.jar

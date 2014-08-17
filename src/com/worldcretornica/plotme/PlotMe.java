@@ -5,7 +5,10 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.worldcretornica.plotme.listener.PlotDenyListener;
 import com.worldcretornica.plotme.listener.PlotListener;
 import com.worldcretornica.plotme.listener.PlotWorldEditListener;
+import com.worldcretornica.plotme.worldedit.PlotWorldEdit;
+
 import net.milkbowl.vault.economy.Economy;
+
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -50,7 +53,8 @@ public class PlotMe extends JavaPlugin
     
     public static ConcurrentHashMap<String, PlotMapInfo> plotmaps = null;
     
-    public static WorldEditPlugin we = null;
+    public static WorldEditPlugin worldeditplugin = null;
+    public static PlotWorldEdit plotworldedit = null;
     public static Economy economy = null;
     public static Boolean usinglwc = false;
     
@@ -87,7 +91,7 @@ public class PlotMe extends JavaPlugin
 		autoUpdate = null;
 		plotmaps = null;
 		configpath = null;
-		we = null;
+		worldeditplugin = null;
 		economy = null;
 		usinglwc = null;
 		playersignoringwelimit = null;
@@ -122,7 +126,20 @@ public class PlotMe extends JavaPlugin
 		
 		if(pm.getPlugin("WorldEdit") != null)
 		{
-			we = (WorldEditPlugin) pm.getPlugin("WorldEdit");
+			worldeditplugin = (WorldEditPlugin) pm.getPlugin("WorldEdit");
+			
+			try {
+				Class.forName("com.sk89q.worldedit.function.mask.Mask");
+				PlotMe.plotworldedit = (PlotWorldEdit) Class.forName("com.worldcretornica.plotme.worldedit.PlotWorldEdit6_0_0").getConstructor().newInstance();
+			} catch (Exception e) {
+				try {
+					PlotMe.plotworldedit = (PlotWorldEdit) Class.forName("com.worldcretornica.plotme.worldedit.PlotWorldEdit5_7").getConstructor().newInstance();
+				} catch (Exception e2) {
+					logger.warning("Unable to hook to WorldEdit properly, please contact the developper of plotme with your WorldEdit version.");
+					PlotMe.plotworldedit = null;
+				}
+			}
+			
 			pm.registerEvents(new PlotWorldEditListener(), this);			
 		}
 		
@@ -516,8 +533,8 @@ public class PlotMe extends JavaPlugin
 		if(!playersignoringwelimit.contains(p.getName()))
 		{
 			playersignoringwelimit.add(p.getName());
-			if(we != null)
-				PlotWorldEdit.removeMask(p);
+			if(worldeditplugin != null)
+				PlotMe.plotworldedit.removeMask(p);
 		}
 	}
 	
@@ -526,8 +543,8 @@ public class PlotMe extends JavaPlugin
 		if(playersignoringwelimit.contains(p.getName()))
 		{
 			playersignoringwelimit.remove(p.getName());
-			if(we != null)
-				PlotWorldEdit.setMask(p);
+			if(worldeditplugin != null)
+				PlotMe.plotworldedit.setMask(p);
 		}
 	}
 	

@@ -1,24 +1,26 @@
-package com.worldcretornica.plotme;
+package com.worldcretornica.plotme.worldedit;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.sk89q.worldedit.LocalSession;
-import com.sk89q.worldedit.LocalWorld;
 import com.sk89q.worldedit.Vector;
-import com.sk89q.worldedit.bukkit.BukkitPlayer;
-import com.sk89q.worldedit.masks.RegionMask;
+import com.sk89q.worldedit.function.mask.Mask;
+import com.sk89q.worldedit.function.mask.RegionMask;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import com.worldcretornica.plotme.Plot;
+import com.worldcretornica.plotme.PlotManager;
+import com.worldcretornica.plotme.PlotMe;
 
-public class PlotWorldEdit {
+public class PlotWorldEdit6_0_0 implements PlotWorldEdit {
 	
-	public static void setMask(Player p)
+	public void setMask(Player p)
 	{
 		setMask(p, p.getLocation());
 	}
 	
-	public static void setMask(Player p, Location l)
+	public void setMask(Player p, Location l)
 	{
 		World w = p.getWorld();
 		
@@ -27,7 +29,7 @@ public class PlotWorldEdit {
 		Location bottom = null;
 		Location top = null;
 		
-		LocalSession session = PlotMe.we.getSession(p);
+		LocalSession session = PlotMe.worldeditplugin.getSession(p);
 				
 		if(!id.equalsIgnoreCase(""))
 		{		
@@ -38,8 +40,8 @@ public class PlotWorldEdit {
 				bottom = PlotManager.getPlotBottomLoc(w, id);
 				top = PlotManager.getPlotTopLoc(w, id);
 				
-				BukkitPlayer player = PlotMe.we.wrapPlayer(p);
-				LocalWorld world = player.getWorld();
+				LocalSession localsession = PlotMe.worldeditplugin.getSession(p);
+				com.sk89q.worldedit.world.World world = localsession.getSelectionWorld();
 						
 				Vector pos1 = new Vector(bottom.getBlockX(), bottom.getBlockY(), bottom.getBlockZ());
 				Vector pos2 = new Vector(top.getBlockX(), top.getBlockY(), top.getBlockZ());
@@ -60,8 +62,8 @@ public class PlotWorldEdit {
 		
 		if(session.getMask() == null)
 		{
-			BukkitPlayer player = PlotMe.we.wrapPlayer(p);
-			LocalWorld world = player.getWorld();
+			LocalSession localsession = PlotMe.worldeditplugin.getSession(p);
+			com.sk89q.worldedit.world.World world = localsession.getSelectionWorld();
 					
 			Vector pos1 = new Vector(bottom.getBlockX(), bottom.getBlockY(), bottom.getBlockZ());
 			Vector pos2 = new Vector(top.getBlockX(), top.getBlockY(), top.getBlockZ());
@@ -74,9 +76,10 @@ public class PlotWorldEdit {
 		}
 	}
 
-	public static void removeMask(Player p)
+	public void removeMask(Player p)
 	{
-		LocalSession session = PlotMe.we.getSession(p);
-		session.setMask(null);
+		LocalSession session = PlotMe.worldeditplugin.getSession(p);
+		Mask mask = null;
+		session.setMask(mask);
 	}	
 }

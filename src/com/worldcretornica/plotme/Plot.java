@@ -301,15 +301,15 @@ public class Plot implements Comparable<Plot> {
             UUID uuid = allowed.remove(name);
             SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
             
-            if(PlotMe.we != null) {
+            if(PlotMe.worldeditplugin != null) {
                 Player p = Bukkit.getPlayer(uuid);
                 
                 if(p != null) {
                     if(PlotManager.isPlotWorld(p.getWorld())) {
                         if(!PlotMe.isIgnoringWELimit(p))
-                            PlotWorldEdit.setMask(p);
+                            PlotMe.plotworldedit.setMask(p);
                         else
-                            PlotWorldEdit.removeMask(p);
+                        	PlotMe.plotworldedit.removeMask(p);
                     }
                 }
             }
@@ -328,15 +328,15 @@ public class Plot implements Comparable<Plot> {
             String name = allowed.remove(uuid);
             SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
             
-            if(PlotMe.we != null) {
+            if(PlotMe.worldeditplugin != null) {
                 Player p = Bukkit.getPlayer(uuid);
                 
                 if(p != null) {
                     if(PlotManager.isPlotWorld(p.getWorld())) {
                         if(!PlotMe.isIgnoringWELimit(p))
-                            PlotWorldEdit.setMask(p);
+                        	PlotMe.plotworldedit.setMask(p);
                         else
-                            PlotWorldEdit.removeMask(p);
+                        	PlotMe.plotworldedit.removeMask(p);
                     }
                 }
             }

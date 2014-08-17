@@ -1,11 +1,14 @@
 package com.worldcretornica.plotme;
 
 import com.worldcretornica.plotme.utils.MinecraftFontWidthCalculator;
+
 import net.milkbowl.vault.economy.EconomyResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
@@ -236,6 +239,7 @@ public class PMCommand implements CommandExecutor {
 
 					if (plot.auctionned) {
 						String bidder = p.getName();
+						OfflinePlayer playerbidder = p;
 
 						if (plot.owner.equalsIgnoreCase(bidder)) {
 							Send(p, RED + C("MsgCannotBidOwnPlot"));
@@ -243,7 +247,8 @@ public class PMCommand implements CommandExecutor {
 							double bid = 0;
 							double currentbid = plot.currentbid;
 							String currentbidder = plot.currentbidder;
-
+							OfflinePlayer playercurrentbidder = Bukkit.getOfflinePlayer(plot.currentbidderId);
+									
 							try {
 								bid = Double.parseDouble(args[1]);
 							} catch (NumberFormatException ignored) {
@@ -256,12 +261,12 @@ public class PMCommand implements CommandExecutor {
 								if (!equals) {
 									Send(p, RED + C("MsgInvalidBidMustBeAbove") + " " + RESET + f(plot.currentbid, false));
 								} else {
-									double balance = PlotMe.economy.getBalance(bidder);
+									double balance = PlotMe.economy.getBalance(playerbidder);
 
 									if (bid >= balance && !currentbidder.equals(bidder) || currentbidder.equals(bidder) && bid > (balance + currentbid)) {
 										Send(p, RED + C("MsgNotEnoughBid"));
 									} else {
-										EconomyResponse er = PlotMe.economy.withdrawPlayer(bidder, bid);
+										EconomyResponse er = PlotMe.economy.withdrawPlayer(playerbidder, bid);
 
 										if (er.transactionSuccess()) {
 
@@ -285,17 +290,17 @@ public class PMCommand implements CommandExecutor {
 									}
 								}
 							} else {
-								double balance = PlotMe.economy.getBalance(bidder);
+								double balance = PlotMe.economy.getBalance(playerbidder);
 
 								if (bid >= balance && !currentbidder.equals(bidder) ||
 										    currentbidder.equals(bidder) && bid > (balance + currentbid)) {
 									Send(p, RED + C("MsgNotEnoughBid"));
 								} else {
-									EconomyResponse er = PlotMe.economy.withdrawPlayer(bidder, bid);
+									EconomyResponse er = PlotMe.economy.withdrawPlayer(playerbidder, bid);
 
 									if (er.transactionSuccess()) {
 										if (!equals) {
-											EconomyResponse er2 = PlotMe.economy.depositPlayer(currentbidder, currentbid);
+											EconomyResponse er2 = PlotMe.economy.depositPlayer(playercurrentbidder, currentbid);
 
 											if (!er2.transactionSuccess()) {
 												Send(p, er2.errorMessage);
@@ -379,16 +384,17 @@ public class PMCommand implements CommandExecutor {
 
 								double cost = plot.customprice;
 
-								if (PlotMe.economy.getBalance(buyer) < cost) {
+								if (PlotMe.economy.getBalance(p) < cost) {
 									Send(p, RED + C("MsgNotEnoughBuy"));
 								} else {
-									EconomyResponse er = PlotMe.economy.withdrawPlayer(buyer, cost);
+									EconomyResponse er = PlotMe.economy.withdrawPlayer(p, cost);
 
 									if (er.transactionSuccess()) {
 										String oldowner = plot.owner;
+										OfflinePlayer playercurrentbidder = Bukkit.getOfflinePlayer(plot.ownerId);
 
 										if (!oldowner.equalsIgnoreCase("$Bank$")) {
-											EconomyResponse er2 = PlotMe.economy.depositPlayer(oldowner, cost);
+											EconomyResponse er2 = PlotMe.economy.depositPlayer(playercurrentbidder, cost);
 
 											if (!er2.transactionSuccess()) {
 												Send(p, RED + er2.errorMessage);
@@ -466,7 +472,8 @@ public class PMCommand implements CommandExecutor {
 											Send(p, RED + C("MsgPlotHasBidsAskAdmin"));
 										} else {
 											if (plot.currentbidder != null) {
-												EconomyResponse er = PlotMe.economy.depositPlayer(plot.currentbidder, plot.currentbid);
+												OfflinePlayer playercurrentbidder = Bukkit.getOfflinePlayer(plot.currentbidderId);
+												EconomyResponse er = PlotMe.economy.depositPlayer(playercurrentbidder, plot.currentbid);
 
 												if (!er.transactionSuccess()) {
 													Send(p, RED + er.errorMessage);
@@ -600,12 +607,12 @@ public class PMCommand implements CommandExecutor {
 							double cost = pmi.DisposePrice;
 
 							if (PlotManager.isEconomyEnabled(p)) {
-								if (cost != 0 && PlotMe.economy.getBalance(name) < cost) {
+								if (cost != 0 && PlotMe.economy.getBalance(p) < cost) {
 									Send(p, RED + C("MsgNotEnoughDispose"));
 									return true;
 								}
 
-								EconomyResponse er = PlotMe.economy.withdrawPlayer(name, cost);
+								EconomyResponse er = PlotMe.economy.withdrawPlayer(p, cost);
 
 								if (!er.transactionSuccess()) {
 									Send(p, RED + er.errorMessage);
@@ -615,9 +622,10 @@ public class PMCommand implements CommandExecutor {
 
 								if (plot.auctionned) {
 									String currentbidder = plot.currentbidder;
+									OfflinePlayer playercurrentbidder = Bukkit.getOfflinePlayer(plot.currentbidderId);
 
 									if (!currentbidder.equals("")) {
-										EconomyResponse er2 = PlotMe.economy.depositPlayer(currentbidder, plot.currentbid);
+										EconomyResponse er2 = PlotMe.economy.depositPlayer(playercurrentbidder, plot.currentbid);
 
 										if (!er2.transactionSuccess()) {
 											Send(p, RED + er2.errorMessage);
@@ -729,12 +737,13 @@ public class PMCommand implements CommandExecutor {
 										Send(p, RED + C("MsgCannotSellToBank"));
 									} else {
 
-										String currentbidder = plot.currentbidder;
+										String currentbidder = plot.currentbidder;										
 
 										if (!currentbidder.equals("")) {
 											double bid = plot.currentbid;
+											OfflinePlayer playercurrentbidder = Bukkit.getOfflinePlayer(plot.currentbidderId);
 
-											EconomyResponse er = PlotMe.economy.depositPlayer(currentbidder, bid);
+											EconomyResponse er = PlotMe.economy.depositPlayer(playercurrentbidder, bid);
 
 											if (!er.transactionSuccess()) {
 												Send(p, RED + er.errorMessage);
@@ -751,7 +760,7 @@ public class PMCommand implements CommandExecutor {
 
 										double sellprice = pmi.SellToBankPrice;
 
-										EconomyResponse er = PlotMe.economy.depositPlayer(name, sellprice);
+										EconomyResponse er = PlotMe.economy.depositPlayer(p, sellprice);
 
 										if (er.transactionSuccess()) {
 											plot.owner = "$Bank$";
@@ -855,11 +864,11 @@ public class PMCommand implements CommandExecutor {
 							if (PlotManager.isEconomyEnabled(p)) {
 								cost = pmi.ProtectPrice;
 
-								if (PlotMe.economy.getBalance(name) < cost) {
+								if (PlotMe.economy.getBalance(p) < cost) {
 									Send(p, RED + C("MsgNotEnoughProtectPlot"));
 									return true;
 								} else {
-									EconomyResponse er = PlotMe.economy.withdrawPlayer(name, cost);
+									EconomyResponse er = PlotMe.economy.withdrawPlayer(p, cost);
 
 									if (!er.transactionSuccess()) {
 										Send(p, RED + er.errorMessage);
@@ -1687,10 +1696,10 @@ public class PMCommand implements CommandExecutor {
 
 										if (PlotManager.isEconomyEnabled(w)) {
 											price = pmi.ClaimPrice;
-											double balance = PlotMe.economy.getBalance(name);
+											double balance = PlotMe.economy.getBalance(p);
 
 											if (balance >= price) {
-												EconomyResponse er = PlotMe.economy.withdrawPlayer(name, price);
+												EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 												if (!er.transactionSuccess()) {
 													Send(p, RED + er.errorMessage);
@@ -1768,10 +1777,10 @@ public class PMCommand implements CommandExecutor {
 
 									if (PlotManager.isEconomyEnabled(w)) {
 										price = pmi.ClaimPrice;
-										double balance = PlotMe.economy.getBalance(name);
+										double balance = PlotMe.economy.getBalance(p);
 
 										if (balance >= price) {
-											EconomyResponse er = PlotMe.economy.withdrawPlayer(name, price);
+											EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 											if (!er.transactionSuccess()) {
 												Send(p, RED + er.errorMessage);
@@ -1847,10 +1856,10 @@ public class PMCommand implements CommandExecutor {
 
 						if (PlotManager.isEconomyEnabled(w)) {
 							price = pmi.ClaimPrice;
-							double balance = PlotMe.economy.getBalance(playername);
+							double balance = PlotMe.economy.getBalance(p);
 
 							if (balance >= price) {
-								EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+								EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 								if (!er.transactionSuccess()) {
 									Send(p, RED + er.errorMessage);
@@ -1963,10 +1972,10 @@ public class PMCommand implements CommandExecutor {
 
 									if (PlotManager.isEconomyEnabled(w)) {
 										price = pmi.PlotHomePrice;
-										double balance = PlotMe.economy.getBalance(playername);
+										double balance = PlotMe.economy.getBalance(p);
 
 										if (balance >= price) {
-											EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+											EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 											if (!er.transactionSuccess()) {
 												Send(p, RED + er.errorMessage);
@@ -2073,10 +2082,10 @@ public class PMCommand implements CommandExecutor {
 
 								if (PlotManager.isEconomyEnabled(w)) {
 									price = pmi.PlotHomePrice;
-									double balance = PlotMe.economy.getBalance(playername);
+									double balance = PlotMe.economy.getBalance(p);
 
 									if (balance >= price) {
-										EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+										EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 										if (!er.transactionSuccess()) {
 											Send(p, RED + er.errorMessage);
@@ -2191,10 +2200,10 @@ public class PMCommand implements CommandExecutor {
 
 					if (PlotManager.isEconomyEnabled(w)) {
 						price = pmi.AddCommentPrice;
-						double balance = PlotMe.economy.getBalance(playername);
+						double balance = PlotMe.economy.getBalance(p);
 
 						if (balance >= price) {
-							EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+							EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 							if (!er.transactionSuccess()) {
 								Send(p, RED + er.errorMessage);
@@ -2306,10 +2315,10 @@ public class PMCommand implements CommandExecutor {
 
 								if (PlotManager.isEconomyEnabled(w)) {
 									price = pmi.BiomeChangePrice;
-									double balance = PlotMe.economy.getBalance(playername);
+									double balance = PlotMe.economy.getBalance(p);
 
 									if (balance >= price) {
-										EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+										EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 										if (!er.transactionSuccess()) {
 											Send(p, RED + er.errorMessage);
@@ -2446,7 +2455,8 @@ public class PMCommand implements CommandExecutor {
 							String currentbidder = plot.currentbidder;
 
 							if (!currentbidder.equals("")) {
-								EconomyResponse er = PlotMe.economy.depositPlayer(currentbidder, plot.currentbid);
+								OfflinePlayer playercurrentbidder = Bukkit.getOfflinePlayer(plot.currentbidderId);
+								EconomyResponse er = PlotMe.economy.depositPlayer(playercurrentbidder, plot.currentbid);
 
 								if (!er.transactionSuccess()) {
 									Send(p, er.errorMessage);
@@ -2465,7 +2475,8 @@ public class PMCommand implements CommandExecutor {
 						PlotMapInfo pmi = PlotManager.getMap(p);
 
 						if (pmi.RefundClaimPriceOnReset) {
-							EconomyResponse er = PlotMe.economy.depositPlayer(plot.owner, pmi.ClaimPrice);
+							OfflinePlayer playerowner = Bukkit.getOfflinePlayer(plot.ownerId);
+							EconomyResponse er = PlotMe.economy.depositPlayer(playerowner, pmi.ClaimPrice);
 
 							if (!er.transactionSuccess()) {
 								Send(p, RED + er.errorMessage);
@@ -2531,10 +2542,10 @@ public class PMCommand implements CommandExecutor {
 
 							if (PlotManager.isEconomyEnabled(w)) {
 								price = pmi.ClearPrice;
-								double balance = PlotMe.economy.getBalance(playername);
+								double balance = PlotMe.economy.getBalance(p);
 
 								if (balance >= price) {
-									EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+									EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 									if (!er.transactionSuccess()) {
 										Send(p, RED + er.errorMessage);
@@ -2599,10 +2610,10 @@ public class PMCommand implements CommandExecutor {
 
 								if (PlotManager.isEconomyEnabled(w)) {
 									price = pmi.AddPlayerPrice;
-									double balance = PlotMe.economy.getBalance(playername);
+									double balance = PlotMe.economy.getBalance(p);
 
 									if (balance >= price) {
-										EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+										EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 										if (!er.transactionSuccess()) {
 											Send(p, RED + er.errorMessage);
@@ -2667,10 +2678,10 @@ public class PMCommand implements CommandExecutor {
 
 								if (PlotManager.isEconomyEnabled(w)) {
 									price = pmi.DenyPlayerPrice;
-									double balance = PlotMe.economy.getBalance(playername);
+									double balance = PlotMe.economy.getBalance(p);
 
 									if (balance >= price) {
-										EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+										EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 										if (!er.transactionSuccess()) {
 											Send(p, RED + er.errorMessage);
@@ -2742,7 +2753,6 @@ public class PMCommand implements CommandExecutor {
 						Send(p, C("WordUsage") + ": " + RED + "/plotme " + C("CommandRemove") + " <" + C("WordPlayer") + ">");
 					} else {
 						Plot plot = PlotManager.getPlotById(p, id);
-						String playername = p.getName();
 						UUID playeruuid = p.getUniqueId();
 						String allowed = args[1];
 
@@ -2756,10 +2766,10 @@ public class PMCommand implements CommandExecutor {
 
 								if (PlotManager.isEconomyEnabled(w)) {
 									price = pmi.RemovePlayerPrice;
-									double balance = PlotMe.economy.getBalance(playername);
+									double balance = PlotMe.economy.getBalance(p);
 
 									if (balance >= price) {
-										EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+										EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 										if (!er.transactionSuccess()) {
 											Send(p, RED + er.errorMessage);
@@ -2827,10 +2837,10 @@ public class PMCommand implements CommandExecutor {
 
 								if (PlotManager.isEconomyEnabled(w)) {
 									price = pmi.UndenyPlayerPrice;
-									double balance = PlotMe.economy.getBalance(playername);
+									double balance = PlotMe.economy.getBalance(p);
 
 									if (balance >= price) {
-										EconomyResponse er = PlotMe.economy.withdrawPlayer(playername, price);
+										EconomyResponse er = PlotMe.economy.withdrawPlayer(p, price);
 
 										if (!er.transactionSuccess()) {
 											Send(p, RED + er.errorMessage);
@@ -2891,10 +2901,11 @@ public class PMCommand implements CommandExecutor {
 
 						PlotMapInfo pmi = PlotManager.getMap(p);
 						oldowner = plot.owner;
+						OfflinePlayer playeroldowner = Bukkit.getOfflinePlayer(plot.ownerId);
 
 						if (PlotManager.isEconomyEnabled(p)) {
 							if (pmi.RefundClaimPriceOnSetOwner && newowner != oldowner) {
-								EconomyResponse er = PlotMe.economy.depositPlayer(oldowner, pmi.ClaimPrice);
+								EconomyResponse er = PlotMe.economy.depositPlayer(playeroldowner, pmi.ClaimPrice);
 
 								if (!er.transactionSuccess()) {
 									Send(p, RED + er.errorMessage);
@@ -2911,7 +2922,8 @@ public class PMCommand implements CommandExecutor {
 							}
 
 							if (plot.currentbidder != null && !plot.currentbidder.equals("")) {
-								EconomyResponse er = PlotMe.economy.depositPlayer(plot.currentbidder, plot.currentbid);
+								OfflinePlayer playercurrentbidder = Bukkit.getOfflinePlayer(plot.currentbidderId);
+								EconomyResponse er = PlotMe.economy.depositPlayer(playercurrentbidder, plot.currentbid);
 
 								if (!er.transactionSuccess()) {
 									Send(p, er.errorMessage);
