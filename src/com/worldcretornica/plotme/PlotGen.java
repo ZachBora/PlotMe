@@ -2,6 +2,7 @@ package com.worldcretornica.plotme;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 
@@ -59,10 +60,6 @@ public class PlotGen extends ChunkGenerator {
         int valx;
         int valz;
 
-        // floor1 = (short)Material.WOOL.getId();
-        // floor2 = (short)Material.WOOD.getId();
-        // byte air = (byte)Material.AIR.getId();
-
         double n1;
         double n2;
         double n3;
@@ -89,6 +86,8 @@ public class PlotGen extends ChunkGenerator {
             for (int z = 0; z < 16; z++) {
                 int height = roadheight + 2;
                 valz = (cz * 16 + z);
+
+                biomes.setBiome(x, z, Biome.PLAINS);
 
                 for (int y = 0; y < height; y++) {
                     if (y == 0) {

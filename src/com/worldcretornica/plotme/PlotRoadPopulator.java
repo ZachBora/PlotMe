@@ -7,216 +7,193 @@ import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 
 public class PlotRoadPopulator extends BlockPopulator {
-	private double plotsize;
-	private double pathsize;
+    private double plotsize;
+    private double pathsize;
 
-	private byte wall;
-	private short wallid;
-	private byte floor1;
-	private short floor1id;
-	private byte floor2;
-	private short floor2id;
+    private byte wall;
+    private byte floor1;
+    private byte floor2;
 
-	private byte pillarh1;
-	private short pillarh1id;
-	private byte pillarh2;
-	private short pillarh2id;
+    private byte pillarh1;
+    private byte pillarh2;
 
-	private int roadheight;
+    private int roadheight;
 
-	public PlotRoadPopulator() {
-		plotsize = 32;
-		pathsize = 7;
-		wall = 0;
-		wallid = 44;
-		floor2 = 2;
-		floor2id = 5;
-		floor1 = 0;
-		floor1id = 5;
+    public PlotRoadPopulator() {
+        plotsize = 32;
+        pathsize = 7;
+        wall = 0;
+        floor2 = 2;
+        floor1 = 0;
+        pillarh1 = 4;
+        pillarh2 = 8;
+        roadheight = 64;
+    }
 
-		pillarh1 = 4;
-		pillarh1id = 17;
+    public PlotRoadPopulator(PlotMapInfo pmi) {
+        plotsize = pmi.PlotSize;
+        pathsize = pmi.PathWidth;
+        wall = pmi.WallBlockValue;
+        floor1 = pmi.RoadMainBlockValue;
+        floor2 = pmi.RoadStripeBlockValue;
+        roadheight = pmi.RoadHeight;
+        pillarh1 = pmi.RoadMainBlockValue;
+        pillarh2 = pmi.RoadMainBlockValue;
+    }
 
-		pillarh2 = 8;
-		pillarh2id = 17;
+    @Override
+    public void populate(World w, Random rand, Chunk chunk) {
+        int cx = chunk.getX();
+        int cz = chunk.getZ();
 
-		roadheight = 64;
-	}
+        int xx = cx << 4;
+        int zz = cz << 4;
 
-	public PlotRoadPopulator(PlotMapInfo pmi) {
-		plotsize = pmi.PlotSize;
-		pathsize = pmi.PathWidth;
-		wall = pmi.WallBlockValue;
-		wallid = pmi.WallBlockId;
-		floor1 = pmi.RoadMainBlockValue;
-		floor1id = pmi.RoadMainBlockId;
-		floor2 = pmi.RoadStripeBlockValue;
-		floor2id = pmi.RoadStripeBlockId;
-		roadheight = pmi.RoadHeight;
+        double size = plotsize + pathsize;
+        int valx;
+        int valz;
 
-		pillarh1 = pmi.RoadMainBlockValue;
-		pillarh1id = pmi.RoadMainBlockId;
+        double n1;
+        double n2;
+        double n3;
+        int mod2 = 0;
+        int mod1 = 1;
 
-		pillarh2 = pmi.RoadMainBlockValue;
-		pillarh2id = pmi.RoadMainBlockId;
-	}
+        if (pathsize % 2 == 1) {
+            n1 = Math.ceil(((double) pathsize) / 2) - 2;
+            n2 = Math.ceil(((double) pathsize) / 2) - 1;
+            n3 = Math.ceil(((double) pathsize) / 2);
+            mod2 = -1;
+        } else {
+            n1 = Math.floor(((double) pathsize) / 2) - 2;
+            n2 = Math.floor(((double) pathsize) / 2) - 1;
+            n3 = Math.floor(((double) pathsize) / 2);
+        }
 
-	@Override
-	public void populate(World w, Random rand, Chunk chunk) {
-		int cx = chunk.getX();
-		int cz = chunk.getZ();
+        for (int x = 0; x < 16; x++) {
+            valx = (xx + x);
 
-		int xx = cx << 4;
-		int zz = cz << 4;
+            for (int z = 0; z < 16; z++) {
+                valz = (zz + z);
 
-		double size = plotsize + pathsize;
-		int valx;
-		int valz;
+                int y = roadheight;
 
-		double n1;
-		double n2;
-		double n3;
-		int mod2 = 0;
-		int mod1 = 1;
+                if ((valx - n3 + mod1) % size == 0 || (valx + n3 + mod2) % size == 0) // middle+3
+                {
+                    boolean found = false;
+                    for (double i = n2; i >= 0; i--) {
+                        if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
+                            found = true;
+                            break;
+                        }
+                    }
 
-		if (pathsize % 2 == 1) {
-			n1 = Math.ceil(((double) pathsize) / 2) - 2;
-			n2 = Math.ceil(((double) pathsize) / 2) - 1;
-			n3 = Math.ceil(((double) pathsize) / 2);
-		} else {
-			n1 = Math.floor(((double) pathsize) / 2) - 2;
-			n2 = Math.floor(((double) pathsize) / 2) - 1;
-			n3 = Math.floor(((double) pathsize) / 2);
-		}
+                    if (found) {
+                        // setBlock(w, valx, y, valz, floor1, floor1id);
+                        setData(w, valx, y, valz, floor1);
+                    } else {
+                        // setBlock(w, valx, y, valz, pillarh2, pillarh2id);
+                        setData(w, valx, y, valz, pillarh2);
+                        // setBlock(w, valx, y + 1, valz, wall, wallid);
+                        setData(w, valx, y + 1, valz, wall);
+                    }
+                } else {
+                    boolean found5 = false;
+                    for (double i = n2; i >= 0; i--) {
+                        if ((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0) {
+                            found5 = true;
+                            break;
+                        }
+                    }
 
-		if (pathsize % 2 == 1) {
-			mod2 = -1;
-		}
+                    if (!found5) {
+                        if ((valz - n3 + mod1) % size == 0 || (valz + n3 + mod2) % size == 0) {
+                            // setBlock(w, valx, y, valz, pillarh1, pillarh1id);
+                            setData(w, valx, y, valz, pillarh1);
+                            // setBlock(w, valx, y + 1, valz, wall, wallid);
+                            setData(w, valx, y + 1, valz, wall);
+                        }
+                    }
 
-		for (int x = 0; x < 16; x++) {
-			valx = (cx * 16 + x);
+                    if ((valx - n2 + mod1) % size == 0 || (valx + n2 + mod2) % size == 0) // middle+2
+                    {
+                        if ((valz - n3 + mod1) % size == 0 || (valz + n3 + mod2) % size == 0 || (valz - n2 + mod1) % size == 0 || (valz + n2 + mod2) % size == 0) {
+                            // setBlock(w, valx, y, valz, floor1, floor1id);
+                            setData(w, valx, y, valz, floor1);
+                        } else {
+                            // setBlock(w, valx, y, valz, floor2, floor2id);
+                            setData(w, valx, y, valz, floor2);
+                        }
+                    } else if ((valx - n1 + mod1) % size == 0 || (valx + n1 + mod2) % size == 0) // middle+2
+                    {
+                        if ((valz - n2 + mod1) % size == 0 || (valz + n2 + mod2) % size == 0 || (valz - n1 + mod1) % size == 0 || (valz + n1 + mod2) % size == 0) {
+                            // setBlock(w, valx, y, valz, floor2, floor2id);
+                            setData(w, valx, y, valz, floor2);
+                        } else {
+                            // setBlock(w, valx, y, valz, floor1, floor1id);
+                            setData(w, valx, y, valz, floor1);
+                        }
+                    } else {
+                        boolean found = false;
+                        for (double i = n1; i >= 0; i--) {
+                            if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
+                                found = true;
+                                break;
+                            }
+                        }
 
-			for (int z = 0; z < 16; z++) {
-				valz = (cz * 16 + z);
+                        if (found) {
+                            // setBlock(w, valx, y, valz, floor1, floor1id);
+                            setData(w, valx, y, valz, floor1);
+                        } else {
+                            if ((valz - n2 + mod1) % size == 0 || (valz + n2 + mod2) % size == 0) {
+                                // setBlock(w, valx, y, valz, floor2, floor2id);
+                                setData(w, valx, y, valz, floor2);
+                            } else {
+                                boolean found2 = false;
+                                for (double i = n1; i >= 0; i--) {
+                                    if ((valz - i + mod1) % size == 0 || (valz + i + mod2) % size == 0) {
+                                        found2 = true;
+                                        break;
+                                    }
+                                }
 
-				int y = roadheight;
+                                if (found2) {
+                                    // setBlock(w, valx, y, valz, floor1,
+                                    // floor1id);
+                                    setData(w, valx, y, valz, floor1);
+                                } else {
+                                    boolean found3 = false;
+                                    for (double i = n3; i >= 0; i--) {
+                                        if ((valx - i + mod1) % size == 0 || (valx + i + mod2) % size == 0) {
+                                            found3 = true;
+                                            break;
+                                        }
+                                    }
 
-				if ((valx - n3 + mod1) % size == 0
-						|| (valx + n3 + mod2) % size == 0) // middle+3
-				{
-					boolean found = false;
-					for (double i = n2; i >= 0; i--) {
-						if ((valz - i + mod1) % size == 0
-								|| (valz + i + mod2) % size == 0) {
-							found = true;
-							break;
-						}
-					}
+                                    if (found3) {
+                                        // setBlock(w, valx, y, valz, floor1,
+                                        // floor1id);
+                                        setData(w, valx, y, valz, floor1);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-					if (found) {
-						setBlock(w, x + xx, y, z + zz, floor1, floor1id);
-					} else {
-						setBlock(w, x + xx, y, z + zz, pillarh2, pillarh2id);
-						setBlock(w, x + xx, y + 1, z + zz, wall, wallid);
-					}
-				} else {
-					boolean found5 = false;
-					for (double i = n2; i >= 0; i--) {
-						if ((valx - i + mod1) % size == 0
-								|| (valx + i + mod2) % size == 0) {
-							found5 = true;
-							break;
-						}
-					}
+    /*
+     * @SuppressWarnings("deprecation") private void setBlock(World w, int x,
+     * int y, int z, byte val, short id) { if (val != 0) { w.getBlockAt(x, y,
+     * z).setTypeIdAndData(id, val, false); } else { w.getBlockAt(x, y,
+     * z).setTypeId(id); } }
+     */
 
-					if (!found5) {
-						if ((valz - n3 + mod1) % size == 0
-								|| (valz + n3 + mod2) % size == 0) {
-							setBlock(w, x + xx, y, z + zz, pillarh1, pillarh1id);
-							setBlock(w, x + xx, y + 1, z + zz, wall, wallid);
-						}
-					}
-
-					if ((valx - n2 + mod1) % size == 0
-							|| (valx + n2 + mod2) % size == 0) // middle+2
-					{
-						if ((valz - n3 + mod1) % size == 0
-								|| (valz + n3 + mod2) % size == 0
-								|| (valz - n2 + mod1) % size == 0
-								|| (valz + n2 + mod2) % size == 0) {
-							setBlock(w, x + xx, y, z + zz, floor1, floor1id);
-						} else {
-							setBlock(w, x + xx, y, z + zz, floor2, floor2id);
-						}
-					} else if ((valx - n1 + mod1) % size == 0
-							|| (valx + n1 + mod2) % size == 0) // middle+2
-					{
-						if ((valz - n2 + mod1) % size == 0
-								|| (valz + n2 + mod2) % size == 0
-								|| (valz - n1 + mod1) % size == 0
-								|| (valz + n1 + mod2) % size == 0) {
-							setBlock(w, x + xx, y, z + zz, floor2, floor2id);
-						} else {
-							setBlock(w, x + xx, y, z + zz, floor1, floor1id);
-						}
-					} else {
-						boolean found = false;
-						for (double i = n1; i >= 0; i--) {
-							if ((valz - i + mod1) % size == 0
-									|| (valz + i + mod2) % size == 0) {
-								found = true;
-								break;
-							}
-						}
-
-						if (found) {
-							setBlock(w, x + xx, y, z + zz, floor1, floor1id);
-						} else {
-							if ((valz - n2 + mod1) % size == 0
-									|| (valz + n2 + mod2) % size == 0) {
-								setBlock(w, x + xx, y, z + zz, floor2, floor2id);
-							} else {
-								boolean found2 = false;
-								for (double i = n1; i >= 0; i--) {
-									if ((valz - i + mod1) % size == 0
-											|| (valz + i + mod2) % size == 0) {
-										found2 = true;
-										break;
-									}
-								}
-
-								if (found2) {
-									setBlock(w, x + xx, y, z + zz, floor1,
-											floor1id);
-								} else {
-									boolean found3 = false;
-									for (double i = n3; i >= 0; i--) {
-										if ((valx - i + mod1) % size == 0
-												|| (valx + i + mod2) % size == 0) {
-											found3 = true;
-											break;
-										}
-									}
-
-									if (found3) {
-										setBlock(w, x + xx, y, z + zz, floor1,
-												floor1id);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	@SuppressWarnings("deprecation")
-	private void setBlock(World w, int x, int y, int z, byte val, short id) {
-		if (val != 0) {
-			w.getBlockAt(x, y, z).setTypeIdAndData(id, val, false);
-		} else {
-			w.getBlockAt(x, y, z).setTypeId(id);
-		}
-	}
+    @SuppressWarnings("deprecation")
+    private void setData(World w, int x, int y, int z, byte val) {
+        w.getBlockAt(x, y, z).setData(val, false);
+    }
 }
