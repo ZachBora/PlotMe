@@ -44,35 +44,23 @@ public class PlotContentPopulator extends BlockPopulator {
 		int valx;
         int valz;
         
-        double pathmod1;
-        double pathmod2 = 0;
-        
-        if (pathsize % 2 == 1) {
-            pathmod1 = Math.ceil(((double) pathsize) / 2);
-        } else {
-            pathmod1 = Math.floor(((double) pathsize) / 2);
-            pathmod2 = 1;
-        }
-        
         for (int x = 0; x < 16; x++) {
             valx = x + xx;
 
-            boolean modX;
-            if ((valx - pathmod1) < 0) {
-                modX = Math.abs(valx) >= (pathmod1 + pathmod2) && Math.abs((Math.abs(valx) - pathmod1 - pathmod2) % size) < plotsize; 
-            } else {
-                modX = valx >= pathmod1 && ((valx - pathmod1) % size) < plotsize;
-            }
+            valx -= Math.ceil(pathsize / 2);
+            valx = (valx % (int) size);
+            if (valx < 0) valx += size;
+            
+            boolean modX = valx < plotsize;
             
             for (int z = 0; z < 16; z++) {
                 valz = z + zz;
 
-                boolean modZ;
-                if ((valz - pathmod1) < 0) {
-                    modZ = Math.abs(valz) >= (pathmod1 + pathmod2) && Math.abs((Math.abs(valz) - pathmod1 - pathmod2) % size) < plotsize;
-                } else {
-                    modZ = valz >= pathmod1 && ((valz - pathmod1) % size) < plotsize;
-                }
+                valz -= Math.ceil(pathsize / 2);
+                valz = (valz % (int) size);
+                if (valz < 0) valz += size;
+                
+                boolean modZ = valz < plotsize;
                 
                 for (int y = 0; y <= roadheight; y++) {
                     if (y < roadheight) {
