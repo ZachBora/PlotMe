@@ -25,7 +25,6 @@ public class PlotManager {
 
 			double n3;
 			int mod2 = 0;
-			int mod1 = 1;
 
 			int x = (int) Math.ceil((double) valx / size);
 			int z = (int) Math.ceil((double) valz / size);
@@ -41,18 +40,16 @@ public class PlotManager {
 			}
 
 			for (double i = n3; i >= 0; i--) {
-				if ((valx - i + mod1) % size == 0 ||
-						    (valx + i + mod2) % size == 0) {
+				if ((valx - i + 1) % size == 0 || (valx + i + mod2) % size == 0) {
 					road = true;
 
-					x = (int) Math.ceil((double) (valx - n3) / size);
+					x = (int) Math.ceil((valx - n3) / size);
 					//x2 = (int) Math.ceil((double)(valx + n3) / size);
 				}
-				if ((valz - i + mod1) % size == 0 ||
-						    (valz + i + mod2) % size == 0) {
+				if ((valz - i + 1) % size == 0 || (valz + i + mod2) % size == 0) {
 					road = true;
 
-					z = (int) Math.ceil((double) (valz - n3) / size);
+					z = (int) Math.ceil((valz - n3) / size);
 					//z2 = (int) Math.ceil((double)(valz + n3) / size);
 				}
 			}
@@ -64,19 +61,19 @@ public class PlotManager {
 					String id2 = x2 + ";" + z2;
 					String id3 = x + ";" + z2;
 					String id4 = x2 + ";" + z;
-					
+
 					HashMap<String, Plot> plots = pmi.plots;
-					
+
 					Plot p1 = plots.get(id1);
 					Plot p2 = plots.get(id2);
 					Plot p3 = plots.get(id3);
 					Plot p4 = plots.get(id4);
-					
-					if(p1 == null || p2 == null || p3 == null || p4 == null || 
+
+					if(p1 == null || p2 == null || p3 == null || p4 == null ||
 							!p1.owner.equalsIgnoreCase(p2.owner) ||
 							!p2.owner.equalsIgnoreCase(p3.owner) ||
 							!p3.owner.equalsIgnoreCase(p4.owner))
-					{						
+					{
 						return "";
 					}
 					else
@@ -189,14 +186,8 @@ public class PlotManager {
 		int maxX;
 		int minZ;
 		int maxZ;
-		boolean isWallX;
 
 		PlotMapInfo pmi = getMap(w);
-		int h = pmi.RoadHeight;
-		int wallId = pmi.WallBlockId;
-		byte wallValue = pmi.WallBlockValue;
-		int fillId = pmi.PlotFloorBlockId;
-		byte fillValue = pmi.PlotFloorBlockValue;
 
 		if (bottomPlot1.getBlockX() == bottomPlot2.getBlockX()) {
 			minX = bottomPlot1.getBlockX();
@@ -212,7 +203,7 @@ public class PlotManager {
 			maxX = Math.max(topPlot1.getBlockX(), topPlot2.getBlockX()) - pmi.PlotSize;
 		}
 
-		isWallX = (maxX - minX) > (maxZ - minZ);
+		boolean isWallX = (maxX - minX) > (maxZ - minZ);
 
 		if (isWallX) {
 			minX--;
@@ -224,10 +215,13 @@ public class PlotManager {
 
 		for (int x = minX; x <= maxX; x++) {
 			for (int z = minZ; z <= maxZ; z++) {
+				int h = pmi.RoadHeight;
 				for (int y = h; y < w.getMaxHeight(); y++) {
 					if (y >= (h + 2)) {
 						w.getBlockAt(x, y, z).setType(Material.AIR);
 					} else if (y == (h + 1)) {
+						int wallId = pmi.WallBlockId;
+						byte wallValue = pmi.WallBlockValue;
 						if (isWallX && (x == minX || x == maxX)) {
 							w.getBlockAt(x, y, z).setTypeIdAndData(wallId, wallValue, true);
 						} else if (!isWallX && (z == minZ || z == maxZ)) {
@@ -236,6 +230,8 @@ public class PlotManager {
 							w.getBlockAt(x, y, z).setType(Material.AIR);
 						}
 					} else {
+						int fillId = pmi.PlotFloorBlockId;
+						byte fillValue = pmi.PlotFloorBlockValue;
 						w.getBlockAt(x, y, z).setTypeIdAndData(fillId, fillValue, true);
 					}
 				}
@@ -256,8 +252,6 @@ public class PlotManager {
 		int maxZ;
 
 		PlotMapInfo pmi = getMap(w);
-		int h = pmi.RoadHeight;
-		int fillId = pmi.PlotFloorBlockId;
 
 
 		minX = Math.min(topPlot1.getBlockX(), topPlot2.getBlockX());
@@ -268,7 +262,9 @@ public class PlotManager {
 
 		for (int x = minX; x <= maxX; x++) {
 			for (int z = minZ; z <= maxZ; z++) {
+				int h = pmi.RoadHeight;
 				for (int y = h; y < w.getMaxHeight(); y++) {
+					int fillId = pmi.PlotFloorBlockId;
 					if (y >= (h + 1)) {
 						w.getBlockAt(x, y, z).setType(Material.AIR);
 					} else {
@@ -532,8 +528,8 @@ public class PlotManager {
 		int minChunkZ = (int) Math.floor((double) bottomZ / 16);
 		int maxChunkZ = (int) Math.floor((double) topZ / 16);
 
-		World w = bottom.getWorld();
 
+		World w = bottom.getWorld();
 		for (int cx = minChunkX; cx <= maxChunkX; cx++) {
 			for (int cz = minChunkZ; cz <= maxChunkZ; cz++) {
 				Chunk chunk = w.getChunkAt(cx, cz);
@@ -605,7 +601,7 @@ public class PlotManager {
 		World w = l.getWorld();
 		PlotMapInfo pmi = getMap(w);
 
-		List<String> wallids = new ArrayList<String>();
+		List<String> wallids = new ArrayList<>();
 
 		String auctionwallid = pmi.AuctionWallBlockId;
 		String forsalewallid = pmi.ForSaleWallBlockId;
@@ -774,11 +770,10 @@ public class PlotManager {
 				plots.put(idFrom, plot2);
 
 				for (int i = 0; i < plot2.comments.size(); i++) {
-					String strUUID = "";
 					UUID uuid = null;
 
 					if (plot2.comments.get(i).length >= 3) {
-						strUUID = plot2.comments.get(i)[2];
+						String strUUID = plot2.comments.get(i)[2];
 						try {
 							uuid = UUID.fromString(strUUID);
 						} catch (Exception e) {
@@ -798,11 +793,10 @@ public class PlotManager {
 				plots.put(idTo, plot1);
 
 				for (int i = 0; i < plot1.comments.size(); i++) {
-					String strUUID = "";
 					UUID uuid = null;
 
 					if (plot1.comments.get(i).length >= 3) {
-						strUUID = plot1.comments.get(i)[2];
+						String strUUID = plot1.comments.get(i)[2];
 						try {
 							uuid = UUID.fromString(strUUID);
 						} catch (Exception e) {
@@ -858,44 +852,41 @@ public class PlotManager {
 				removeSellSign(w, idFrom);
 
 			}
-		} else {
-			if (plots.containsKey(idTo)) {
-				Plot plot = plots.get(idTo);
+		} else if (plots.containsKey(idTo)) {
+			Plot plot = plots.get(idTo);
 
-				int idX = getIdX(idTo);
-				int idZ = getIdZ(idTo);
-				SqlManager.deletePlot(idX, idZ, plot.world);
-				plots.remove(idTo);
+			int idX = getIdX(idTo);
+			int idZ = getIdZ(idTo);
+			SqlManager.deletePlot(idX, idZ, plot.world);
+			plots.remove(idTo);
 
-				idX = getIdX(idFrom);
-				idZ = getIdZ(idFrom);
-				plot.id = "" + idX + ";" + idZ;
-				SqlManager.addPlot(plot, idX, idZ, w);
-				plots.put(idFrom, plot);
+			idX = getIdX(idFrom);
+			idZ = getIdZ(idFrom);
+			plot.id = "" + idX + ";" + idZ;
+			SqlManager.addPlot(plot, idX, idZ, w);
+			plots.put(idFrom, plot);
 
-				for (int i = 0; i < plot.comments.size(); i++) {
-					String strUUID = "";
-					UUID uuid = null;
+			for (int i = 0; i < plot.comments.size(); i++) {
+				UUID uuid = null;
 
-					if (plot.comments.get(i).length >= 3) {
-						strUUID = plot.comments.get(i)[2];
-						try {
-							uuid = UUID.fromString(strUUID);
-						} catch (Exception e) {
-						}
+				if (plot.comments.get(i).length >= 3) {
+					String strUUID = plot.comments.get(i)[2];
+					try {
+						uuid = UUID.fromString(strUUID);
+					} catch (Exception e) {
 					}
-					SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world, uuid);
 				}
-
-				for (String player : plot.allowed()) {
-					SqlManager.addPlotAllowed(player, idX, idZ, plot.world);
-				}
-
-				setOwnerSign(w, plot);
-				setSellSign(w, plot);
-				removeOwnerSign(w, idTo);
-				removeSellSign(w, idTo);
+				SqlManager.addPlotComment(plot.comments.get(i), i, idX, idZ, plot.world, uuid);
 			}
+
+			for (String player : plot.allowed()) {
+				SqlManager.addPlotAllowed(player, idX, idZ, plot.world);
+			}
+
+			setOwnerSign(w, plot);
+			setSellSign(w, plot);
+			removeOwnerSign(w, idTo);
+			removeSellSign(w, idTo);
 		}
 
 		return true;
@@ -1215,26 +1206,21 @@ public class PlotManager {
 	}
 
 	public static void deleteNextExpired(World w, CommandSender sender) {
-		List<Plot> expiredplots = new ArrayList<Plot>();
+		List<Plot> expiredplots = new ArrayList<>();
 		HashMap<String, Plot> plots = getPlots(w);
 		String date = PlotMe.getDate();
-		Plot expiredplot;
 
 		for (String id : plots.keySet()) {
 			Plot plot = plots.get(id);
 
-			if (!plot.protect && !plot.finished && plot.expireddate != null && PlotMe.getDate(plot.expireddate).compareTo(date.toString()) < 0) {
+			if (!plot.protect && !plot.finished && plot.expireddate != null && PlotMe.getDate(plot.expireddate).compareTo(date) < 0) {
 				expiredplots.add(plot);
 			}
 		}
 
-		plots = null;
-
 		Collections.sort(expiredplots);
 
-		expiredplot = expiredplots.get(0);
-
-		expiredplots = null;
+		Plot expiredplot = expiredplots.get(0);
 
 		clear(w, expiredplot);
 
@@ -1249,26 +1235,18 @@ public class PlotManager {
 	}
 
 	public static World getFirstWorld() {
-		if (PlotMe.plotmaps != null) {
-			if (PlotMe.plotmaps.keySet() != null) {
-				if (PlotMe.plotmaps.keySet().toArray().length > 0) {
-					return Bukkit.getWorld((String) PlotMe.plotmaps.keySet().toArray()[0]);
-				}
-			}
+		if (PlotMe.plotmaps != null && PlotMe.plotmaps.keySet().toArray().length > 0) {
+			return Bukkit.getWorld((String) PlotMe.plotmaps.keySet().toArray()[0]);
 		}
 		return null;
 	}
 
 	public static World getFirstWorld(UUID uuid) {
-		if (PlotMe.plotmaps != null) {
-			if (PlotMe.plotmaps.keySet() != null) {
-				if (PlotMe.plotmaps.keySet().toArray().length > 0) {
-					for (String mapkey : PlotMe.plotmaps.keySet()) {
-						for (String id : PlotMe.plotmaps.get(mapkey).plots.keySet()) {
-							if (PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid)) {
-								return Bukkit.getWorld(mapkey);
-							}
-						}
+		if (PlotMe.plotmaps != null && PlotMe.plotmaps.keySet().toArray().length > 0) {
+			for (String mapkey : PlotMe.plotmaps.keySet()) {
+				for (String id : PlotMe.plotmaps.get(mapkey).plots.keySet()) {
+					if (PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid)) {
+						return Bukkit.getWorld(mapkey);
 					}
 				}
 			}
@@ -1277,15 +1255,11 @@ public class PlotManager {
 	}
 
 	public static Plot getFirstPlot(UUID uuid) {
-		if (PlotMe.plotmaps != null) {
-			if (PlotMe.plotmaps.keySet() != null) {
-				if (PlotMe.plotmaps.keySet().toArray().length > 0) {
-					for (String mapkey : PlotMe.plotmaps.keySet()) {
-						for (String id : PlotMe.plotmaps.get(mapkey).plots.keySet()) {
-							if (PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid)) {
-								return PlotMe.plotmaps.get(mapkey).plots.get(id);
-							}
-						}
+		if (PlotMe.plotmaps != null && PlotMe.plotmaps.keySet().toArray().length > 0) {
+			for (String mapkey : PlotMe.plotmaps.keySet()) {
+				for (String id : PlotMe.plotmaps.get(mapkey).plots.keySet()) {
+					if (PlotMe.plotmaps.get(mapkey).plots.get(id).ownerId.equals(uuid)) {
+						return PlotMe.plotmaps.get(mapkey).plots.get(id);
 					}
 				}
 			}
@@ -1303,7 +1277,7 @@ public class PlotManager {
 				Integer.parseInt(coords[0]);
 				Integer.parseInt(coords[1]);
 				return true;
-			} catch (Exception e) {
+			} catch (NumberFormatException e) {
 				return false;
 			}
 		}
@@ -1321,7 +1295,7 @@ public class PlotManager {
 		int minChunkZ = (int) Math.floor((double) bottomZ / 16);
 		int maxChunkZ = (int) Math.floor((double) topZ / 16);
 
-		HashMap<Location, Biome> biomes = new HashMap<Location, Biome>();
+		HashMap<Location, Biome> biomes = new HashMap<>();
 
 		for (int cx = minChunkX; cx <= maxChunkX; cx++) {
 			int xx = cx << 4;
