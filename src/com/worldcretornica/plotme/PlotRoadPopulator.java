@@ -50,8 +50,6 @@ public class PlotRoadPopulator extends BlockPopulator {
         int zz = cz << 4;
 
         double size = plotsize + pathsize;
-        int valx;
-        int valz;
 
         double n1;
         double n2;
@@ -71,10 +69,10 @@ public class PlotRoadPopulator extends BlockPopulator {
         }
 
         for (int x = 0; x < 16; x++) {
-            valx = (xx + x);
+            int valx = (xx + x);
 
             for (int z = 0; z < 16; z++) {
-                valz = (zz + z);
+                int valz = (zz + z);
 
                 int y = roadheight;
 

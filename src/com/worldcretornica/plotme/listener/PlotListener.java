@@ -283,7 +283,7 @@ public class PlotListener implements Listener
 	public void onPlayerInteract(final PlayerInteractEvent event)
 	{
 		Block b = event.getClickedBlock();
-		
+
 		if(PlotManager.isPlotWorld(b))
 		{
 			PlotMapInfo pmi = PlotManager.getMap(b);
@@ -784,7 +784,7 @@ public class PlotListener implements Listener
     {
         Location l = event.getEntity().getLocation();
         Entity e = event.getDamager();
-
+        //TODO config to allow attacking others
         if(PlotManager.isPlotWorld(l))
         {
             if(!(e instanceof Player)){

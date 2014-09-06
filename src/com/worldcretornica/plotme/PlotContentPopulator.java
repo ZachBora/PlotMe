@@ -37,37 +37,34 @@ public class PlotContentPopulator extends BlockPopulator {
 
         int cx = chunk.getX();
         int cz = chunk.getZ();
-        
+
         int xx = cx << 4;
 		int zz = cz << 4;
-		
-		int valx;
-        int valz;
-        
+
         for (int x = 0; x < 16; x++) {
-            valx = x + xx;
+            int valx = x + xx;
 
             valx -= Math.ceil(pathsize / 2);
             valx = (valx % (int) size);
             if (valx < 0) valx += size;
-            
+
             boolean modX = valx < plotsize;
-            
+
             for (int z = 0; z < 16; z++) {
-                valz = z + zz;
+                int valz = z + zz;
 
                 valz -= Math.ceil(pathsize / 2);
                 valz = (valz % (int) size);
                 if (valz < 0) valz += size;
-                
+
                 boolean modZ = valz < plotsize;
-                
+
                 for (int y = 0; y <= roadheight; y++) {
                     if (y < roadheight) {
-                        setData(w, valx, y, valz, filling);
+                        setData(w, x + xx, y, z + zz, filling);
                     } else {
                         if (modX && modZ) {
-                            setData(w, valx, y, valz, plotfloor);
+                            setData(w, x + xx, y, z + zz, plotfloor);
                         }
                     }
                 }
