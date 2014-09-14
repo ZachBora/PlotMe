@@ -63,6 +63,7 @@ permissions:
         plotme.admin.undeny: true
         plotme.admin.bypassdeny: true
         plotme.admin.buildanywhere: true
+        plotme.admin.ecoskip: true
     plotme.use.buy:
       description: Gives the buy command
     plotme.use.sell:
@@ -167,3 +168,5 @@ permissions:
       description: Resets expired plots
     plotme.admin.buildanywhere:
       description: Allows to build anywhere in the plot world
+    plotme.admin.ecoskip:
+      description: Allows player to skip all economy purchases

@@ -1694,7 +1694,7 @@ public class PMCommand implements CommandExecutor {
 
 										double price = 0;
 
-										if (PlotManager.isEconomyEnabled(w)) {
+										if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 											price = pmi.ClaimPrice;
 											double balance = PlotMe.economy.getBalance(p);
 
@@ -1775,7 +1775,7 @@ public class PMCommand implements CommandExecutor {
 
 									double price = 0;
 
-									if (PlotManager.isEconomyEnabled(w)) {
+									if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 										price = pmi.ClaimPrice;
 										double balance = PlotMe.economy.getBalance(p);
 
@@ -1854,7 +1854,7 @@ public class PMCommand implements CommandExecutor {
 
 						double price = 0;
 
-						if (PlotManager.isEconomyEnabled(w)) {
+						if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 							price = pmi.ClaimPrice;
 							double balance = PlotMe.economy.getBalance(p);
 
@@ -1970,7 +1970,7 @@ public class PMCommand implements CommandExecutor {
 
 									double price = 0;
 
-									if (PlotManager.isEconomyEnabled(w)) {
+									if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 										price = pmi.PlotHomePrice;
 										double balance = PlotMe.economy.getBalance(p);
 
@@ -2080,7 +2080,7 @@ public class PMCommand implements CommandExecutor {
 
 								double price = 0;
 
-								if (PlotManager.isEconomyEnabled(w)) {
+								if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 									price = pmi.PlotHomePrice;
 									double balance = PlotMe.economy.getBalance(p);
 
@@ -2198,7 +2198,7 @@ public class PMCommand implements CommandExecutor {
 
 					double price = 0;
 
-					if (PlotManager.isEconomyEnabled(w)) {
+					if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 						price = pmi.AddCommentPrice;
 						double balance = PlotMe.economy.getBalance(p);
 
@@ -2313,7 +2313,7 @@ public class PMCommand implements CommandExecutor {
 
 								double price = 0;
 
-								if (PlotManager.isEconomyEnabled(w)) {
+								if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 									price = pmi.BiomeChangePrice;
 									double balance = PlotMe.economy.getBalance(p);
 
@@ -2540,7 +2540,7 @@ public class PMCommand implements CommandExecutor {
 
 							double price = 0;
 
-							if (PlotManager.isEconomyEnabled(w)) {
+							if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 								price = pmi.ClearPrice;
 								double balance = PlotMe.economy.getBalance(p);
 
@@ -2608,7 +2608,7 @@ public class PMCommand implements CommandExecutor {
 
 								double price = 0;
 
-								if (PlotManager.isEconomyEnabled(w)) {
+								if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 									price = pmi.AddPlayerPrice;
 									double balance = PlotMe.economy.getBalance(p);
 
@@ -2676,7 +2676,7 @@ public class PMCommand implements CommandExecutor {
 
 								double price = 0;
 
-								if (PlotManager.isEconomyEnabled(w)) {
+								if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 									price = pmi.DenyPlayerPrice;
 									double balance = PlotMe.economy.getBalance(p);
 
@@ -2764,7 +2764,7 @@ public class PMCommand implements CommandExecutor {
 
 								double price = 0;
 
-								if (PlotManager.isEconomyEnabled(w)) {
+								if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 									price = pmi.RemovePlayerPrice;
 									double balance = PlotMe.economy.getBalance(p);
 
@@ -2835,7 +2835,7 @@ public class PMCommand implements CommandExecutor {
 
 								double price = 0;
 
-								if (PlotManager.isEconomyEnabled(w)) {
+								if (PlotManager.isEconomyEnabled(w) && !PlotMe.cPerms(p, "PlotMe.admin.ecoskip")) {
 									price = pmi.UndenyPlayerPrice;
 									double balance = PlotMe.economy.getBalance(p);
 
