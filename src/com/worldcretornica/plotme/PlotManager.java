@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -1415,11 +1417,12 @@ public class PlotManager
 	{
 		if(PlotMe.plotmaps != null)
 		{
-			if(PlotMe.plotmaps.keySet() != null)
+		    Set<String> set = ((Map<String, PlotMapInfo>) PlotMe.plotmaps).keySet();
+			if(set != null)
 			{
-				if(PlotMe.plotmaps.keySet().toArray().length > 0)
+				if(set.toArray().length > 0)
 				{
-					return Bukkit.getWorld((String) PlotMe.plotmaps.keySet().toArray()[0]);
+					return Bukkit.getWorld((String) set.toArray()[0]);
 				}
 			}
 		}
@@ -1430,11 +1433,12 @@ public class PlotManager
 	{
 		if(PlotMe.plotmaps != null)
 		{
-			if(PlotMe.plotmaps.keySet() != null)
+		    Set<String> set = ((Map<String, PlotMapInfo>) PlotMe.plotmaps).keySet();
+			if(set != null)
 			{
-				if(PlotMe.plotmaps.keySet().toArray().length > 0)
+				if(set.toArray().length > 0)
 				{
-					for(String mapkey : PlotMe.plotmaps.keySet())
+					for(String mapkey : set)
 					{
 						for(String id : PlotMe.plotmaps.get(mapkey).plots.keySet())
 						{
@@ -1454,11 +1458,12 @@ public class PlotManager
 	{
 		if(PlotMe.plotmaps != null)
 		{
-			if(PlotMe.plotmaps.keySet() != null)
+		    Set<String> set = ((Map<String, PlotMapInfo>) PlotMe.plotmaps).keySet();
+			if(set != null)
 			{
-				if(PlotMe.plotmaps.keySet().toArray().length > 0)
+				if(set.toArray().length > 0)
 				{
-					for(String mapkey : PlotMe.plotmaps.keySet())
+					for(String mapkey : set)
 					{
 						for(String id : PlotMe.plotmaps.get(mapkey).plots.keySet())
 						{
