@@ -103,9 +103,9 @@
         <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>worldedit</artifactId>
-	        <version>6.0.0-SNAPSHOT</version>
-	        <optional>true</optional>
-	        <type>jar</type>
+            <version>6.0.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/WorldEdit.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>net.milkbowl.vault</groupId>

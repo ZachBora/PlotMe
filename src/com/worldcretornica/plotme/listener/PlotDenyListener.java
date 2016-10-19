@@ -33,7 +33,7 @@ public class PlotDenyListener implements Listener
 				
 				if(plot != null && plot.isDenied(p.getUniqueId()))
 				{
-					event.setCancelled(true);
+					p.teleport(PlotManager.getPlotHome(p.getWorld(), plot));
 				}
 			}
 		}
