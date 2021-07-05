@@ -35,7 +35,7 @@ public class PlotWorldEdit7_3_0 implements PlotWorldEdit {
                 final BlockVector3 pos2 = BlockVector3.at(top.getBlockX(), top.getBlockY(), top.getBlockZ());
                 final CuboidRegion cr = new CuboidRegion(world, pos1, pos2);
                 final RegionMask rm = new RegionMask((Region)cr);
-                session.setMask((Mask)rm);
+                session.setMask(rm);
                 return;
             }
         }

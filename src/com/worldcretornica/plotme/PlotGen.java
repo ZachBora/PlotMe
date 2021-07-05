@@ -49,8 +49,8 @@ public class PlotGen extends ChunkGenerator {
         this.temppmi = pmi;
     }
     
-    public ChunkGenerator.ChunkData generateChunkData(final World world, final Random random, final int cx, final int cz, final ChunkGenerator.BiomeGrid biomes) {
-        final ChunkGenerator.ChunkData result = this.createChunkData(world);
+    public ChunkData generateChunkData(final World world, final Random random, final int cx, final int cz, final ChunkGenerator.BiomeGrid biomes) {
+        final ChunkData result = this.createChunkData(world);
         final double size = this.plotsize + this.pathsize;
         int mod2 = 0;
         final int mod3 = 1;

@@ -14,6 +14,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
+import org.bukkit.block.Skull;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Directional;
 import org.bukkit.Bukkit;
@@ -251,40 +252,42 @@ public class PlotManager {
     
     public static void setOwnerSign(final World world, final Plot plot) {
         final Location pillar = new Location(world, (double)(bottomX(plot.id, world) - 1), (double)(getMap(world).RoadHeight + 1), (double)(bottomZ(plot.id, world) - 1));
-        final Block bsign = pillar.add(0.0, 0.0, -1.0).getBlock();
-        bsign.setType(Material.AIR);
-        bsign.setType(Material.OAK_WALL_SIGN, false);
-        final BlockData data = Bukkit.getServer().createBlockData(Material.OAK_WALL_SIGN);
+        final Block bskull = pillar.add(0.0, 0.0, -1.0).getBlock();
+        bskull.setType(Material.AIR);
+        bskull.setType(Material.PLAYER_WALL_HEAD, false);
+        final BlockData data = Bukkit.getServer().createBlockData(Material.PLAYER_WALL_HEAD);
         ((Directional)data).setFacing(BlockFace.NORTH);
-        bsign.setBlockData(data, false);
-        final String id = getPlotId(new Location(world, (double)bottomX(plot.id, world), 0.0, (double)bottomZ(plot.id, world)));
-        final Sign sign = (Sign)bsign.getState();
-        if ((PlotMe.caption("SignId") + id).length() > 16) {
-            sign.setLine(0, (PlotMe.caption("SignId") + id).substring(0, 16));
-            if ((PlotMe.caption("SignId") + id).length() > 32) {
-                sign.setLine(1, (PlotMe.caption("SignId") + id).substring(16, 32));
-            }
-            else {
-                sign.setLine(1, (PlotMe.caption("SignId") + id).substring(16));
-            }
-        }
-        else {
-            sign.setLine(0, PlotMe.caption("SignId") + id);
-        }
-        if ((PlotMe.caption("SignOwner") + plot.owner).length() > 16) {
-            sign.setLine(2, (PlotMe.caption("SignOwner") + plot.owner).substring(0, 16));
-            if ((PlotMe.caption("SignOwner") + plot.owner).length() > 32) {
-                sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(16, 32));
-            }
-            else {
-                sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(16));
-            }
-        }
-        else {
-            sign.setLine(2, PlotMe.caption("SignOwner") + plot.owner);
-            sign.setLine(3, "");
-        }
-        sign.update(true);
+        bskull.setBlockData(data, false);
+        Skull skull = (Skull)bskull.getState();
+        skull.setOwningPlayer(Bukkit.getServer().getOfflinePlayer(plot.ownerId));
+        // final String id = getPlotId(new Location(world, (double)bottomX(plot.id, world), 0.0, (double)bottomZ(plot.id, world)));
+        // final Sign sign = (Sign)bsign.getState();
+        // if ((PlotMe.caption("SignId") + id).length() > 16) {
+        //     sign.setLine(0, (PlotMe.caption("SignId") + id).substring(0, 16));
+        //     if ((PlotMe.caption("SignId") + id).length() > 32) {
+        //         sign.setLine(1, (PlotMe.caption("SignId") + id).substring(16, 32));
+        //     }
+        //     else {
+        //         sign.setLine(1, (PlotMe.caption("SignId") + id).substring(16));
+        //     }
+        // }
+        // else {
+        //     sign.setLine(0, PlotMe.caption("SignId") + id);
+        // }
+        // if ((PlotMe.caption("SignOwner") + plot.owner).length() > 16) {
+        //     sign.setLine(2, (PlotMe.caption("SignOwner") + plot.owner).substring(0, 16));
+        //     if ((PlotMe.caption("SignOwner") + plot.owner).length() > 32) {
+        //         sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(16, 32));
+        //     }
+        //     else {
+        //         sign.setLine(3, (PlotMe.caption("SignOwner") + plot.owner).substring(16));
+        //     }
+        // }
+        // else {
+        //     sign.setLine(2, PlotMe.caption("SignOwner") + plot.owner);
+        //     sign.setLine(3, "");
+        // }
+        skull.update(true);
     }
     
     public static void setSellSign(final World world, final Plot plot) {
