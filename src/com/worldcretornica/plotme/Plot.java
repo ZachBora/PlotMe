@@ -1,22 +1,20 @@
 package com.worldcretornica.plotme;
 
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-
+import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import org.bukkit.entity.Player;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.sql.Date;
 import org.bukkit.block.Biome;
-import org.bukkit.entity.Player;
+import java.util.UUID;
 
 public class Plot implements Comparable<Plot> {
-
     public String owner;
     public UUID ownerId;
     public String world;
@@ -35,527 +33,488 @@ public class Plot implements Comparable<Plot> {
     public String currentbidder;
     public UUID currentbidderId;
     public double currentbid;
-
+    
     public Plot() {
-        owner = "";
-        ownerId = null;
-        world = "";
-        id = "";
-        allowed = new PlayerList();
-        denied = new PlayerList();
-        biome = Biome.PLAINS;
-
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_YEAR, 7);
-        java.util.Date utlDate = cal.getTime();
-        expireddate = new java.sql.Date(utlDate.getTime());
-
-        comments = new ArrayList<>();
-        customprice = 0;
-        forsale = false;
-        finisheddate = "";
-        protect = false;
-        auctionned = false;
-        currentbidder = "";
-        currentbid = 0;
-        currentbidderId = null;
-    }
-
-    public Plot(String o, Location t, Location b, String tid, int days) {
-        owner = o;
-        ownerId = null;
-        world = t.getWorld().getName();
-        allowed = new PlayerList();
-        denied = new PlayerList();
-        biome = Biome.PLAINS;
-        id = tid;
-
-        if (days == 0) {
-            expireddate = null;
-        } else {
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, days);
-            java.util.Date utlDate = cal.getTime();
-            expireddate = new java.sql.Date(utlDate.getTime());
-        }
-
-        comments = new ArrayList<>();
-        customprice = 0;
-        forsale = false;
-        finisheddate = "";
-        protect = false;
-        auctionned = false;
-        currentbidder = "";
-        currentbid = 0;
-        currentbidderId = null;
+        this.owner = "";
+        this.ownerId = null;
+        this.world = "";
+        this.id = "";
+        this.allowed = new PlayerList();
+        this.denied = new PlayerList();
+        this.biome = Biome.PLAINS;
+        final Calendar cal = Calendar.getInstance();
+        cal.add(6, 7);
+        final java.util.Date utlDate = cal.getTime();
+        this.expireddate = new Date(utlDate.getTime());
+        this.comments = new ArrayList<String[]>();
+        this.customprice = 0.0;
+        this.forsale = false;
+        this.finisheddate = "";
+        this.protect = false;
+        this.auctionned = false;
+        this.currentbidder = "";
+        this.currentbid = 0.0;
+        this.currentbidderId = null;
     }
     
-    public Plot(String o, UUID uuid, Location t, Location b, String tid, int days) {
-        owner = o;
-        ownerId = uuid;
-        world = t.getWorld().getName();
-        allowed = new PlayerList();
-        denied = new PlayerList();
-        biome = Biome.PLAINS;
-        id = tid;
-
+    public Plot(final String o, final Location t, final Location b, final String tid, final int days) {
+        this.owner = o;
+        this.ownerId = null;
+        this.world = t.getWorld().getName();
+        this.allowed = new PlayerList();
+        this.denied = new PlayerList();
+        this.biome = Biome.PLAINS;
+        this.id = tid;
         if (days == 0) {
-            expireddate = null;
-        } else {
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, days);
-            java.util.Date utlDate = cal.getTime();
-            expireddate = new java.sql.Date(utlDate.getTime());
+            this.expireddate = null;
         }
-
-        comments = new ArrayList<>();
-        customprice = 0;
-        forsale = false;
-        finisheddate = "";
-        protect = false;
-        auctionned = false;
-        currentbidder = "";
-        currentbid = 0;
-        currentbidderId = null;
+        else {
+            final Calendar cal = Calendar.getInstance();
+            cal.add(6, days);
+            final java.util.Date utlDate = cal.getTime();
+            this.expireddate = new Date(utlDate.getTime());
+        }
+        this.comments = new ArrayList<String[]>();
+        this.customprice = 0.0;
+        this.forsale = false;
+        this.finisheddate = "";
+        this.protect = false;
+        this.auctionned = false;
+        this.currentbidder = "";
+        this.currentbid = 0.0;
+        this.currentbidderId = null;
     }
     
-    public Plot(UUID o, Location t, Location b, String tid, int days) {
-        ownerId = o;
-        Player p = Bukkit.getPlayer(o);
-        if(p != null) {
-            owner = p.getName();
-        } else {
-            owner = "";
-        }
-        world = t.getWorld().getName();
-        allowed = new PlayerList();
-        denied = new PlayerList();
-        biome = Biome.PLAINS;
-        id = tid;
-
+    public Plot(final String o, final UUID uuid, final Location t, final Location b, final String tid, final int days) {
+        this.owner = o;
+        this.ownerId = uuid;
+        this.world = t.getWorld().getName();
+        this.allowed = new PlayerList();
+        this.denied = new PlayerList();
+        this.biome = Biome.PLAINS;
+        this.id = tid;
         if (days == 0) {
-            expireddate = null;
-        } else {
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, days);
-            java.util.Date utlDate = cal.getTime();
-            expireddate = new java.sql.Date(utlDate.getTime());
+            this.expireddate = null;
         }
-
-        comments = new ArrayList<>();
-        customprice = 0;
-        forsale = false;
-        finisheddate = "";
-        protect = false;
-        auctionned = false;
-        currentbidder = "";
-        currentbid = 0;
-        currentbidderId = null;
+        else {
+            final Calendar cal = Calendar.getInstance();
+            cal.add(6, days);
+            final java.util.Date utlDate = cal.getTime();
+            this.expireddate = new Date(utlDate.getTime());
+        }
+        this.comments = new ArrayList<String[]>();
+        this.customprice = 0.0;
+        this.forsale = false;
+        this.finisheddate = "";
+        this.protect = false;
+        this.auctionned = false;
+        this.currentbidder = "";
+        this.currentbid = 0.0;
+        this.currentbidderId = null;
     }
     
-    public Plot(String o, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, Double bid, boolean isauctionned, PlayerList den) {
-        owner = o;
-        ownerId = null;
-        world = w;
-        biome = Biome.valueOf(bio);
-        expireddate = exp;
-        finished = fini;
-        allowed = al;
-        comments = comm;
-        id = tid;
-        customprice = custprice;
-        forsale = sale;
-        finisheddate = finishdt;
-        protect = prot;
-        auctionned = isauctionned;
-        currentbidder = bidder;
-        currentbid = bid;
-        denied = den;
+    public Plot(final UUID o, final Location t, final Location b, final String tid, final int days) {
+        this.ownerId = o;
+        final Player p = Bukkit.getPlayer(o);
+        if (p != null) {
+            this.owner = p.getName();
+        }
+        else {
+            this.owner = "";
+        }
+        this.world = t.getWorld().getName();
+        this.allowed = new PlayerList();
+        this.denied = new PlayerList();
+        this.biome = Biome.PLAINS;
+        this.id = tid;
+        if (days == 0) {
+            this.expireddate = null;
+        }
+        else {
+            final Calendar cal = Calendar.getInstance();
+            cal.add(6, days);
+            final java.util.Date utlDate = cal.getTime();
+            this.expireddate = new Date(utlDate.getTime());
+        }
+        this.comments = new ArrayList<String[]>();
+        this.customprice = 0.0;
+        this.forsale = false;
+        this.finisheddate = "";
+        this.protect = false;
+        this.auctionned = false;
+        this.currentbidder = "";
+        this.currentbid = 0.0;
+        this.currentbidderId = null;
     }
-
-    Plot(String o, UUID uuid, String w, int tX, int bX, int tZ, int bZ, String bio, Date exp, boolean fini, PlayerList al, List<String[]> comm, String tid, double custprice, boolean sale, String finishdt, boolean prot, String bidder, UUID bidderId, Double bid, boolean isauctionned, PlayerList den) {
-        ownerId = uuid;
-        owner = o;
-        world = w;
-        biome = Biome.valueOf(bio);
-        expireddate = exp;
-        finished = fini;
-        allowed = al;
-        comments = comm;
-        id = tid;
-        customprice = custprice;
-        forsale = sale;
-        finisheddate = finishdt;
-        protect = prot;
-        auctionned = isauctionned;
-        currentbidder = bidder;
-        currentbid = bid;
-        denied = den;
-        if(bidderId == null)
-            currentbidderId = null;
-        else
-            currentbidderId = bidderId;
+    
+    public Plot(final String o, final String w, final int tX, final int bX, final int tZ, final int bZ, final String bio, final Date exp, final boolean fini, final PlayerList al, final List<String[]> comm, final String tid, final double custprice, final boolean sale, final String finishdt, final boolean prot, final String bidder, final Double bid, final boolean isauctionned, final PlayerList den) {
+        this.owner = o;
+        this.ownerId = null;
+        this.world = w;
+        this.biome = Biome.valueOf(bio);
+        this.expireddate = exp;
+        this.finished = fini;
+        this.allowed = al;
+        this.comments = comm;
+        this.id = tid;
+        this.customprice = custprice;
+        this.forsale = sale;
+        this.finisheddate = finishdt;
+        this.protect = prot;
+        this.auctionned = isauctionned;
+        this.currentbidder = bidder;
+        this.currentbid = bid;
+        this.denied = den;
     }
-
-    public void setExpire(Date date) {
-        if (!expireddate.equals(date)) {
-            expireddate = date;
-            updateField("expireddate", expireddate);
+    
+    Plot(final String o, final UUID uuid, final String w, final int tX, final int bX, final int tZ, final int bZ, final String bio, final Date exp, final boolean fini, final PlayerList al, final List<String[]> comm, final String tid, final double custprice, final boolean sale, final String finishdt, final boolean prot, final String bidder, final UUID bidderId, final Double bid, final boolean isauctionned, final PlayerList den) {
+        this.ownerId = uuid;
+        this.owner = o;
+        this.world = w;
+        this.biome = Biome.valueOf(bio);
+        this.expireddate = exp;
+        this.finished = fini;
+        this.allowed = al;
+        this.comments = comm;
+        this.id = tid;
+        this.customprice = custprice;
+        this.forsale = sale;
+        this.finisheddate = finishdt;
+        this.protect = prot;
+        this.auctionned = isauctionned;
+        this.currentbidder = bidder;
+        this.currentbid = bid;
+        this.denied = den;
+        if (bidderId == null) {
+            this.currentbidderId = null;
+        }
+        else {
+            this.currentbidderId = bidderId;
         }
     }
-
-    public void resetExpire(int days) {
+    
+    public void setExpire(final Date date) {
+        if (!this.expireddate.equals(date)) {
+            this.updateField("expireddate", (this.expireddate = date));
+        }
+    }
+    
+    public void resetExpire(final int days) {
         if (days == 0) {
-            if (expireddate != null) {
-                expireddate = null;
-                updateField("expireddate", expireddate);
+            if (this.expireddate != null) {
+                this.updateField("expireddate", (this.expireddate = null));
             }
-        } else {
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DAY_OF_YEAR, days);
-            java.util.Date utlDate = cal.getTime();
-            java.sql.Date temp = new java.sql.Date(utlDate.getTime());
-            if (expireddate == null || !temp.toString().equalsIgnoreCase(expireddate.toString())) {
-                expireddate = temp;
-                updateField("expireddate", expireddate);
+        }
+        else {
+            final Calendar cal = Calendar.getInstance();
+            cal.add(6, days);
+            final java.util.Date utlDate = cal.getTime();
+            final Date temp = new Date(utlDate.getTime());
+            if (this.expireddate == null || !temp.toString().equalsIgnoreCase(this.expireddate.toString())) {
+                this.updateField("expireddate", (this.expireddate = temp));
             }
         }
     }
-
+    
     public String getExpire() {
-        return DateFormat.getDateInstance().format(expireddate);
+        return DateFormat.getDateInstance().format((java.util.Date)this.expireddate);
     }
-
+    
     public void setFinished() {
-        finisheddate = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(Calendar.getInstance().getTime());
-        finished = true;
-
-        updateFinished(finisheddate, finished);
+        this.finisheddate = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(Calendar.getInstance().getTime());
+        this.finished = true;
+        this.updateFinished(this.finisheddate, this.finished);
     }
-
+    
     public void setUnfinished() {
-        finisheddate = "";
-        finished = false;
-
-        updateFinished(finisheddate, finished);
+        this.finisheddate = "";
+        this.finished = false;
+        this.updateFinished(this.finisheddate, this.finished);
     }
-
+    
     public Biome getBiome() {
-        return biome;
+        return this.biome;
     }
-
+    
     public String getOwner() {
-        return owner;
+        return this.owner;
     }
-
+    
     public UUID getOwnerId() {
-        return ownerId;
+        return this.ownerId;
     }
-
+    
     public String getAllowed() {
-        return allowed.getPlayerList();
+        return this.allowed.getPlayerList();
     }
-
+    
     public String getDenied() {
-        return denied.getPlayerList();
+        return this.denied.getPlayerList();
     }
-
+    
     public int getCommentsCount() {
-        return comments.size();
+        return this.comments.size();
     }
-
-    public String[] getComments(int i) {
-        return comments.get(i);
+    
+    public String[] getComments(final int i) {
+        return (String[])this.comments.get(i);
     }
-
-    public void addAllowed(String name) {
-        if (!isAllowedConsulting(name)) {
-            allowed.put(name);
-            SqlManager.addPlotAllowed(name, null, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
+    
+    public void addAllowed(final String name) {
+        if (!this.isAllowedConsulting(name)) {
+            this.allowed.put(name);
+            SqlManager.addPlotAllowed(name, null, PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), this.world);
         }
     }
-
-    public void addAllowed(UUID uuid) {
-        if (!isAllowed(uuid)) {
-            String name = allowed.put(uuid);
-            SqlManager.addPlotAllowed(name, uuid, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
+    
+    public void addAllowed(final UUID uuid) {
+        if (!this.isAllowed(uuid)) {
+            final String name = this.allowed.put(uuid);
+            SqlManager.addPlotAllowed(name, uuid, PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), this.world);
         }
     }
-
-    public void addDenied(String name) {
-        if (!isDeniedConsulting(name)) {
-            denied.put(name);
-            SqlManager.addPlotDenied(name, null, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
+    
+    public void addDenied(final String name) {
+        if (!this.isDeniedConsulting(name)) {
+            this.denied.put(name);
+            SqlManager.addPlotDenied(name, null, PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), this.world);
         }
     }
-
-    public void addDenied(UUID uuid) {
-        if (!isDenied(uuid)) {
-            String name = denied.put(uuid);
-            SqlManager.addPlotDenied(name, uuid, PlotManager.getIdX(id), PlotManager.getIdZ(id), world);
+    
+    public void addDenied(final UUID uuid) {
+        if (!this.isDenied(uuid)) {
+            final String name = this.denied.put(uuid);
+            SqlManager.addPlotDenied(name, uuid, PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), this.world);
         }
     }
-
-    public void removeAllowed(String name) {
-        if (allowed.contains(name)) {
-            UUID uuid = allowed.remove(name);
-            SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
-            
-            if(PlotMe.worldeditplugin != null) {
-                Player p = Bukkit.getPlayer(uuid);
-                
-                if(p != null) {
-                    if(PlotManager.isPlotWorld(p.getWorld())) {
-                        if(!PlotMe.isIgnoringWELimit(p))
-                            PlotMe.plotworldedit.setMask(p);
-                        else
-                        	PlotMe.plotworldedit.removeMask(p);
+    
+    public void removeAllowed(final String name) {
+        if (this.allowed.contains(name)) {
+            final UUID uuid = this.allowed.remove(name);
+            SqlManager.deletePlotAllowed(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), name, uuid, this.world);
+            if (PlotMe.worldeditplugin != null) {
+                final Player p = Bukkit.getPlayer(uuid);
+                if (p != null && PlotManager.isPlotWorld(p.getWorld())) {
+                    if (!PlotMe.isIgnoringWELimit(p)) {
+                        PlotMe.plotworldedit.setMask(p);
+                    }
+                    else {
+                        PlotMe.plotworldedit.removeMask(p);
                     }
                 }
             }
         }
     }
     
-    public void removeAllowedGroup(String name) {
-        if (allowed.contains(name)) {
-            allowed.remove(name);
-            SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, null, world);
+    public void removeAllowedGroup(final String name) {
+        if (this.allowed.contains(name)) {
+            this.allowed.remove(name);
+            SqlManager.deletePlotAllowed(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), name, null, this.world);
         }
     }
-
-    public void removeAllowed(UUID uuid) {
-        if (allowed.contains(uuid)) {
-            String name = allowed.remove(uuid);
-            SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
-            
-            if(PlotMe.worldeditplugin != null) {
-                Player p = Bukkit.getPlayer(uuid);
-                
-                if(p != null) {
-                    if(PlotManager.isPlotWorld(p.getWorld())) {
-                        if(!PlotMe.isIgnoringWELimit(p))
-                        	PlotMe.plotworldedit.setMask(p);
-                        else
-                        	PlotMe.plotworldedit.removeMask(p);
+    
+    public void removeAllowed(final UUID uuid) {
+        if (this.allowed.contains(uuid)) {
+            final String name = this.allowed.remove(uuid);
+            SqlManager.deletePlotAllowed(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), name, uuid, this.world);
+            if (PlotMe.worldeditplugin != null) {
+                final Player p = Bukkit.getPlayer(uuid);
+                if (p != null && PlotManager.isPlotWorld(p.getWorld())) {
+                    if (!PlotMe.isIgnoringWELimit(p)) {
+                        PlotMe.plotworldedit.setMask(p);
+                    }
+                    else {
+                        PlotMe.plotworldedit.removeMask(p);
                     }
                 }
             }
         }
     }
-
-    public void removeDenied(String name) {
-        if (denied.contains(name)) {
-            UUID uuid = denied.remove(name);
-            SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
+    
+    public void removeDenied(final String name) {
+        if (this.denied.contains(name)) {
+            final UUID uuid = this.denied.remove(name);
+            SqlManager.deletePlotDenied(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), name, uuid, this.world);
         }
     }
     
-    public void removeDeniedGroup(String name) {
-        if (denied.contains(name)) {
-            denied.remove(name);
-            SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, null, world);
+    public void removeDeniedGroup(final String name) {
+        if (this.denied.contains(name)) {
+            this.denied.remove(name);
+            SqlManager.deletePlotDenied(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), name, null, this.world);
         }
     }
-
-    public void removeDenied(UUID uuid) {
-        if (denied.contains(uuid)) {
-            String name = denied.remove(uuid);
-            SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), name, uuid, world);
+    
+    public void removeDenied(final UUID uuid) {
+        if (this.denied.contains(uuid)) {
+            final String name = this.denied.remove(uuid);
+            SqlManager.deletePlotDenied(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), name, uuid, this.world);
         }
     }
-
+    
     public void removeAllAllowed() {
-        HashMap<String, UUID> list = allowed.getAllPlayers();
-        for (String n : list.keySet()) {
-            UUID uuid = list.get(n);
-            SqlManager.deletePlotAllowed(PlotManager.getIdX(id), PlotManager.getIdZ(id), n, uuid, world);
+        final HashMap<String, UUID> list = this.allowed.getAllPlayers();
+        for (final String n : list.keySet()) {
+            final UUID uuid = (UUID)list.get(n);
+            SqlManager.deletePlotAllowed(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), n, uuid, this.world);
         }
-        allowed.clear();
+        this.allowed.clear();
     }
-
+    
     public void removeAllDenied() {
-        HashMap<String, UUID> list = denied.getAllPlayers();
-        for (String n : list.keySet()) {
-            UUID uuid = list.get(n);
-            SqlManager.deletePlotDenied(PlotManager.getIdX(id), PlotManager.getIdZ(id), n, uuid, world);
+        final HashMap<String, UUID> list = this.denied.getAllPlayers();
+        for (final String n : list.keySet()) {
+            final UUID uuid = (UUID)list.get(n);
+            SqlManager.deletePlotDenied(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), n, uuid, this.world);
         }
-        denied.clear();
+        this.denied.clear();
     }
-
+    
+    public boolean isAllowed(final String name) {
+        final Player p = Bukkit.getServer().getPlayerExact(name);
+        return p != null && this.isAllowedInternal(p.getName(), p.getUniqueId(), true, true);
+    }
+    
+    public boolean isAllowedConsulting(final String name) {
+        final Player p = Bukkit.getServer().getPlayerExact(name);
+        if (p != null) {
+            return this.isAllowedInternal(name, p.getUniqueId(), true, true);
+        }
+        return this.isAllowedInternal(name, null, true, true);
+    }
+    
+    public boolean isGroupAllowed(final String name) {
+        return this.isAllowedInternal(name, null, true, true);
+    }
+    
+    public boolean isAllowed(final String name, final UUID uuid) {
+        return this.isAllowedInternal(name, uuid, true, true);
+    }
+    
+    public boolean isAllowed(final UUID uuid) {
+        return this.isAllowedInternal("", uuid, true, true);
+    }
+    
     @Deprecated
-    public boolean isAllowed(String name) {
-        Player p = Bukkit.getServer().getPlayerExact(name);
-        if(p == null) {
-            return false;
-        } else {
-            return isAllowedInternal(p.getName(), p.getUniqueId(), true, true);
-        }
+    public boolean isAllowed(final String name, final boolean IncludeStar, final boolean IncludeGroup) {
+        final Player p = Bukkit.getServer().getPlayerExact(name);
+        return p != null && this.isAllowedInternal(p.getName(), p.getUniqueId(), IncludeStar, IncludeGroup);
     }
     
-    public boolean isAllowedConsulting(String name) {
-        @SuppressWarnings("deprecation")
-        Player p = Bukkit.getServer().getPlayerExact(name);
-        if(p != null) {
-            return isAllowedInternal(name, p.getUniqueId(), true, true);
-        } else {
-            return isAllowedInternal(name, null, true, true);
-        }
-    }
-    
-    public boolean isGroupAllowed(String name) {
-        return isAllowedInternal(name, null, true, true);
-    }
-    
-    public boolean isAllowed(String name, UUID uuid) {
-        return isAllowedInternal(name, uuid, true, true);
-    }
-    
-    public boolean isAllowed(UUID uuid) {
-        return isAllowedInternal("", uuid, true, true);
-    }
-
-    @Deprecated
-    public boolean isAllowed(String name, boolean IncludeStar, boolean IncludeGroup) {
-        Player p = Bukkit.getServer().getPlayerExact(name);
-        if(p == null) {
-            return false;
-        } else {
-            return isAllowedInternal(p.getName(), p.getUniqueId(), IncludeStar, IncludeGroup);
-        }
-    }
-    
-    private boolean isAllowedInternal(String name, UUID uuid, boolean IncludeStar, boolean IncludeGroup) {
-                
-        if(IncludeStar && owner.equals("*")) {
+    private boolean isAllowedInternal(final String name, final UUID uuid, final boolean IncludeStar, final boolean IncludeGroup) {
+        if (IncludeStar && this.owner.equals("*")) {
             return true;
         }
-        
         Player p = null;
-
         if (uuid != null) {
             p = Bukkit.getServer().getPlayer(uuid);
         }
-                
-        if (uuid != null && ownerId != null && ownerId.equals(uuid)) {
-            return true;
-        } else if(uuid == null && owner.equalsIgnoreCase(name)) {
+        if (uuid != null && this.ownerId != null && this.ownerId.equals(uuid)) {
             return true;
         }
-
-        if (IncludeGroup && owner.toLowerCase().startsWith("group:") && p != null) {
-            if (p.hasPermission("plotme.group." + owner.replace("Group:", ""))) {
-                return true;
-            }
+        if (uuid == null && this.owner.equalsIgnoreCase(name)) {
+            return true;
         }
-
-        HashMap<String, UUID> list = allowed.getAllPlayers();
-        for (String str : list.keySet()) {
-            if(IncludeStar && str.equals("*")) {
+        if (IncludeGroup && this.owner.toLowerCase().startsWith("group:") && p != null && p.hasPermission("plotme.group." + this.owner.replace("Group:", ""))) {
+            return true;
+        }
+        final HashMap<String, UUID> list = this.allowed.getAllPlayers();
+        for (final String str : list.keySet()) {
+            if (IncludeStar && str.equals("*")) {
                 return true;
             }
-            
-            UUID u = list.get(str);
+            final UUID u = (UUID)list.get(str);
             if (u != null && uuid != null && u.equals(uuid)) {
                 return true;
-            } else if(uuid == null && str.equalsIgnoreCase(name)) {
+            }
+            if (uuid == null && str.equalsIgnoreCase(name)) {
                 return true;
             }
-
-            if (IncludeGroup && str.toLowerCase().startsWith("group:") && p != null)
-                if (p.hasPermission("plotme.group." + str.replace("Group:", "")))
-                    return true;
+            if (IncludeGroup && str.toLowerCase().startsWith("group:") && p != null && p.hasPermission("plotme.group." + str.replace("Group:", ""))) {
+                return true;
+            }
         }
         return false;
     }
-
+    
     @Deprecated
-    public boolean isDenied(String name) {
-        Player p = Bukkit.getServer().getPlayerExact(name);
-        if(p == null) {
-            return false;
-        } else {
-            return isDeniedInternal(name, null, true, true);
+    public boolean isDenied(final String name) {
+        final Player p = Bukkit.getServer().getPlayerExact(name);
+        return p != null && this.isDeniedInternal(name, null, true, true);
+    }
+    
+    public boolean isDeniedConsulting(final String name) {
+        final Player p = Bukkit.getServer().getPlayerExact(name);
+        if (p != null) {
+            return this.isDeniedInternal(name, p.getUniqueId(), true, true);
         }
+        return this.isDeniedInternal(name, null, true, true);
     }
     
-    public boolean isDeniedConsulting(String name) {
-        @SuppressWarnings("deprecation")
-        Player p = Bukkit.getServer().getPlayerExact(name);
-        if(p != null) {
-            return isDeniedInternal(name, p.getUniqueId(), true, true);
-        } else {
-            return isDeniedInternal(name, null, true, true);
-        }
+    public boolean isGroupDenied(final String name) {
+        return this.isDeniedInternal(name, null, true, true);
     }
     
-    public boolean isGroupDenied(String name) {
-        return isDeniedInternal(name, null, true, true);
-    }
-
-    public boolean isDenied(UUID uuid) {
-        return isDeniedInternal("", uuid, true, true);
+    public boolean isDenied(final UUID uuid) {
+        return this.isDeniedInternal("", uuid, true, true);
     }
     
-    private boolean isDeniedInternal(String name, UUID uuid, boolean IncludeStar, boolean IncludeGroup) {
+    private boolean isDeniedInternal(final String name, final UUID uuid, final boolean IncludeStar, final boolean IncludeGroup) {
         Player p = null;
-        
-        if (isAllowedInternal(name, uuid, false, false))
+        if (this.isAllowedInternal(name, uuid, false, false)) {
             return false;
-        
+        }
         if (uuid != null) {
             p = Bukkit.getServer().getPlayer(uuid);
         }
-        
-        HashMap<String, UUID> list = denied.getAllPlayers();
-        for (String str : list.keySet()) {
-            if(str.equals("*")) {
+        final HashMap<String, UUID> list = this.denied.getAllPlayers();
+        for (final String str : list.keySet()) {
+            if (str.equals("*")) {
                 return true;
             }
-            
-            UUID u = list.get(str);
+            final UUID u = (UUID)list.get(str);
             if (u != null && uuid != null && u.equals(uuid)) {
                 return true;
-            } else if(uuid == null && str.equalsIgnoreCase(name)) {
+            }
+            if (uuid == null && str.equalsIgnoreCase(name)) {
                 return true;
             }
-            
-            if (IncludeGroup && str.toLowerCase().startsWith("group:") && p != null)
-                if (p.hasPermission("plotme.group." + str.replace("Group:", "")))
-                    return true;
+            if (IncludeGroup && str.toLowerCase().startsWith("group:") && p != null && p.hasPermission("plotme.group." + str.replace("Group:", ""))) {
+                return true;
+            }
         }
-
         return false;
     }
-
+    
     public Set<String> allowed() {
-        return allowed.getPlayers();
+        return this.allowed.getPlayers();
     }
-
+    
     public Set<String> denied() {
-        return denied.getPlayers();
+        return this.denied.getPlayers();
     }
-
+    
     public int allowedcount() {
-        return allowed.size();
+        return this.allowed.size();
     }
-
+    
     public int deniedcount() {
-        return denied.size();
+        return this.denied.size();
     }
-
-    public int compareTo(Plot plot) {
-        if (expireddate.compareTo(plot.expireddate) == 0)
-            return owner.compareTo(plot.owner);
-        else
-            return expireddate.compareTo(plot.expireddate);
+    
+    public int compareTo(final Plot plot) {
+        if (this.expireddate.compareTo((java.util.Date)plot.expireddate) == 0) {
+            return this.owner.compareTo(plot.owner);
+        }
+        return this.expireddate.compareTo((java.util.Date)plot.expireddate);
     }
-
-    private void updateFinished(String finishtime, boolean isfinished) {
-        updateField("finisheddate", finishtime);
-        updateField("finished", isfinished);
+    
+    private void updateFinished(final String finishtime, final boolean isfinished) {
+        this.updateField("finisheddate", finishtime);
+        this.updateField("finished", isfinished);
     }
-
-    public void updateField(String field, Object value) {
-        SqlManager.updatePlot(PlotManager.getIdX(id), PlotManager.getIdZ(id), world, field, value);
+    
+    public void updateField(final String field, final Object value) {
+        SqlManager.updatePlot(PlotManager.getIdX(this.id), PlotManager.getIdZ(this.id), this.world, field, value);
     }
 }

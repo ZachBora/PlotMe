@@ -4,10 +4,9 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public interface PlotWorldEdit {
-	
-	public void setMask(Player p);
-	
-	public void setMask(Player p, Location l);
-
-	public void removeMask(Player p);
+    void setMask(final Player player);
+    
+    void setMask(final Player player, final Location location);
+    
+    void removeMask(final Player player);
 }
